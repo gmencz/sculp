@@ -15,6 +15,9 @@ import {
 
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
 import { getUser } from "~/session.server";
+import { useOptionalUser } from "./utils";
+import { RequestAccessModal } from "./components/request-access-modal";
+import { SignInModal } from "./components/sign-in-modal";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -40,6 +43,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export default function App() {
+  const user = useOptionalUser();
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -50,6 +55,14 @@ export default function App() {
       </head>
       <body className="h-full">
         <Outlet />
+
+        {!user ? (
+          <>
+            <RequestAccessModal />
+            <SignInModal />
+          </>
+        ) : null}
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
