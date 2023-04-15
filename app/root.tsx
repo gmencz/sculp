@@ -1,4 +1,8 @@
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderArgs,
+  V2_MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -11,6 +15,21 @@ import {
 
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
 import { getUser } from "~/session.server";
+
+export const meta: V2_MetaFunction = () => [
+  {
+    title: "The Hypertrophy Logbook",
+    charset: "utf-8",
+  },
+  {
+    name: "viewport",
+    content: "width=device-width,initial-scale=1",
+  },
+  {
+    name: "description",
+    content: "Smart hypertrophy logbook for maximum muscle growth.",
+  },
+];
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheetUrl },

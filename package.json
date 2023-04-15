@@ -14,7 +14,7 @@
     "dev:server": "cross-env NODE_ENV=development node --inspect --require ./node_modules/dotenv/config --require ./mocks ./build/server.js",
     "docker": "docker-compose up -d",
     "format": "prettier --write .",
-    "generate:css": "tailwindcss -o ./app/styles/tailwind.css",
+    "generate:css": "tailwindcss -i ./styles/tailwind.css -o ./app/styles/tailwind.css",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "setup": "prisma generate && prisma migrate deploy && prisma db seed",
     "start": "cross-env NODE_ENV=production node ./build/server.js",
@@ -34,6 +34,7 @@
     "/postgres-data"
   ],
   "dependencies": {
+    "@heroicons/react": "^2.0.17",
     "@isaacs/express-prometheus-middleware": "^1.2.1",
     "@prisma/client": "^4.11.0",
     "@remix-run/express": "^1.15.0",
