@@ -589,7 +589,7 @@ export default function PrivacyPolicy() {
           If you have any questions about this Privacy Policy, You can contact
           us:
         </p>
-        <ul>
+        <ul className="mb-4">
           <li>
             By email:{" "}
             <a
