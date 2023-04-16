@@ -48,8 +48,8 @@ export default function Index() {
           }}
         />
       </div>
-      <div className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center p-6">
-        <div className="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pt-8">
+      <div className="mx-auto flex h-full max-w-7xl flex-col px-6 py-10">
+        <div className="mx-auto my-auto w-full max-w-2xl flex-shrink-0 pt-10">
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
             Currently in private beta
           </span>
@@ -61,7 +61,7 @@ export default function Index() {
             personalized recommendations and data-driven insights to help you
             achieve your goals.
           </p>
-          <div className="mt-10 flex items-center gap-x-6">
+          <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             {user ? (
               <Link
                 to="/logbook"
@@ -79,7 +79,7 @@ export default function Index() {
                 </Link>
                 <Link
                   to=".?modal=sign-in"
-                  className="flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white shadow-sm ring-1 ring-zinc-700 hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+                  className="flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white shadow-sm ring-1 ring-zinc-700 hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
                 >
                   <span>Sign in</span>
                   <ArrowLongRightIcon className="-mr-1 h-5 w-5" />
@@ -88,6 +88,15 @@ export default function Index() {
             )}
           </div>
         </div>
+
+        <footer className="mx-auto mt-auto w-full max-w-2xl flex-shrink-0 self-start text-white">
+          <Link
+            to="/legal/privacy-policy"
+            className="text-zinc-400 hover:text-white"
+          >
+            Privacy policy
+          </Link>
+        </footer>
       </div>
     </div>
   );

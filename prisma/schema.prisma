@@ -29,12 +29,12 @@ model Password {
 }
 
 model AccessRequest {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  approved    Boolean  @default(false)
-  description String // The user should let us know if they are currently using something like Strong etc for more information.
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  email          String   @unique
+  approved       Boolean  @default(false)
+  currentLogbook String   @map("current_logbook") // What the user is currently using as their logbook (Notes on their phone, some app like Strong, etc...)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("access_requests")
 }
