@@ -1,6 +1,8 @@
 import { Link } from "@remix-run/react";
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { useOptionalUser } from "~/utils";
+import { MODAL_NAME as SIGN_IN_MODAL_NAME } from "~/components/sign-in-modal";
+import { MODAL_NAME as REQUEST_ACCESS_MODAL_NAME } from "~/components/request-access-modal";
 
 export default function Index() {
   const user = useOptionalUser();
@@ -59,7 +61,7 @@ export default function Index() {
           <p className="mt-6 text-lg leading-8 text-gray-300">
             Want to build muscle like a pro? Our evidence-based logbook provides
             personalized recommendations and data-driven insights to help you
-            achieve your goals.
+            achieve your hypertrophy goals.
           </p>
           <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             {user ? (
@@ -72,13 +74,13 @@ export default function Index() {
             ) : (
               <>
                 <Link
-                  to=".?modal=request-access"
+                  to={`.?modal=${REQUEST_ACCESS_MODAL_NAME}`}
                   className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
                 >
                   Request access
                 </Link>
                 <Link
-                  to=".?modal=sign-in"
+                  to={`.?modal=${SIGN_IN_MODAL_NAME}`}
                   className="flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white shadow-sm ring-1 ring-zinc-700 hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
                 >
                   <span>Sign in</span>
@@ -89,12 +91,18 @@ export default function Index() {
           </div>
         </div>
 
-        <footer className="mx-auto mt-auto w-full max-w-2xl flex-shrink-0 self-start text-white">
+        <footer className="mx-auto mt-auto flex w-full max-w-2xl flex-shrink-0 gap-6 self-start text-sm text-white">
           <Link
             to="/legal/privacy-policy"
             className="text-zinc-400 hover:text-white"
           >
-            Privacy policy
+            Privacy Policy
+          </Link>
+          <Link
+            to="/legal/terms-of-service"
+            className="text-zinc-400 hover:text-white"
+          >
+            Terms Of Service
           </Link>
         </footer>
       </div>

@@ -1,32 +1,14 @@
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { Link } from "@remix-run/react";
+import { LegalHeader } from "~/components/legal-header";
 
 export default function PrivacyPolicy() {
   return (
     <div className="bg-zinc-950 text-white">
-      <header className="mx-auto flex w-full max-w-5xl justify-between p-6">
-        <Link
-          className="flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
-          to="/"
-        >
-          <img
-            className="h-10 w-10 rounded-full border-2 border-zinc-600"
-            src="/logo.png"
-            alt="Logo"
-          />
-        </Link>
-
-        <Link
-          to=".?modal=sign-in"
-          className="flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white shadow-sm ring-1 ring-zinc-700 hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
-        >
-          <span>Sign in</span>
-          <ArrowLongRightIcon className="-mr-1 h-5 w-5" />
-        </Link>
-      </header>
+      <LegalHeader />
 
       <div className="flex items-center justify-center border-b border-t border-zinc-600 px-6 py-24">
-        <h1 className="text-6xl font-semibold text-zinc-100">Privacy Policy</h1>
+        <h1 className="text-5xl font-semibold text-zinc-100 sm:text-6xl">
+          Privacy Policy
+        </h1>
       </div>
 
       <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-300">
