@@ -3,7 +3,6 @@ import { parse } from "@conform-to/zod";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Link } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
 import clsx from "clsx";
 import { Fragment } from "react";
@@ -52,7 +51,7 @@ export function RequestAccessModal() {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative w-full transform overflow-hidden rounded-lg bg-zinc-900 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:max-w-md sm:p-6">
+              <Dialog.Panel className="relative w-full transform overflow-hidden rounded-lg bg-zinc-900 p-6 text-left shadow-xl transition-all sm:my-8 sm:max-w-md">
                 <div
                   className="absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
                   aria-hidden="true"
@@ -66,8 +65,17 @@ export function RequestAccessModal() {
                   />
                 </div>
 
-                {isSuccess ? (
-                  <div className="flex flex-col items-center justify-center text-center">
+                {!isSuccess ? (
+                  <div className="relative flex flex-col items-center justify-center text-center">
+                    <button
+                      type="button"
+                      className="absolute right-0 top-0 rounded-md bg-zinc-800 p-1 text-white hover:bg-zinc-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-white"
+                      onClick={closeModal}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                    </button>
+
                     <img
                       className="h-24 w-24 rounded-full border-2 border-zinc-600"
                       src="/logo.png"
@@ -81,7 +89,7 @@ export function RequestAccessModal() {
                       You are on the waitlist
                     </Dialog.Title>
 
-                    <p className="mb-8 mt-4 text-sm text-zinc-300">
+                    <p className="my-4 text-sm text-zinc-300">
                       We are glad you want to take your hypertrophy training to
                       the next level. We will send you an email at{" "}
                       <span className="font-bold">
@@ -89,13 +97,6 @@ export function RequestAccessModal() {
                       </span>{" "}
                       as soon as we have a spot ready for you!
                     </p>
-
-                    <Link
-                      to={`.`}
-                      className="w-full rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
-                    >
-                      Understood
-                    </Link>
                   </div>
                 ) : (
                   <>
@@ -235,7 +236,7 @@ function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
         <button
           disabled={isSubmitting}
           type="submit"
-          className="inline-flex w-full justify-center rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-600 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSubmitting ? <Spinner /> : null}
           <span>

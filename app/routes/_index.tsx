@@ -66,7 +66,7 @@ export default function Index() {
           <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             {user ? (
               <Link
-                to="/logbook"
+                to="/app"
                 className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
               >
                 Open logbook
