@@ -7,19 +7,14 @@ import {
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { NavLink } from "@remix-run/react";
+import { NavLink, Outlet } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import { Fragment, useState } from "react";
 import { requireUser } from "~/session.server";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  await requireUser(request);
-  return null;
-};
-
 const navigation = [
-  { name: "Today", href: "/app/today", icon: CalendarDaysIcon },
+  { name: "Today", href: "/app", icon: CalendarDaysIcon, end: true },
   {
     name: "Mesocycles",
     href: "/app/mesocycles",
@@ -31,6 +26,11 @@ const navigation = [
     icon: PlusCircleIcon,
   },
 ];
+
+export const loader = async ({ request }: LoaderArgs) => {
+  await requireUser(request);
+  return null;
+};
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -105,6 +105,7 @@ export default function App() {
                           {navigation.map((item) => (
                             <li key={item.name}>
                               <NavLink
+                                end={item.end}
                                 to={item.href}
                                 className={({ isActive }) =>
                                   clsx(
@@ -136,7 +137,6 @@ export default function App() {
 
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        {/* Sidebar component, swap this element with another sidebar if you like */}
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
           <div className="flex h-16 shrink-0 items-center">
             <img
@@ -152,6 +152,7 @@ export default function App() {
                   {navigation.map((item) => (
                     <li key={item.name}>
                       <NavLink
+                        end={item.end}
                         to={item.href}
                         className={({ isActive }) =>
                           clsx(
@@ -174,7 +175,7 @@ export default function App() {
               </li>
               <li className="-mx-6 mt-auto">
                 <a
-                  href="/"
+                  href="/app/profile"
                   className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-zinc-800"
                 >
                   <UserCircleIcon className="h-8 w-8 rounded-full" />
@@ -196,20 +197,18 @@ export default function App() {
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
         <div className="flex-1 text-sm font-semibold leading-6 text-white">
-          Dashboard
+          App
         </div>
         <a href="/">
           <span className="sr-only">Your profile</span>
-          <img
-            className="h-8 w-8 rounded-full bg-zinc-800"
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            alt=""
-          />
+          <UserCircleIcon className="h-8 w-8 rounded-full text-white" />
         </a>
       </div>
 
       <main className="py-10 lg:pl-72">
-        <div className="px-4 sm:px-6 lg:px-8">{/* Your content */}</div>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

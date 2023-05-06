@@ -8,15 +8,14 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  password  Password?
-  Exercise  Exercise[]
-  Mesocycle Mesocycle[]
+  id               String      @id @default(cuid())
+  email            String      @unique
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  password         Password?
+  exercises        Exercise[]
+  mesocycles       Mesocycle[] @relation("ExistingMesocycles")
+  currentMesocycle Mesocycle?  @relation("CurrentMesocycle")
 
   @@map("users")
 }
@@ -57,17 +56,19 @@ model Exercise {
 }
 
 model Mesocycle {
-  id           String        @id @default(cuid())
-  name         String
-  startDate    DateTime      @map("start_date")
-  endDate      DateTime      @map("end_date")
-  goal         String?
-  notes        String?
-  user         User          @relation(fields: [userId], references: [id])
-  userId       String        @map("user_id")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  trainingDays TrainingDay[]
+  id            String        @id @default(cuid())
+  name          String
+  startDate     DateTime      @map("start_date")
+  endDate       DateTime      @map("end_date")
+  goal          String?
+  notes         String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  trainingDays  TrainingDay[]
+  user          User?         @relation("ExistingMesocycles", fields: [userId], references: [id])
+  userId        String?
+  currentUser   User?         @relation("CurrentMesocycle", fields: [currentUserId], references: [id])
+  currentUserId String?       @unique
 
   @@map("mesocycles")
 }
@@ -77,6 +78,7 @@ model TrainingDay {
   mesocycle    Mesocycle?            @relation(fields: [mesocycleId], references: [id])
   mesocycleId  String?               @map("mesocycle_id")
   label        String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
+  order        Int // The order of the day, if it is 2 then it will be the 2nd training day.
   muscleGroups MuscleGroup[]
   exercises    TrainingDayExercise[]
 
