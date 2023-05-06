@@ -65,7 +65,7 @@ export function RequestAccessModal() {
                   />
                 </div>
 
-                {!isSuccess ? (
+                {isSuccess ? (
                   <div className="relative flex flex-col items-center justify-center text-center">
                     <button
                       type="button"
