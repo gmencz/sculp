@@ -1,9 +1,9 @@
 import { parse } from "@conform-to/zod";
 import type { ActionArgs } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { z } from "zod";
 import { verifyLogin } from "~/models/user.server";
+import { createUserSession } from "~/session.server";
 
 export const signInSchema = z.object({
   email: z
@@ -44,5 +44,10 @@ export async function action({ request }: ActionArgs) {
     return json(submission);
   }
 
-  return redirect("/app");
+  return createUserSession({
+    request,
+    remember: true,
+    userId: user.id,
+    redirectTo: "/app",
+  });
 }
