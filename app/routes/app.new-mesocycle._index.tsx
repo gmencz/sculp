@@ -1,0 +1,322 @@
+import { conform, useForm, useInputEvent } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
+import { Listbox, Transition } from "@headlessui/react";
+import {
+  ArrowLongRightIcon,
+  CheckIcon,
+  ChevronUpDownIcon,
+} from "@heroicons/react/20/solid";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import clsx from "clsx";
+import { nanoid } from "nanoid";
+import { Fragment, useRef, useState } from "react";
+import { z } from "zod";
+import { Spinner } from "~/components/spinner";
+import { sessionStorage } from "~/session.server";
+import { getSession, requireUser } from "~/session.server";
+
+const weeks = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+export const loader = async ({ request }: LoaderArgs) => {
+  await requireUser(request);
+  return null;
+};
+
+const schema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "The name is not valid.",
+      required_error: "The name is required.",
+    })
+    .min(1, "The name is required.")
+    .max(1024, "The name must be at most 1024 characters long."),
+
+  durationInWeeks: z.coerce
+    .number({
+      invalid_type_error: "The duration is not valid.",
+      required_error: "The duration is required.",
+    })
+    .min(weeks[0], `The duration must be at least ${weeks[0]} weeks.`)
+    .max(
+      weeks[weeks.length - 1],
+      `The duration must be at most ${weeks[weeks.length - 1]} weeks.`
+    ),
+
+  goal: z
+    .string({
+      invalid_type_error: "The goal is not valid.",
+      required_error: "The goal is required.",
+    })
+    .min(1, "The goal is required.")
+    .max(1024, "The goal must be at most 1024 characters long."),
+});
+
+export type Schema = z.infer<typeof schema>;
+
+export const action = async ({ request }: ActionArgs) => {
+  await requireUser(request);
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  const session = await getSession(request);
+  const draftMesocycleId = nanoid();
+  session.set(`draft-mesocycle-${draftMesocycleId}`, submission.value);
+  return redirect(`/app/new-mesocycle/design?draft_id=${draftMesocycleId}`, {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(session),
+    },
+  });
+};
+
+export default function NewMesocycle() {
+  const isSubmitting = useNavigation().state === "submitting";
+  const lastSubmission = useActionData();
+  const [form, { name, durationInWeeks, goal }] = useForm<Schema>({
+    id: "new-mesocycle",
+    lastSubmission,
+    defaultValue: {
+      durationInWeeks: weeks[6].toString(), // 8 weeks by default,
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema });
+    },
+  });
+
+  const [durationInWeeksValue, setDurationInWeeksValue] = useState(
+    durationInWeeks.defaultValue ?? ""
+  );
+
+  const [durationInWeeksRef, durationInWeeksControl] = useInputEvent({
+    onReset: () => setDurationInWeeksValue(durationInWeeks.defaultValue ?? ""),
+  });
+
+  const duratioinInWeeksButtonRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="min-w-0 flex-1">
+        <h2 className="text-2xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          Plan a new mesocycle
+        </h2>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
+          Design your own custom mesocycle from the ground up to fit your needs
+          and achieve your muscle building goals.
+        </p>
+      </div>
+
+      <Form
+        method="post"
+        className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
+        {...form.props}
+      >
+        <div className="px-4 py-6 sm:p-8">
+          <div>
+            <label
+              htmlFor={name.id}
+              className="block text-sm font-medium leading-6 text-zinc-900"
+            >
+              How do you want to name the mesocycle?
+            </label>
+            <div className="mt-2">
+              <input
+                type="text"
+                id={name.id}
+                name={name.name}
+                defaultValue={name.defaultValue}
+                className={clsx(
+                  "block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6",
+                  name.error
+                    ? "text-red-300 ring-red-500 focus:ring-red-600"
+                    : "focus:ring-orange-600"
+                )}
+                placeholder="My New Mesocycle"
+                aria-invalid={name.error ? true : undefined}
+                aria-describedby={name.errorId}
+                autoFocus={Boolean(name.initialError)}
+              />
+            </div>
+            {name.error ? (
+              <p
+                className="mt-2 text-xs text-red-500"
+                id={name.errorId}
+                role="alert"
+              >
+                {name.error}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-6">
+            <div className="mt-2">
+              <input
+                ref={durationInWeeksRef}
+                {...conform.input(durationInWeeks, { hidden: true })}
+                onChange={(e) => setDurationInWeeksValue(e.target.value)}
+                onFocus={() => duratioinInWeeksButtonRef.current?.focus()}
+              />
+
+              <Listbox
+                value={durationInWeeksValue}
+                onChange={(value) =>
+                  durationInWeeksControl.change({ target: { value } })
+                }
+              >
+                {({ open }) => (
+                  <>
+                    <Listbox.Label className="block text-sm font-medium leading-6 text-zinc-900">
+                      How many weeks will the mesocycle last?
+                    </Listbox.Label>
+
+                    <div className="relative mt-2">
+                      <Listbox.Button
+                        ref={duratioinInWeeksButtonRef}
+                        className={clsx(
+                          "relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600 sm:text-sm sm:leading-6",
+                          durationInWeeks.error
+                            ? "text-red-300 ring-red-500 focus:ring-red-600"
+                            : "focus:ring-orange-600"
+                        )}
+                      >
+                        <span className="block truncate">
+                          {durationInWeeksValue}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronUpDownIcon
+                            className="h-5 w-5 text-zinc-400"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Listbox.Button>
+
+                      <Transition
+                        show={open}
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                          {weeks.map((week) => (
+                            <Listbox.Option
+                              key={week}
+                              className={({ active }) =>
+                                clsx(
+                                  active
+                                    ? "bg-orange-600 text-white"
+                                    : "text-zinc-900",
+                                  "relative cursor-default select-none py-2 pl-3 pr-9"
+                                )
+                              }
+                              value={week}
+                            >
+                              {({ selected, active }) => (
+                                <>
+                                  <span
+                                    className={clsx(
+                                      selected
+                                        ? "font-semibold"
+                                        : "font-normal",
+                                      "block truncate"
+                                    )}
+                                  >
+                                    {week}
+                                  </span>
+
+                                  {selected ? (
+                                    <span
+                                      className={clsx(
+                                        active
+                                          ? "text-white"
+                                          : "text-orange-600",
+                                        "absolute inset-y-0 right-0 flex items-center pr-4"
+                                      )}
+                                    >
+                                      <CheckIcon
+                                        className="h-5 w-5"
+                                        aria-hidden="true"
+                                      />
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </>
+                )}
+              </Listbox>
+
+              {durationInWeeks.error ? (
+                <p
+                  className="mt-2 text-xs text-red-500"
+                  id={durationInWeeks.errorId}
+                  role="alert"
+                >
+                  {durationInWeeks.error}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-6">
+              <label
+                htmlFor={goal.name}
+                className="block text-sm font-medium leading-6 text-zinc-900"
+              >
+                What is the main goal of the mesocycle?
+              </label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  id={goal.id}
+                  name={goal.name}
+                  defaultValue={goal.defaultValue}
+                  className={clsx(
+                    "block w-full rounded-md border-0 py-1.5 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6",
+                    goal.error
+                      ? "text-red-300 ring-red-500 focus:ring-red-600"
+                      : "focus:ring-orange-600"
+                  )}
+                  placeholder="Overall hypertrophy, bringing up legs..."
+                  aria-invalid={goal.error ? true : undefined}
+                  aria-describedby={goal.errorId}
+                  autoFocus={Boolean(goal.initialError)}
+                />
+              </div>
+              {goal.error ? (
+                <p
+                  className="mt-2 text-xs text-red-500"
+                  id={goal.errorId}
+                  role="alert"
+                >
+                  {goal.error}
+                </p>
+              ) : null}
+            </div>
+
+            <button
+              disabled={isSubmitting}
+              type="submit"
+              className="mt-6 inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {isSubmitting ? <Spinner /> : null}
+              Continue
+              <ArrowLongRightIcon
+                className="-mr-0.5 ml-1.5 h-5 w-5"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+      </Form>
+    </div>
+  );
+}

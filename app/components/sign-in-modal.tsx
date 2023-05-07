@@ -108,6 +108,7 @@ function SignInForm({ fetcher }: SignInFormProps) {
   const isSubmitting = fetcher.state === "submitting";
   const lastSubmission = fetcher.data;
   const [form, { email, password }] = useForm<SignInSchema>({
+    id: "sign-in",
     lastSubmission,
     onValidate({ formData }) {
       return parse(formData, { schema: signInSchema });
@@ -130,19 +131,26 @@ function SignInForm({ fetcher }: SignInFormProps) {
         </label>
         <div className="mt-2">
           <input
+            id={email.id}
+            name={email.name}
+            defaultValue={email.defaultValue}
+            type="email"
+            aria-invalid={email.error ? true : undefined}
+            aria-describedby={email.errorId}
+            autoFocus={Boolean(email.initialError)}
+            placeholder="you@example.com"
             className={clsx(
               "block w-full rounded-md border-0 bg-zinc-700 px-3 py-2 text-sm text-white shadow-sm ring-1 ring-inset ring-zinc-500 focus:outline-none focus:ring-2 focus:ring-inset",
               email.error
                 ? "text-red-300 ring-red-500 focus:ring-red-600"
                 : "focus:ring-orange-600"
             )}
-            {...conform.input(email, { type: "email" })}
           />
         </div>
         {email.error ? (
           <p
             className="mt-2 text-xs text-red-500"
-            id="email-error"
+            id={email.errorId}
             role="alert"
           >
             {email.error}
@@ -159,19 +167,25 @@ function SignInForm({ fetcher }: SignInFormProps) {
         </label>
         <div className="mt-2">
           <input
+            id={password.id}
+            name={password.name}
+            defaultValue={password.defaultValue}
+            type="password"
+            aria-invalid={password.error ? true : undefined}
+            aria-describedby={password.errorId}
+            autoFocus={Boolean(password.initialError)}
             className={clsx(
               "block w-full rounded-md border-0 bg-zinc-700 px-3 py-2 text-sm text-white shadow-sm ring-1 ring-inset ring-zinc-500 focus:outline-none focus:ring-2 focus:ring-inset",
               password.error
                 ? "text-red-300 ring-red-500 focus:ring-red-600"
                 : "focus:ring-orange-600"
             )}
-            {...conform.input(password, { type: "password" })}
           />
         </div>
         {password.error ? (
           <p
             className="mt-2 text-xs text-red-500"
-            id="password-error"
+            id={password.errorId}
             role="alert"
           >
             {password.error}
