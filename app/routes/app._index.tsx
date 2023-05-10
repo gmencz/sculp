@@ -43,7 +43,7 @@ export default function Today() {
         <div className="flex h-full flex-col items-center justify-center text-center">
           <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400" />
           <h3 className="mt-2 text-sm font-semibold text-zinc-900">
-            Nothing planned for today
+            Nothing today
           </h3>
           <p className="mt-1 text-sm text-zinc-500">
             {userMesocyclesCount > 0
