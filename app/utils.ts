@@ -70,12 +70,20 @@ export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
 
-export function useModal(name: string) {
+export function useModal(name: string, extraParams?: string[]) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const show = searchParams.get("modal") === name;
+  const show =
+    searchParams.get("modal") === name &&
+    (extraParams
+      ? extraParams.every((param) => searchParams.has(param))
+      : true);
 
   const closeModal = () => {
     searchParams.delete("modal");
+    extraParams?.forEach((param) => {
+      searchParams.delete(param);
+    });
+
     setSearchParams(searchParams);
   };
 

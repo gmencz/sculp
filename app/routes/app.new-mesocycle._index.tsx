@@ -1,11 +1,7 @@
 import { conform, useForm, useInputEvent } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Listbox, Transition } from "@headlessui/react";
-import {
-  ArrowLongRightIcon,
-  CheckIcon,
-  ChevronUpDownIcon,
-} from "@heroicons/react/20/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
@@ -88,9 +84,9 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const session = await getSession(request);
-  const draftMesocycleId = nanoid();
-  session.set(`draft-mesocycle-${draftMesocycleId}`, submission.value);
-  return redirect(`/app/new-mesocycle/design?draft_id=${draftMesocycleId}`, {
+  const id = nanoid();
+  session.set(`mesocycle-${id}`, submission.value);
+  return redirect(`/app/new-mesocycle/design/${id}`, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },
@@ -141,8 +137,9 @@ export default function NewMesocycle() {
           Plan a new mesocycle
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
-          Design your own custom mesocycle from the ground up to fit your needs
-          and achieve your muscle building goals.
+          A mesocycle is a structured training plan designed to help you achieve
+          maximum muscle growth. Here you can build your own to fit your
+          preferences and needs.
         </p>
       </div>
 
@@ -288,7 +285,8 @@ export default function NewMesocycle() {
                     </div>
 
                     <p className="mt-2 text-sm text-zinc-500">
-                      You can repeat the mesocycle once it's over.
+                      You can repeat the mesocycle once it's over. If you're
+                      unsure what to choose, we recommend 12 weeks.
                     </p>
                   </>
                 )}
@@ -464,11 +462,7 @@ export default function NewMesocycle() {
               className="mt-6 inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isSubmitting ? <Spinner /> : null}
-              Continue
-              <ArrowLongRightIcon
-                className="-mr-0.5 ml-1.5 h-5 w-5"
-                aria-hidden="true"
-              />
+              Save and continue
             </button>
           </div>
         </div>

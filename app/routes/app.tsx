@@ -1,6 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
+  BookOpenIcon,
   CalendarDaysIcon,
   FolderIcon,
   PlusCircleIcon,
@@ -15,6 +16,11 @@ import { requireUser } from "~/session.server";
 
 const navigation = [
   { name: "Today", href: "/app", icon: CalendarDaysIcon, end: true },
+  {
+    name: "Exercises",
+    href: "/app/exercises",
+    icon: BookOpenIcon,
+  },
   {
     name: "Mesocycles",
     href: "/app/mesocycles",
