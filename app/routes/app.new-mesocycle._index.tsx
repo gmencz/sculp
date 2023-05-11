@@ -158,10 +158,6 @@ export default function NewMesocycle() {
             </label>
             <div className="mt-2">
               <input
-                type="text"
-                id={name.id}
-                name={name.name}
-                defaultValue={name.defaultValue}
                 className={clsx(
                   "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
                   name.error
@@ -169,14 +165,12 @@ export default function NewMesocycle() {
                     : "focus:ring-orange-600"
                 )}
                 placeholder="My New Mesocycle"
-                aria-invalid={name.error ? true : undefined}
-                aria-describedby={name.errorId}
-                autoFocus={Boolean(name.initialError)}
+                {...conform.input(name, { type: "text" })}
               />
             </div>
             {name.error ? (
               <p
-                className="mt-2 text-xs text-red-500"
+                className="mt-2 text-sm text-red-500"
                 id={name.errorId}
                 role="alert"
               >
@@ -294,7 +288,7 @@ export default function NewMesocycle() {
 
               {durationInWeeks.error ? (
                 <p
-                  className="mt-2 text-xs text-red-500"
+                  className="mt-2 text-sm text-red-500"
                   id={durationInWeeks.errorId}
                   role="alert"
                 >
@@ -411,7 +405,7 @@ export default function NewMesocycle() {
 
               {trainingDaysPerWeek.error ? (
                 <p
-                  className="mt-2 text-xs text-red-500"
+                  className="mt-2 text-sm text-red-500"
                   id={trainingDaysPerWeek.errorId}
                   role="alert"
                 >
@@ -429,10 +423,6 @@ export default function NewMesocycle() {
               </label>
               <div className="mt-2">
                 <input
-                  type="text"
-                  id={goal.id}
-                  name={goal.name}
-                  defaultValue={goal.defaultValue}
                   className={clsx(
                     "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
                     goal.error
@@ -440,14 +430,12 @@ export default function NewMesocycle() {
                       : "focus:ring-orange-600"
                   )}
                   placeholder="Overall hypertrophy, bringing up legs..."
-                  aria-invalid={goal.error ? true : undefined}
-                  aria-describedby={goal.errorId}
-                  autoFocus={Boolean(goal.initialError)}
+                  {...conform.input(goal, { type: "text" })}
                 />
               </div>
               {goal.error ? (
                 <p
-                  className="mt-2 text-xs text-red-500"
+                  className="mt-2 text-sm text-red-500"
                   id={goal.errorId}
                   role="alert"
                 >

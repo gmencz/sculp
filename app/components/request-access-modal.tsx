@@ -189,14 +189,14 @@ function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
         </div>
         {email.error ? (
           <p
-            className="mt-2 text-xs text-red-500"
+            className="mt-2 text-sm text-red-500"
             id={email.errorId}
             role="alert"
           >
             {email.error}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-zinc-200" id="email-description">
+          <p className="mt-2 text-sm text-zinc-200" id="email-description">
             We'll send you an email once we grant you access.
           </p>
         )}
@@ -228,7 +228,7 @@ function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
         </div>
         {currentLogbook.error ? (
           <p
-            className="mt-2 text-xs text-red-500"
+            className="mt-2 text-sm text-red-500"
             id={currentLogbook.errorId}
             role="alert"
           >
@@ -236,7 +236,7 @@ function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
           </p>
         ) : (
           <p
-            className="mt-2 text-xs text-zinc-200"
+            className="mt-2 text-sm text-zinc-200"
             id="current-logbook-description"
           >
             Are you currently using a logbook? E.g. Strong app, Notes on your

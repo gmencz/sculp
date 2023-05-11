@@ -149,7 +149,7 @@ function SignInForm({ fetcher }: SignInFormProps) {
         </div>
         {email.error ? (
           <p
-            className="mt-2 text-xs text-red-500"
+            className="mt-2 text-sm text-red-500"
             id={email.errorId}
             role="alert"
           >
@@ -184,7 +184,7 @@ function SignInForm({ fetcher }: SignInFormProps) {
         </div>
         {password.error ? (
           <p
-            className="mt-2 text-xs text-red-500"
+            className="mt-2 text-sm text-red-500"
             id={password.errorId}
             role="alert"
           >
@@ -205,7 +205,7 @@ function SignInForm({ fetcher }: SignInFormProps) {
       </div>
 
       {lastSubmission?.error.form ? (
-        <p className="mt-4 text-xs text-red-500" role="alert">
+        <p className="mt-4 text-sm text-red-500" role="alert">
           {lastSubmission?.error.form}
         </p>
       ) : null}

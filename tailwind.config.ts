@@ -8,6 +8,9 @@ export default {
       fontFamily: {
         sans: ["Inter", ...fontFamily.sans],
       },
+      screens: {
+        xs: "475px",
+      },
     },
   },
   plugins: [require("@tailwindcss/forms")],
