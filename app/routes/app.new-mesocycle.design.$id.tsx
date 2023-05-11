@@ -9,7 +9,7 @@ import {
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { getSession, requireUser } from "~/session.server";
+import { getSession, requireUser, sessionStorage } from "~/session.server";
 import type { Schema as DraftMesocycleSchema } from "./app.new-mesocycle._index";
 import {
   CalendarDaysIcon,
@@ -34,17 +34,84 @@ import { prisma } from "~/db.server";
 import { parse } from "@conform-to/zod";
 import { Spinner } from "~/components/spinner";
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
   await requireUser(request);
+  const url = new URL(request.url);
   const formData = await request.formData();
-  const submission = parse(formData, { schema });
-
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
+  const intent = formData.get("intent");
+  if (!intent) {
+    throw new Error("Missing intent");
   }
 
-  throw new Error("Not implemented");
+  const { id } = params;
+  if (!id) {
+    throw new Error("Missing id");
+  }
+
+  switch (intent) {
+    case "save-mesocycle": {
+      const submission = parse(formData, { schema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      throw new Error("Not implemented");
+    }
+
+    case "add-exercise": {
+      const submission = parse(formData, { schema: addExerciseFormSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { exerciseId, sets, notes } = submission.value;
+      const { dayNumber } = submission.payload;
+
+      const session = await getSession(request);
+      const mesocycleDetails = (await session.get(
+        `mesocycle-${id}`
+      )) as DraftMesocycle;
+
+      const updatedMesocycle: DraftMesocycle = {
+        ...mesocycleDetails,
+        trainingDays: (mesocycleDetails.trainingDays || []).map(
+          (trainingDay, index) => {
+            if (`${index + 1}` === dayNumber) {
+              return {
+                ...trainingDay,
+                exercises: [
+                  ...trainingDay.exercises,
+                  {
+                    exerciseId,
+                    sets,
+                    notes,
+                  },
+                ],
+              };
+            }
+
+            return trainingDay;
+          }
+        ),
+      };
+
+      session.set(`mesocycle-${id}`, updatedMesocycle);
+      return redirect(`/app/new-mesocycle/design/${id}`, {
+        headers: {
+          "Set-Cookie": await sessionStorage.commitSession(session),
+        },
+      });
+    }
+
+    default: {
+      throw new Error("Invalid intent");
+    }
+  }
 };
+
+export type DraftMesocycle = DraftMesocycleSchema & Schema;
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -56,7 +123,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const session = await getSession(request);
   const mesocycleDetails = (await session.get(
     `mesocycle-${id}`
-  )) as DraftMesocycleSchema;
+  )) as DraftMesocycle;
 
   const exercises = await prisma.exercise.findMany({
     where: {
@@ -74,6 +141,71 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   });
 };
 
+const addExerciseFormSchema = z.object({
+  sets: z
+    .array(
+      z.object({
+        rir: z.coerce
+          .number({
+            invalid_type_error: "The RIR is not valid.",
+            required_error: "The RIR is required.",
+          })
+          .min(0, `The RIR can't be lower than 0.`)
+          .max(100, `The RIR can't be higher than 100.`),
+
+        weight: z.coerce
+          .number({
+            invalid_type_error: "The weight is not valid.",
+            required_error: "The weight is required.",
+          })
+          .min(1, `The weight must be greater than 0.`)
+          .max(10000, `The weight can't be greater than 10000.`),
+
+        repRange: z
+          .string({
+            invalid_type_error: "The rep range is not valid.",
+            required_error: "The rep range is required.",
+          })
+          .min(1, "The rep range is required.")
+          .refine(
+            (data) => {
+              // Format: 5-8
+              if (data.length !== 3 || data[1] !== "-") {
+                return false;
+              }
+
+              const lowerBound = Number(data[0]);
+              const upperBound = Number(data[2]);
+              if (Number.isNaN(lowerBound) || Number.isNaN(upperBound)) {
+                return false;
+              }
+
+              if (lowerBound >= upperBound) {
+                return false;
+              }
+
+              return true;
+            },
+            { message: "The rep range is not valid." }
+          ),
+      })
+    )
+    .max(10, `The sets must be at most 10.`),
+
+  exerciseId: z
+    .string({
+      invalid_type_error: "The exercise is not valid.",
+      required_error: "The exercise is required.",
+    })
+    .min(1, "The exercise is required."),
+
+  notes: z
+    .string({
+      invalid_type_error: "The notes are not valid.",
+    })
+    .optional(),
+});
+
 const schema = z.object({
   trainingDays: z.array(
     z.object({
@@ -84,6 +216,8 @@ const schema = z.object({
         })
         .min(1, "The label is required.")
         .max(50, "The label must be at most 50 characters long."),
+
+      exercises: z.array(addExerciseFormSchema),
     })
   ),
 });
@@ -95,10 +229,7 @@ export default function NewMesocycleDesign() {
 
   const [form, { trainingDays }] = useForm<Schema>({
     defaultValue: {
-      trainingDays: Array.from(
-        { length: mesocycleDetails.trainingDaysPerWeek },
-        () => ({ label: "", muscleGroups: "" })
-      ),
+      trainingDays: mesocycleDetails.trainingDays,
     },
   });
 
@@ -142,6 +273,8 @@ export default function NewMesocycleDesign() {
       </div>
 
       <Form method="post" className="mt-6" {...form.props}>
+        <input type="hidden" name="intent" value="save-mesocycle" />
+
         <ul className="flex flex-wrap gap-6">
           {trainingDaysList.map((trainingDay, index) => (
             <li
@@ -290,76 +423,12 @@ function AddExerciseModal() {
   );
 }
 
-const addExerciseFormSchema = z.object({
-  sets: z
-    .array(
-      z.object({
-        rir: z.coerce
-          .number({
-            invalid_type_error: "The RIR is not valid.",
-            required_error: "The RIR is required.",
-          })
-          .min(0, `The RIR can't be lower than 0.`)
-          .max(100, `The RIR can't be higher than 100.`),
-
-        weight: z.coerce
-          .number({
-            invalid_type_error: "The weight is not valid.",
-            required_error: "The weight is required.",
-          })
-          .min(1, `The weight must be greater than 0.`)
-          .max(10000, `The weight can't be greater than 10000.`),
-
-        repRange: z
-          .string({
-            invalid_type_error: "The rep range is not valid.",
-            required_error: "The rep range is required.",
-          })
-          .min(1, "The rep range is required.")
-          .refine(
-            (data) => {
-              // Format: 5-8
-              if (data.length !== 3 || data[1] !== "-") {
-                return false;
-              }
-
-              const lowerBound = Number(data[0]);
-              const upperBound = Number(data[2]);
-              if (Number.isNaN(lowerBound) || Number.isNaN(upperBound)) {
-                return false;
-              }
-
-              if (lowerBound >= upperBound) {
-                return false;
-              }
-
-              return true;
-            },
-            { message: "The rep range is not valid." }
-          ),
-      })
-    )
-    .max(10, `The sets must be at most 10.`),
-
-  exerciseId: z
-    .string({
-      invalid_type_error: "The exercise is not valid.",
-      required_error: "The exercise is required.",
-    })
-    .min(1, "The exercise is required."),
-
-  notes: z
-    .string({
-      invalid_type_error: "The notes are not valid.",
-    })
-    .optional(),
-});
-
 type AddExerciseFormSchema = z.infer<typeof addExerciseFormSchema>;
 
 function AddExerciseForm() {
   const isSubmitting = useNavigation().state === "submitting";
   const lastSubmission = useActionData();
+  const [searchParams] = useSearchParams();
   const [form, { sets, exerciseId, notes }] = useForm<AddExerciseFormSchema>({
     id: "add-exercise",
     lastSubmission,
@@ -375,6 +444,13 @@ function AddExerciseForm() {
 
   return (
     <Form method="post" {...form.props}>
+      <input type="hidden" name="intent" value="add-exercise" />
+      <input
+        type="hidden"
+        name="dayNumber"
+        value={searchParams.get("day_number") as string}
+      />
+
       <ExercisesDirectoryAutocomplete fieldConfig={exerciseId} />
 
       <div className="mt-6">
@@ -622,7 +698,7 @@ function ExercisesDirectoryAutocomplete({
         onFocus={() => inputRef.current?.focus()}
       />
 
-      <Combobox value={value} onChange={control.change}>
+      <Combobox as="div" value={value} onChange={control.change}>
         <label
           htmlFor="exercise-search"
           className="block text-sm font-medium leading-6 text-zinc-900"
@@ -632,8 +708,10 @@ function ExercisesDirectoryAutocomplete({
         <div className="relative z-10 mt-2">
           <div
             className={clsx(
-              "relative w-full cursor-default overflow-hidden rounded-md bg-white text-left text-sm ring-1 ring-zinc-300 focus-within:ring-2 focus-within:ring-orange-500 focus:outline-none",
-              fieldConfig.error ? "" : ""
+              "relative w-full cursor-default overflow-hidden rounded-md bg-white text-left text-sm ring-1 focus-within:ring-2 focus:outline-none",
+              fieldConfig.error
+                ? "ring-red-500 focus-within:ring-red-600"
+                : "ring-zinc-300 focus-within:ring-orange-600"
             )}
           >
             <Combobox.Input
@@ -642,7 +720,7 @@ function ExercisesDirectoryAutocomplete({
               className="w-full border-none py-1.5 pl-3 pr-10 text-sm leading-5 text-zinc-900"
               onChange={(event) => setQuery(event.target.value)}
               displayValue={(exerciseId: string) =>
-                exercises.find((e) => `${e.id}` === exerciseId)?.name ?? ""
+                exercises.find((e) => e.id === exerciseId)?.name ?? ""
               }
               placeholder="Search..."
             />

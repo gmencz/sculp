@@ -13,6 +13,7 @@ import { z } from "zod";
 import { Spinner } from "~/components/spinner";
 import { sessionStorage } from "~/session.server";
 import { getSession, requireUser } from "~/session.server";
+import type { DraftMesocycle } from "./app.new-mesocycle.design.$id";
 
 const durationInWeeksArray = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const trainingDaysPerWeekArray = [1, 2, 3, 4, 5, 6];
@@ -84,8 +85,20 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const session = await getSession(request);
+
+  const mesocycle: DraftMesocycle = {
+    durationInWeeks: submission.value.durationInWeeks,
+    goal: submission.value.goal,
+    name: submission.value.name,
+    trainingDaysPerWeek: submission.value.trainingDaysPerWeek,
+    trainingDays: Array.from(
+      { length: submission.value.trainingDaysPerWeek },
+      () => ({ label: "", exercises: [] })
+    ),
+  };
+
   const id = nanoid();
-  session.set(`mesocycle-${id}`, submission.value);
+  session.set(`mesocycle-${id}`, mesocycle);
   return redirect(`/app/new-mesocycle/design/${id}`, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
