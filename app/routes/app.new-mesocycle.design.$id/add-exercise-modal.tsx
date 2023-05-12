@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 import { useModal } from "~/utils";
 import { AddExerciseForm } from "./add-exercise-form";
 
@@ -10,7 +10,7 @@ export const MODAL_NAME = "add_exercise";
 export function AddExerciseModal() {
   const { show, closeModal } = useModal(MODAL_NAME, ["day_number"]);
   const [searchParams] = useSearchParams();
-  const dayNumber = searchParams.get("day_number");
+  const dayNumber = useRef(searchParams.get("day_number"));
 
   return (
     <Transition.Root show={show} as={Fragment} appear>
@@ -48,7 +48,7 @@ export function AddExerciseModal() {
                     as="h3"
                     className="text-xl font-semibold text-zinc-950"
                   >
-                    <span>Add an exercise to day {dayNumber}</span>
+                    <span>Add an exercise to day {dayNumber.current}</span>
                   </Dialog.Title>
 
                   <button

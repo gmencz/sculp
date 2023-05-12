@@ -18,6 +18,7 @@ import { schema as addExerciseFormSchema } from "./add-exercise-form";
 import { Heading } from "~/components/heading";
 import { TrainingDayFieldset } from "./training-day-fieldset";
 import { AddExerciseModal } from "./add-exercise-modal";
+import { DeleteExerciseModal } from "./delete-exercise-modal";
 
 export const action = async ({ request, params }: ActionArgs) => {
   await requireUser(request);
@@ -57,6 +58,10 @@ export const action = async ({ request, params }: ActionArgs) => {
         sets,
         notes,
       });
+    }
+
+    case "delete-exercise": {
+      // TODO
     }
 
     default: {
@@ -118,8 +123,6 @@ export type Schema = z.infer<typeof schema>;
 
 export default function NewMesocycleDesign() {
   const { mesocycle } = useLoaderData<typeof loader>();
-
-  console.log(mesocycle);
 
   // TODO: Add the exercise name to the exercise and not just the id so we can display it
   // easier without having to .find.
@@ -206,6 +209,7 @@ export default function NewMesocycleDesign() {
       </Form>
 
       <AddExerciseModal />
+      <DeleteExerciseModal />
     </>
   );
 }

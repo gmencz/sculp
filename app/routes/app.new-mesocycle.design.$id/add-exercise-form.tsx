@@ -68,10 +68,10 @@ export const schema = z.object({
 
   id: z
     .string({
-      invalid_type_error: "The exercise id is not valid.",
-      required_error: "The exercise id is required.",
+      invalid_type_error: "The exercise is not valid.",
+      required_error: "The exercise is required.",
     })
-    .min(1, "The exercise id is required."),
+    .min(1, "The exercise is required."),
 
   notes: z
     .string({
