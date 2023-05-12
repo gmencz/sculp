@@ -18,9 +18,10 @@ export type DraftMesocycleTrainingDay = {
 
 export type DraftMesocycleTrainingDayExercise = {
   sets: DraftMesocycleTrainingDayExerciseSet[];
-  exerciseId: string; // The id of the selected exercise in the database.
   dayNumber: number;
   notes?: string;
+  id: string; // The id of the selected exercise in the database.
+  name: string;
 };
 
 export type DraftMesocycleTrainingDayExerciseSet = {

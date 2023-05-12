@@ -59,12 +59,19 @@ export const schema = z.object({
     )
     .max(10, `The sets must be at most 10.`),
 
-  exerciseId: z
+  name: z
     .string({
-      invalid_type_error: "The exercise is not valid.",
-      required_error: "The exercise is required.",
+      invalid_type_error: "The exercise name is not valid.",
+      required_error: "The exercise name is required.",
     })
-    .min(1, "The exercise is required."),
+    .min(1, "The exercise name is required."),
+
+  id: z
+    .string({
+      invalid_type_error: "The exercise id is not valid.",
+      required_error: "The exercise id is required.",
+    })
+    .min(1, "The exercise id is required."),
 
   notes: z
     .string({
@@ -86,7 +93,7 @@ export type Schema = z.infer<typeof schema>;
 export function AddExerciseForm() {
   const lastSubmission = useActionData();
   const [searchParams] = useSearchParams();
-  const [form, { sets, exerciseId, notes, dayNumber }] = useForm<Schema>({
+  const [form, { sets, notes, dayNumber, id, name }] = useForm<Schema>({
     id: "add-exercise",
     lastSubmission,
     defaultValue: {
@@ -105,7 +112,7 @@ export function AddExerciseForm() {
       <input type="hidden" name="intent" value="add-exercise" />
       <input {...conform.input(dayNumber, { hidden: true })} />
 
-      <ExercisesAutocomplete fieldConfig={exerciseId} />
+      <ExercisesAutocomplete idFieldConfig={id} nameFieldConfig={name} />
 
       <div className="mt-6">
         <p className="flex flex-col text-sm ">

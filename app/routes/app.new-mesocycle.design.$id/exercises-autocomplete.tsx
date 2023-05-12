@@ -4,25 +4,33 @@ import { useInputEvent } from "@conform-to/react";
 import type { Schema } from "./add-exercise-form";
 import { useLoaderData } from "@remix-run/react";
 import type { loader } from "./route";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 
 type ExercisesAutocompleteProps = {
-  fieldConfig: FieldConfig<Schema["exerciseId"]>;
+  idFieldConfig: FieldConfig<Schema["id"]>;
+  nameFieldConfig: FieldConfig<Schema["name"]>;
 };
 
 export function ExercisesAutocomplete({
-  fieldConfig,
+  idFieldConfig,
+  nameFieldConfig,
 }: ExercisesAutocompleteProps) {
   const { exercises } = useLoaderData<typeof loader>();
   const [query, setQuery] = useState("");
-  const [value, setValue] = useState(fieldConfig.defaultValue ?? "");
+  const [value, setValue] = useState(idFieldConfig.defaultValue ?? "");
   const [ref, control] = useInputEvent({
-    onReset: () => setValue(fieldConfig.defaultValue ?? ""),
+    onReset: () => setValue(idFieldConfig.defaultValue ?? ""),
   });
+
+  const [name, setName] = useState<string>();
+
+  useEffect(() => {
+    setName(exercises.find((exercise) => exercise.id === value)?.name);
+  }, [exercises, value]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,9 +48,16 @@ export function ExercisesAutocomplete({
     <div>
       <input
         ref={ref}
-        {...conform.input(fieldConfig, { hidden: true })}
+        {...conform.input(idFieldConfig, { hidden: true })}
         onChange={(e) => setValue(e.target.value)}
         onFocus={() => inputRef.current?.focus()}
+      />
+
+      <input
+        type="hidden"
+        form={nameFieldConfig.form}
+        name={nameFieldConfig.name}
+        value={name}
       />
 
       <Combobox as="div" value={value} onChange={control.change}>
@@ -56,7 +71,7 @@ export function ExercisesAutocomplete({
           <div
             className={clsx(
               "relative w-full cursor-default overflow-hidden rounded-md bg-white text-left text-sm ring-1 focus-within:ring-2 focus:outline-none",
-              fieldConfig.error
+              idFieldConfig.error
                 ? "ring-red-500 focus-within:ring-red-600"
                 : "ring-zinc-300 focus-within:ring-orange-600"
             )}
@@ -129,8 +144,8 @@ export function ExercisesAutocomplete({
         </div>
       </Combobox>
 
-      {fieldConfig.error ? (
-        <ErrorMessage id={fieldConfig.id}>{fieldConfig.error}</ErrorMessage>
+      {idFieldConfig.error ? (
+        <ErrorMessage id={idFieldConfig.id}>{idFieldConfig.error}</ErrorMessage>
       ) : null}
     </div>
   );

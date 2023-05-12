@@ -27,8 +27,8 @@ export const action = async ({ request, params }: ActionArgs) => {
     throw new Error("Missing intent");
   }
 
-  const { id } = params;
-  if (!id) {
+  const { id: mesocycleId } = params;
+  if (!mesocycleId) {
     throw new Error("Missing id");
   }
 
@@ -49,10 +49,11 @@ export const action = async ({ request, params }: ActionArgs) => {
         return json(submission, { status: 400 });
       }
 
-      const { exerciseId, sets, notes, dayNumber } = submission.value;
-      return addExerciseToDraftMesocycle(request, id, {
+      const { id, name, sets, notes, dayNumber } = submission.value;
+      return addExerciseToDraftMesocycle(request, mesocycleId, {
         dayNumber,
-        exerciseId,
+        id,
+        name,
         sets,
         notes,
       });
@@ -118,6 +119,11 @@ export type Schema = z.infer<typeof schema>;
 export default function NewMesocycleDesign() {
   const { mesocycle } = useLoaderData<typeof loader>();
 
+  console.log(mesocycle);
+
+  // TODO: Add the exercise name to the exercise and not just the id so we can display it
+  // easier without having to .find.
+
   const [form, { trainingDays }] = useForm<Schema>({
     defaultValue: {
       trainingDays: mesocycle.trainingDays.map((trainingDay) => {
@@ -128,7 +134,10 @@ export default function NewMesocycleDesign() {
             return {
               dayNumber: exercise.dayNumber.toString(),
               notes: exercise.notes,
-              exerciseId: exercise.exerciseId,
+              exercise: {
+                id: exercise.id,
+                name: exercise.name,
+              },
               sets: exercise.sets.map((set) => {
                 return {
                   rir: set.rir.toString(),
