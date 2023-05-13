@@ -1,5 +1,5 @@
 import { useMatches, useSearchParams } from "@remix-run/react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import type { User } from "~/models/user.server";
 
@@ -88,4 +88,19 @@ export function useModal(name: string, extraParams?: string[]) {
   };
 
   return { show, closeModal };
+}
+
+export function useSearchParamRef(param: string) {
+  const [searchParams] = useSearchParams();
+  const currentValue = decodeURIComponent(searchParams.get(param) as string);
+
+  const ref = useRef(currentValue);
+
+  useEffect(() => {
+    if (currentValue !== ref.current) {
+      ref.current = currentValue;
+    }
+  }, [currentValue]);
+
+  return ref;
 }

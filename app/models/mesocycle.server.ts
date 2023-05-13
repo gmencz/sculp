@@ -7,27 +7,7 @@ export type DraftMesocycle = {
   name: string;
   goal: string;
   durationInWeeks: number;
-  trainingDays: DraftMesocycleTrainingDay[];
-};
-
-export type DraftMesocycleTrainingDay = {
-  label: string;
-  exercises: DraftMesocycleTrainingDayExercise[];
-  dayNumber: number;
-};
-
-export type DraftMesocycleTrainingDayExercise = {
-  sets: DraftMesocycleTrainingDayExerciseSet[];
-  dayNumber: number;
-  notes?: string;
-  id: string; // The id of the selected exercise in the database.
-  name: string;
-};
-
-export type DraftMesocycleTrainingDayExerciseSet = {
-  rir: number;
-  weight: number;
-  repRange: string;
+  trainingDaysPerWeek: number;
 };
 
 const getDraftMesocycleSessionKey = (id: string) => `draft-mesocycle-${id}`;
@@ -53,37 +33,4 @@ export async function getDraftMesocycle(
   const session = await getSession(request);
   const mesocycle = await session.get(getDraftMesocycleSessionKey(id));
   return mesocycle;
-}
-
-export async function addExerciseToDraftMesocycle(
-  request: Request,
-  mesocycleId: string,
-  newExercise: DraftMesocycleTrainingDayExercise
-) {
-  const mesocycle = await getDraftMesocycle(request, mesocycleId);
-  if (!mesocycle) {
-    throw new Error("addExerciseToDraftMesocycle: mesocycle is null");
-  }
-
-  const updatedMesocycle: DraftMesocycle = {
-    ...mesocycle,
-    trainingDays: mesocycle.trainingDays.map((trainingDay) => {
-      if (trainingDay.dayNumber !== newExercise.dayNumber) {
-        return trainingDay;
-      }
-
-      return {
-        ...trainingDay,
-        exercises: [...trainingDay.exercises, newExercise],
-      };
-    }),
-  };
-
-  const session = await getSession(request);
-  session.set(getDraftMesocycleSessionKey(mesocycleId), updatedMesocycle);
-  return redirect(configRoutes.newMesocycleDesign(mesocycleId), {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
-    },
-  });
 }

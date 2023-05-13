@@ -36,11 +36,7 @@ export const action = async ({ request }: ActionArgs) => {
     durationInWeeks,
     goal,
     name,
-    trainingDays: Array.from({ length: trainingDaysPerWeek }, (_, index) => ({
-      label: "",
-      exercises: [],
-      dayNumber: index + 1,
-    })),
+    trainingDaysPerWeek,
   });
 };
 

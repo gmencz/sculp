@@ -1,9 +1,8 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import { useInputEvent } from "@conform-to/react";
-import type { Schema } from "./add-exercise-form";
 import { useLoaderData } from "@remix-run/react";
-import type { loader } from "./route";
+import type { Schema, loader } from "./route";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import clsx from "clsx";
@@ -11,13 +10,19 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 
 type ExercisesAutocompleteProps = {
-  idFieldConfig: FieldConfig<Schema["id"]>;
-  nameFieldConfig: FieldConfig<Schema["name"]>;
+  exerciseNumber: number;
+  idFieldConfig: FieldConfig<
+    Schema["trainingDays"][number]["exercises"][number]["id"]
+  >;
+  nameFieldConfig: FieldConfig<
+    Schema["trainingDays"][number]["exercises"][number]["name"]
+  >;
 };
 
 export function ExercisesAutocomplete({
   idFieldConfig,
   nameFieldConfig,
+  exerciseNumber,
 }: ExercisesAutocompleteProps) {
   const { exercises } = useLoaderData<typeof loader>();
   const [query, setQuery] = useState("");
@@ -63,11 +68,14 @@ export function ExercisesAutocomplete({
       <Combobox as="div" value={value} onChange={control.change}>
         <label
           htmlFor="exercise-search"
-          className="block text-sm font-medium leading-6 text-zinc-900"
+          className="flex items-center gap-2 text-sm font-medium leading-6 text-zinc-900"
         >
-          What exercise do you want to add?
+          <span>Exercise</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500/10 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
+            {exerciseNumber}
+          </span>
         </label>
-        <div className="relative z-10 mt-2">
+        <div className="relative z-10 mt-3">
           <div
             className={clsx(
               "relative w-full cursor-default overflow-hidden rounded-md bg-white text-left text-sm ring-1 focus-within:ring-2 focus:outline-none",
@@ -79,6 +87,7 @@ export function ExercisesAutocomplete({
             <Combobox.Input
               ref={inputRef}
               id="exercise-search"
+              autoComplete="off"
               className="w-full border-none py-1.5 pl-3 pr-10 text-sm leading-5 text-zinc-900"
               onChange={(event) => setQuery(event.target.value)}
               displayValue={(exerciseId: string) =>

@@ -17,10 +17,11 @@ export function Input({
   helperText,
   label,
   hideErrorMessage,
+  type,
   ...props
 }: InputProps & InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       <label className="block text-sm font-medium leading-6 text-zinc-900">
         {label}
       </label>
@@ -34,7 +35,7 @@ export function Input({
               : "ring-zinc-300 focus:ring-orange-600"
           )}
           {...props}
-          {...conform.input(config, { type: "text" })}
+          {...conform.input(config, { type: type || "text" })}
         />
 
         {config.error ? (
@@ -52,7 +53,7 @@ export function Input({
       ) : null}
 
       {config.error && !hideErrorMessage ? (
-        <ErrorMessage id={config.errorId}>{config.error}</ErrorMessage>
+        <ErrorMessage>{config.error}</ErrorMessage>
       ) : null}
     </div>
   );
