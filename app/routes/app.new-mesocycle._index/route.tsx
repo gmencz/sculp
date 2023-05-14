@@ -2,7 +2,6 @@ import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Form, useActionData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
@@ -23,21 +22,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export const action = async ({ request }: ActionArgs) => {
-  await requireUser(request);
-  const formData = await request.formData();
-  const submission = parse(formData, { schema });
-
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
-  }
-
-  const { durationInWeeks, goal, name, trainingDaysPerWeek } = submission.value;
-  return createDraftMesocycle(request, {
-    durationInWeeks,
-    goal,
-    name,
-    trainingDaysPerWeek,
-  });
+  return createDraftMesocycle(request);
 };
 
 export default function NewMesocycle() {

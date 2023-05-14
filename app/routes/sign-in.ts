@@ -41,7 +41,7 @@ export async function action({ request }: ActionArgs) {
 
   if (!user) {
     submission.error["form"] = "You have entered an invalid email or password.";
-    return json(submission);
+    return json(submission, { status: 400 });
   }
 
   return createUserSession({

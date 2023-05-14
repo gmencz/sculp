@@ -1,4 +1,5 @@
 import type { FieldConfig } from "@conform-to/react";
+import { conform } from "@conform-to/react";
 import { useFieldList } from "@conform-to/react";
 import { list } from "@conform-to/react";
 import { useFieldset } from "@conform-to/react";
@@ -17,7 +18,7 @@ type TrainingDayFieldsetProps = {
 
 export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
   const ref = useRef<HTMLFieldSetElement>(null);
-  const { label, exercises } = useFieldset(ref, props.config);
+  const { label, exercises, dayNumber } = useFieldset(ref, props.config);
   const exercisesList = useFieldList(props.formRef, exercises);
 
   return (
@@ -29,6 +30,8 @@ export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
       </div>
 
       <div className="px-4 py-5 sm:px-6">
+        <input {...conform.input(dayNumber, { hidden: true })} />
+
         <Input label="Label" config={label} placeholder="Push A, Upper A..." />
 
         {exercisesList.length <= 7 ? (
@@ -41,7 +44,7 @@ export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
               },
             })}
           >
-            Add an exercise
+            Add exercise
           </button>
         ) : null}
 

@@ -8,14 +8,7 @@ import { requireUser } from "~/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
-  const currentMesocycle = await prisma.mesocycle.findUnique({
-    where: {
-      currentUserId: user.id,
-    },
-    select: {
-      id: true,
-    },
-  });
+  const currentMesocycle = { id: "123" };
 
   const userMesocyclesCount = await prisma.mesocycle.count({
     where: {

@@ -9,26 +9,15 @@ import { useFieldList, useForm } from "@conform-to/react";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { prisma } from "~/db.server";
 import { parse } from "@conform-to/zod";
-import { getDraftMesocycle } from "~/models/mesocycle.server";
+import { createMesocycle, getDraftMesocycle } from "~/models/mesocycle.server";
 import { configRoutes } from "~/config-routes";
 import { Heading } from "~/components/heading";
 import { TrainingDayFieldset } from "./training-day-fieldset";
 import { SubmitButton } from "~/components/submit-button";
+import { ErrorMessage } from "~/components/error-message";
 
 export const action = async ({ request, params }: ActionArgs) => {
-  await requireUser(request);
-  const { id: mesocycleId } = params;
-  if (!mesocycleId) {
-    throw new Error("Missing id");
-  }
-
-  const formData = await request.formData();
-  const submission = parse(formData, { schema });
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
-  }
-
-  throw new Error("Not implemented");
+  return createMesocycle(request, params);
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -56,7 +45,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ mesocycle, exercises });
 };
 
-const schema = z.object({
+export const schema = z.object({
   trainingDays: z.array(
     z.object({
       label: z
@@ -233,6 +222,12 @@ export default function NewMesocycleDesign() {
                 {mesocycle.goal}
               </div>
             </div>
+
+            {!lastSubmission?.error.form ? (
+              <div className="mt-5">
+                <ErrorMessage>{lastSubmission?.error.form}</ErrorMessage>
+              </div>
+            ) : null}
           </div>
 
           <div className="ml-auto">
