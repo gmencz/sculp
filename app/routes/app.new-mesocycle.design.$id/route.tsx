@@ -193,10 +193,14 @@ export default function NewMesocycleDesign() {
 
   return (
     <>
-      <Form method="post" {...form.props}>
+      <Form
+        method="post"
+        {...form.props}
+        className="flex min-h-full flex-col py-10"
+      >
         <input type="hidden" name="intent" value="save-mesocycle" />
 
-        <div className="flex min-w-0 flex-1 flex-col sm:flex-row">
+        <div className="flex min-w-0 flex-col sm:flex-row">
           <div>
             <Heading>{mesocycle.name}</Heading>
 
@@ -236,10 +240,10 @@ export default function NewMesocycleDesign() {
           </div>
         </div>
 
-        <ul className="mt-6 flex gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
+        <ul className="mt-6 flex flex-1 gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
           {trainingDaysList.map((trainingDay, index) => (
             <li
-              className="h-fit min-w-full max-w-sm flex-grow rounded border border-zinc-200 bg-white xs:min-w-[24rem]"
+              className="min-w-full max-w-sm flex-1 rounded border border-zinc-200 bg-white xs:min-w-[26rem]"
               key={trainingDay.key}
             >
               <TrainingDayFieldset
