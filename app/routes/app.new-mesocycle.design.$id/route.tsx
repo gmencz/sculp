@@ -119,16 +119,11 @@ const schema = z.object({
                       },
                       { message: "The rep range is not valid." }
                     ),
-                })
+                }),
+                { required_error: "You must add at least 1 set." }
               )
+              .min(1, `You must add at least 1 set.`)
               .max(10, `The sets must be at most 10.`),
-
-            name: z
-              .string({
-                invalid_type_error: "The exercise name is not valid.",
-                required_error: "The exercise name is required.",
-              })
-              .min(1, "The exercise name is required."),
 
             id: z
               .string({

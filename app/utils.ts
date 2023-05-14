@@ -1,4 +1,6 @@
 import { useMatches, useSearchParams } from "@remix-run/react";
+import type { RefObject } from "react";
+import { useCallback } from "react";
 import { useEffect, useMemo, useRef } from "react";
 
 import type { User } from "~/models/user.server";
@@ -103,4 +105,16 @@ export function useSearchParamRef(param: string) {
   }, [currentValue]);
 
   return ref;
+}
+
+export function useDisclosure(buttonRef: RefObject<HTMLButtonElement>) {
+  const openPanel = useCallback(() => {
+    if (!buttonRef.current) return;
+
+    if (buttonRef.current?.dataset.headlessuiState !== "open") {
+      buttonRef.current?.click();
+    }
+  }, [buttonRef]);
+
+  return { openPanel };
 }

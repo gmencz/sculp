@@ -18,7 +18,10 @@ export function Textarea({
 }: TextareaProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="block text-sm font-medium leading-6 text-zinc-900">
+      <label
+        htmlFor={config.id}
+        className="block text-sm font-medium leading-6 text-zinc-900"
+      >
         {label}
       </label>
 
