@@ -56,10 +56,10 @@ export default function Index() {
             Currently in private beta
           </span>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-6xl">
-            Smart hypertrophy logbook
+            Smart hypertrophy app
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-300">
-            Want to build muscle like a pro? Our evidence-based logbook provides
+            Want to build muscle like a pro? Our evidence-based app provides
             personalized recommendations and data-driven insights to help you
             achieve your hypertrophy goals.
           </p>
@@ -69,7 +69,7 @@ export default function Index() {
                 to="/app"
                 className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
               >
-                Open logbook
+                Open app
               </Link>
             ) : (
               <>

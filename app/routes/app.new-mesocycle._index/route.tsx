@@ -56,7 +56,7 @@ export default function NewMesocycle() {
     });
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl py-10">
       <div className="flex flex-col gap-2">
         <Heading>Plan a new mesocycle</Heading>
         <Paragraph>

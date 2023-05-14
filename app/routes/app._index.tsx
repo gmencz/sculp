@@ -34,13 +34,13 @@ export default function Today() {
     useLoaderData<typeof loader>();
 
   return (
-    <>
+    <div className="py-10">
       {currentMesocycle ? (
         <div>
           <p>Your current mesocycle: {currentMesocycle.id}</p>
         </div>
       ) : (
-        <div className="flex h-full flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center justify-center text-center">
           <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400" />
           <h3 className="mt-2 text-sm font-semibold text-zinc-900">
             Nothing today
@@ -77,6 +77,6 @@ export default function Today() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
