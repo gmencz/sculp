@@ -151,3 +151,19 @@ export async function createMesocycle(
     return json(submission, { status: 500 });
   }
 }
+
+export async function getMesocycles(userId: string) {
+  return prisma.mesocycle.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      goal: true,
+      durationInWeeks: true,
+      _count: { select: { trainingDays: true } },
+    },
+  });
+}
