@@ -24,6 +24,7 @@ import { SignInModal } from "./components/sign-in-modal";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
+import { Toaster } from "react-hot-toast";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -72,6 +73,7 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

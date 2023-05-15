@@ -1,5 +1,5 @@
 import { useMatches, useSearchParams } from "@remix-run/react";
-import type { RefObject } from "react";
+import type { DependencyList, EffectCallback, RefObject } from "react";
 import { useCallback } from "react";
 import { useEffect, useMemo, useRef } from "react";
 
@@ -146,4 +146,21 @@ export function validateRepRange(repRange: string) {
   }
 
   return true;
+}
+
+export function useDelayedEffect(
+  callback: () => void,
+  deps?: DependencyList | undefined
+) {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      callback();
+    }, 0);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }

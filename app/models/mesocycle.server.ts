@@ -216,7 +216,10 @@ export async function updateMesocycle(
     },
   });
 
-  return redirect(configRoutes.mesocycleView(updatedMesocycle.id));
+  return redirect(
+    configRoutes.mesocycleView(updatedMesocycle.id) +
+      `?success_id=${new Date().getTime()}`
+  );
 }
 
 export async function getMesocycles(userId: string) {

@@ -5,6 +5,7 @@ import {
   useActionData,
   useLoaderData,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
@@ -22,6 +23,9 @@ import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
+import { toast } from "react-hot-toast";
+import { SuccessToast } from "~/components/success-toast";
+import { useDelayedEffect } from "~/utils";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -86,6 +90,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
   const lastSubmission = useActionData();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
@@ -114,6 +119,21 @@ export default function Mesocycle() {
   });
 
   const trainingDaysList = useFieldList(form.ref, trainingDays);
+  const successId = searchParams.get("success_id");
+  useDelayedEffect(() => {
+    if (successId) {
+      toast.custom(
+        (t) => (
+          <SuccessToast
+            t={t}
+            title="Success"
+            description="Your changes have been saved."
+          />
+        ),
+        { duration: 3000, position: "top-center" }
+      );
+    }
+  }, [successId]);
 
   return (
     <Form
