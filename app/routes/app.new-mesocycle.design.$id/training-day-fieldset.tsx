@@ -3,12 +3,12 @@ import { conform } from "@conform-to/react";
 import { useFieldList } from "@conform-to/react";
 import { list } from "@conform-to/react";
 import { useFieldset } from "@conform-to/react";
-import type { Schema } from "./route";
 import type { RefObject } from "react";
 import { useRef } from "react";
 import { Input } from "~/components/input";
 import { ErrorMessage } from "~/components/error-message";
 import { ExerciseFieldset } from "./exercise-fieldset";
+import type { Schema } from "./schema";
 
 type TrainingDayFieldsetProps = {
   config: FieldConfig<Schema["trainingDays"][number]>;

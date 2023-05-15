@@ -2,13 +2,17 @@ import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Form, useActionData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { SubmitButton } from "~/components/submit-button";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
-import { createDraftMesocycle } from "~/models/mesocycle.server";
+import {
+  createDraftMesocycle,
+  findMesocycleByNameUserId,
+} from "~/models/mesocycle.server";
 import type { Schema } from "./schema";
 import {
   durationInWeeksArray,
@@ -22,7 +26,28 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export const action = async ({ request }: ActionArgs) => {
-  return createDraftMesocycle(request);
+  const user = await requireUser(request);
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  const { durationInWeeks, goal, name, trainingDaysPerWeek } = submission.value;
+  const existingMesocycle = await findMesocycleByNameUserId(name, user.id);
+
+  if (existingMesocycle) {
+    submission.error["name"] = "A mesocycle with that name already exists.";
+    return json(submission, { status: 400 });
+  }
+
+  return createDraftMesocycle(request, {
+    durationInWeeks,
+    goal,
+    name,
+    trainingDaysPerWeek,
+  });
 };
 
 export default function NewMesocycle() {

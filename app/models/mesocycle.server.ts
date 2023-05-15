@@ -1,13 +1,8 @@
-import { parse } from "@conform-to/zod";
-import type { ActionArgs } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
-import { schema } from "~/routes/app.mesocycles.$id/route";
-import { schema as createDraftMesocycleSchema } from "~/routes/app.new-mesocycle._index/schema";
-import { schema as createMesocycleSchema } from "~/routes/app.new-mesocycle.design.$id/route";
-import { getSession, requireUser, sessionStorage } from "~/session.server";
+import { getSession, sessionStorage } from "~/session.server";
 import { getRepRangeBounds } from "~/utils";
 
 export type DraftMesocycle = {
@@ -19,43 +14,27 @@ export type DraftMesocycle = {
 
 const getDraftMesocycleSessionKey = (id: string) => `draft-mesocycle-${id}`;
 
-export async function createDraftMesocycle(request: Request) {
-  const user = await requireUser(request);
-  const formData = await request.formData();
-  const submission = parse(formData, { schema: createDraftMesocycleSchema });
-
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
-  }
-
-  const { durationInWeeks, goal, name, trainingDaysPerWeek } = submission.value;
-
-  const existingMesocycle = await prisma.mesocycle.findUnique({
+export async function findMesocycleByNameUserId(name: string, userId: string) {
+  return prisma.mesocycle.findUnique({
     where: {
       name_userId: {
         name,
-        userId: user.id,
+        userId,
       },
     },
     select: {
       id: true,
     },
   });
+}
 
-  if (existingMesocycle) {
-    submission.error["name"] = "A mesocycle with that name already exists.";
-    return json(submission, { status: 400 });
-  }
-
+export async function createDraftMesocycle(
+  request: Request,
+  input: DraftMesocycle
+) {
   const session = await getSession(request);
   const id = nanoid();
-  session.set(getDraftMesocycleSessionKey(id), {
-    durationInWeeks,
-    goal,
-    name,
-    trainingDaysPerWeek,
-  });
-
+  session.set(getDraftMesocycleSessionKey(id), input);
   return redirect(configRoutes.newMesocycleDesign(id), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
@@ -72,106 +51,108 @@ export async function getDraftMesocycle(
   return mesocycle;
 }
 
+type CreateMesocycleInput = {
+  trainingDays: {
+    label: string;
+    exercises: {
+      id: string;
+      sets: {
+        weight: number;
+        rir: number;
+        repRange: string;
+      }[];
+      dayNumber: number;
+      notes?: string | undefined;
+    }[];
+    dayNumber: number;
+  }[];
+
+  draftId: string;
+  name: string;
+  goal: string;
+  durationInWeeks: number;
+};
+
 export async function createMesocycle(
   request: Request,
-  params: ActionArgs["params"]
+  userId: string,
+  { trainingDays, name, goal, durationInWeeks, draftId }: CreateMesocycleInput
 ) {
-  const user = await requireUser(request);
-
-  const { id } = params;
-  if (!id) {
-    return redirect(configRoutes.newMesocycle);
-  }
-
-  const formData = await request.formData();
-  const submission = parse(formData, { schema: createMesocycleSchema });
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
-  }
-
-  const draftMesocycle = await getDraftMesocycle(request, id);
-  if (!draftMesocycle) {
-    return redirect(configRoutes.newMesocycle);
-  }
-
-  const { name, goal, durationInWeeks } = draftMesocycle;
-  const { trainingDays } = submission.value;
-
-  try {
-    const mesocycle = await prisma.mesocycle.create({
-      data: {
-        name,
-        durationInWeeks,
-        goal,
-        userId: user.id,
-        trainingDays: {
-          create: trainingDays.map((trainingDay) => ({
-            label: trainingDay.label,
-            number: trainingDay.dayNumber,
-            exercises: {
-              create: trainingDay.exercises.map((exercise, index) => ({
-                notes: exercise.notes,
-                exercise: {
-                  connect: {
-                    id: exercise.id,
-                  },
+  const mesocycle = await prisma.mesocycle.create({
+    data: {
+      name,
+      durationInWeeks,
+      goal,
+      userId,
+      trainingDays: {
+        create: trainingDays.map((trainingDay) => ({
+          label: trainingDay.label,
+          number: trainingDay.dayNumber,
+          exercises: {
+            create: trainingDay.exercises.map((exercise, index) => ({
+              notes: exercise.notes,
+              exercise: {
+                connect: {
+                  id: exercise.id,
                 },
-                number: index + 1,
-                sets: {
-                  create: exercise.sets.map((set, index) => {
-                    const [repRangeLowerBound, repRangeUpperBound] =
-                      getRepRangeBounds(set.repRange);
+              },
+              number: index + 1,
+              sets: {
+                create: exercise.sets.map((set, index) => {
+                  const [repRangeLowerBound, repRangeUpperBound] =
+                    getRepRangeBounds(set.repRange);
 
-                    return {
-                      number: index + 1,
-                      weight: set.weight,
-                      repRangeLowerBound,
-                      repRangeUpperBound,
-                      rir: set.rir,
-                    };
-                  }),
-                },
-              })),
-            },
-          })),
-        },
+                  return {
+                    number: index + 1,
+                    weight: set.weight,
+                    repRangeLowerBound,
+                    repRangeUpperBound,
+                    rir: set.rir,
+                  };
+                }),
+              },
+            })),
+          },
+        })),
       },
-      select: {
-        id: true,
-      },
-    });
+    },
+    select: {
+      id: true,
+    },
+  });
 
-    const session = await getSession(request);
-    session.unset(getDraftMesocycleSessionKey(id));
-    return redirect(configRoutes.mesocycleView(mesocycle.id), {
-      headers: {
-        "Set-Cookie": await sessionStorage.commitSession(session),
-      },
-    });
-  } catch (error) {
-    submission.error["form"] =
-      "Something went wrong saving the mesocycle, try again later.";
-
-    return json(submission, { status: 500 });
-  }
+  const session = await getSession(request);
+  session.unset(getDraftMesocycleSessionKey(draftId));
+  return redirect(configRoutes.mesocycleView(mesocycle.id), {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(session),
+    },
+  });
 }
 
+type UpdateMesocycleInput = {
+  trainingDays: {
+    id: string;
+    label: string;
+    exercises: {
+      id: string | null;
+      sets: {
+        id: string | null;
+        rir: number;
+        weight: number;
+        repRange: string;
+      }[];
+      searchedExerciseId: string;
+      notes?: string | undefined;
+    }[];
+  }[];
+};
+
 export async function updateMesocycle(
-  request: Request,
-  params: ActionArgs["params"]
+  id: string,
+  userId: string,
+  input: UpdateMesocycleInput
 ) {
-  const user = await requireUser(request);
-  const { id } = params;
-  if (!id) {
-    return redirect(configRoutes.mesocycles);
-  }
-
-  const formData = await request.formData();
-  const submission = parse(formData, { schema });
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
-  }
-
   const mesocycle = await prisma.mesocycle.findUnique({
     where: {
       id,
@@ -182,13 +163,12 @@ export async function updateMesocycle(
     },
   });
 
-  if (!mesocycle || mesocycle.userId !== user.id) {
+  // Check if the mesocycle exists and belongs to the current user.
+  if (!mesocycle || mesocycle.userId !== userId) {
     throw new Response("Not found", {
       status: 404,
     });
   }
-
-  const { trainingDays } = submission.value;
 
   const updatedMesocycle = await prisma.mesocycle.update({
     where: {
@@ -199,7 +179,7 @@ export async function updateMesocycle(
     },
     data: {
       trainingDays: {
-        update: trainingDays.map((trainingDay) => ({
+        update: input.trainingDays.map((trainingDay) => ({
           where: { id: trainingDay.id },
           data: {
             label: { set: trainingDay.label },

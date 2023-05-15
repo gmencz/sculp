@@ -1,6 +1,6 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform, list, useFieldList, useFieldset } from "@conform-to/react";
-import type { Schema, loader } from "./route";
+import type { loader } from "./route";
 import type { RefObject } from "react";
 import { useRef } from "react";
 import { Disclosure } from "@headlessui/react";
@@ -15,6 +15,7 @@ import { Textarea } from "~/components/textarea";
 import { useDisclosure } from "~/utils";
 import { ExercisesAutocomplete } from "~/components/exercises-autocomplete";
 import { useLoaderData } from "@remix-run/react";
+import type { Schema } from "./schema";
 
 type ExerciseFieldsetProps = {
   config: FieldConfig<Schema["trainingDays"][number]["exercises"][number]>;

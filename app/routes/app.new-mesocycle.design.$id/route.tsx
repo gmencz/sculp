@@ -4,7 +4,6 @@ import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
 import { CalendarDaysIcon } from "@heroicons/react/20/solid";
-import { z } from "zod";
 import { useFieldList, useForm } from "@conform-to/react";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { prisma } from "~/db.server";
@@ -15,17 +14,44 @@ import { Heading } from "~/components/heading";
 import { TrainingDayFieldset } from "./training-day-fieldset";
 import { SubmitButton } from "~/components/submit-button";
 import { ErrorMessage } from "~/components/error-message";
-import { validateRepRange } from "~/utils";
+import type { Schema } from "./schema";
+import { schema } from "./schema";
 
 export const action = async ({ request, params }: ActionArgs) => {
-  return createMesocycle(request, params);
+  const user = await requireUser(request);
+  const { id } = params;
+  if (!id) {
+    throw new Error("id param is falsy, this should never happen");
+  }
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  const draftMesocycle = await getDraftMesocycle(request, id);
+  if (!draftMesocycle) {
+    return redirect(configRoutes.newMesocycle);
+  }
+
+  const { name, goal, durationInWeeks } = draftMesocycle;
+  const { trainingDays } = submission.value;
+
+  return createMesocycle(request, user.id, {
+    draftId: id,
+    goal,
+    name,
+    durationInWeeks,
+    trainingDays,
+  });
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
   const { id } = params;
   if (!id) {
-    return redirect(configRoutes.newMesocycle);
+    throw new Error("id param is falsy, this should never happen");
   }
 
   const mesocycle = await getDraftMesocycle(request, id);
@@ -45,98 +71,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   return json({ mesocycle, exercises });
 };
-
-export const schema = z.object({
-  trainingDays: z.array(
-    z.object({
-      label: z
-        .string({
-          invalid_type_error: "The label is not valid.",
-          required_error: "The label is required.",
-        })
-        .min(1, "The label is required.")
-        .max(50, "The label must be at most 50 characters long."),
-
-      exercises: z
-        .array(
-          z.object({
-            sets: z
-              .array(
-                z.object({
-                  rir: z.coerce
-                    .number({
-                      invalid_type_error: "The RIR is not valid.",
-                      required_error: "The RIR is required.",
-                    })
-                    .min(0, `The RIR can't be lower than 0.`)
-                    .max(100, `The RIR can't be higher than 100.`),
-
-                  weight: z.coerce
-                    .number({
-                      invalid_type_error: "The weight is not valid.",
-                      required_error: "The weight is required.",
-                    })
-                    .min(1, `The weight must be greater than 0.`)
-                    .max(10000, `The weight can't be greater than 10000.`),
-
-                  repRange: z
-                    .string({
-                      invalid_type_error: "The rep range is not valid.",
-                      required_error: "The rep range is required.",
-                    })
-                    .min(1, "The rep range is required.")
-                    .refine(validateRepRange, {
-                      message: "The rep range is not valid.",
-                    }),
-                }),
-                { required_error: "You must add at least 1 set." }
-              )
-              .min(1, `You must add at least 1 set.`)
-              .max(10, `The sets must be at most 10.`),
-
-            id: z
-              .string({
-                invalid_type_error: "The exercise is not valid.",
-                required_error: "The exercise is required.",
-              })
-              .min(1, "The exercise is required."),
-
-            notes: z
-              .string({
-                invalid_type_error: "The notes are not valid.",
-              })
-              .optional(),
-
-            dayNumber: z.coerce
-              .number({
-                invalid_type_error: "The day number is not valid.",
-                required_error: "The day number is required.",
-              })
-              .min(1, `The day number must be at least 1.`)
-              .max(6, `The day number can't be greater than 6.`),
-          }),
-          {
-            required_error: "You must add at least 1 exercise.",
-          }
-        )
-        .min(1, "You must add at least 1 exercise.")
-        .max(
-          8,
-          "You can't add more than 7 exercises on a given day, this is to prevent junk volume."
-        ),
-
-      dayNumber: z.coerce
-        .number({
-          invalid_type_error: "The day number is not valid.",
-          required_error: "The day number is required.",
-        })
-        .min(1, `The day number must be at least 1.`)
-        .max(6, `The day number can't be greater than 6.`),
-    })
-  ),
-});
-
-export type Schema = z.infer<typeof schema>;
 
 export default function NewMesocycleDesign() {
   const { mesocycle } = useLoaderData<typeof loader>();
