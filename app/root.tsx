@@ -5,7 +5,6 @@ import type {
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  Link,
   Links,
   LiveReload,
   Meta,
@@ -13,7 +12,6 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  useCatch,
   useLocation,
   useRouteError,
 } from "@remix-run/react";
@@ -25,6 +23,7 @@ import { RequestAccessModal } from "./components/request-access-modal";
 import { SignInModal } from "./components/sign-in-modal";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
+import { BackLink } from "./components/back-link";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -107,14 +106,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Page not found"
             subtitle={`"${location.pathname}" is not a page. So sorry.`}
-            action={
-              <Link
-                to="/"
-                className="text-sm font-semibold leading-7 text-orange-600"
-              >
-                <span aria-hidden="true">&larr;</span> Back to home
-              </Link>
-            }
+            action={<BackLink to="/">Back to home</BackLink>}
           />
         </ErrorDoc>
       );
@@ -127,14 +119,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Oh no, something did not go well."
             subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-            action={
-              <Link
-                to="/"
-                className="text-sm font-semibold leading-7 text-orange-600"
-              >
-                <span aria-hidden="true">&larr;</span> Back to home
-              </Link>
-            }
+            action={<BackLink to="/">Back to home</BackLink>}
           />
         </ErrorDoc>
       );
@@ -151,14 +136,7 @@ export function ErrorBoundary() {
         statusCode={500}
         title="Oh no, something did not go well."
         subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-        action={
-          <Link
-            to="/"
-            className="text-sm font-semibold leading-7 text-orange-600"
-          >
-            <span aria-hidden="true">&larr;</span> Back to home
-          </Link>
-        }
+        action={<BackLink to="/">Back to home</BackLink>}
       />
     </ErrorDoc>
   );

@@ -22,6 +22,7 @@ import { TrainingDayFieldset } from "./training-day-fieldset";
 import { prisma } from "~/db.server";
 import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
 import { validateRepRange } from "~/utils";
+import { BackLink } from "~/components/back-link";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -59,14 +60,7 @@ export function ErrorBoundary() {
         statusCode={error.status}
         title="Mesocycle not found"
         subtitle={`We couldn't find the mesocycle you were looking for. So sorry.`}
-        action={
-          <Link
-            to={configRoutes.mesocycles}
-            className="text-sm font-semibold leading-7 text-orange-600"
-          >
-            <span aria-hidden="true">&larr;</span> Back to mesocycles
-          </Link>
-        }
+        action={<BackLink to="/app">Back to your mesocycles</BackLink>}
       />
     );
   }

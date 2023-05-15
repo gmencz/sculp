@@ -20,6 +20,7 @@ import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren } from "react";
 import { Fragment, useState } from "react";
+import { BackLink } from "~/components/back-link";
 import { ErrorPage } from "~/components/error-page";
 import { requireUser } from "~/session.server";
 
@@ -249,14 +250,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Page not found"
             subtitle={`"${location.pathname}" is not a page. So sorry.`}
-            action={
-              <Link
-                to="/app"
-                className="text-sm font-semibold leading-7 text-orange-600"
-              >
-                <span aria-hidden="true">&larr;</span> Back to app
-              </Link>
-            }
+            action={<BackLink to="/app">Back to app</BackLink>}
           />
         </Layout>
       );
@@ -269,14 +263,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Oh no, something did not go well."
             subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-            action={
-              <Link
-                to="/app"
-                className="text-sm font-semibold leading-7 text-orange-600"
-              >
-                <span aria-hidden="true">&larr;</span> Back to app
-              </Link>
-            }
+            action={<BackLink to="/app">Back to app</BackLink>}
           />
         </Layout>
       );
@@ -293,14 +280,7 @@ export function ErrorBoundary() {
         statusCode={500}
         title="Oh no, something did not go well."
         subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-        action={
-          <Link
-            to="/app"
-            className="text-sm font-semibold leading-7 text-orange-600"
-          >
-            <span aria-hidden="true">&larr;</span> Back to app
-          </Link>
-        }
+        action={<BackLink to="/app">Back to app</BackLink>}
       />
     </Layout>
   );
