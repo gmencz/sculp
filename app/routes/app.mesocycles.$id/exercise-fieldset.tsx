@@ -26,7 +26,10 @@ type ExerciseFieldsetProps = {
 
 export function ExerciseFieldset(props: ExerciseFieldsetProps) {
   const ref = useRef<HTMLFieldSetElement>(null);
-  const { id, dayNumber, notes, sets } = useFieldset(ref, props.config);
+  const { id, searchedExerciseId, notes, sets } = useFieldset(
+    ref,
+    props.config
+  );
   const setsList = useFieldList(props.formRef, sets);
   const disclosureButtonRef = useRef<HTMLButtonElement>(null);
   const { openPanel } = useDisclosure(disclosureButtonRef);
@@ -34,16 +37,16 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
 
   return (
     <fieldset ref={ref}>
-      <input {...conform.input(dayNumber, { hidden: true })} />
+      <input {...conform.input(id, { hidden: true })} />
 
       <ExercisesAutocomplete
         exercises={exercises}
         dayNumber={props.dayNumber}
         exerciseNumber={props.index + 1}
-        fieldConfig={id}
+        fieldConfig={searchedExerciseId}
       />
 
-      <Disclosure defaultOpen>
+      <Disclosure>
         <Disclosure.Button
           ref={disclosureButtonRef}
           className="mb-3 mt-4 flex w-full items-center justify-center rounded bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"

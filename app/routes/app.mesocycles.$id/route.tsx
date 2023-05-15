@@ -1,35 +1,48 @@
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
-import { requireUser } from "~/session.server";
-import { CalendarDaysIcon } from "@heroicons/react/20/solid";
-import { z } from "zod";
 import { useFieldList, useForm } from "@conform-to/react";
-import { CalendarIcon } from "@heroicons/react/24/outline";
-import { prisma } from "~/db.server";
-import { parse } from "@conform-to/zod";
-import { createMesocycle, getDraftMesocycle } from "~/models/mesocycle.server";
+import {
+  Form,
+  Link,
+  isRouteErrorResponse,
+  useActionData,
+  useLoaderData,
+  useRouteError,
+} from "@remix-run/react";
+import type {
+  ActionArgs,
+  ActionFunction,
+  LoaderArgs,
+} from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
+import { ErrorPage } from "~/components/error-page";
 import { configRoutes } from "~/config-routes";
+import { getMesocycle } from "~/models/mesocycle.server";
+import { requireUser } from "~/session.server";
+import { parse } from "@conform-to/zod";
+import { z } from "zod";
 import { Heading } from "~/components/heading";
-import { TrainingDayFieldset } from "./training-day-fieldset";
-import { SubmitButton } from "~/components/submit-button";
+import { CalendarDaysIcon, CalendarIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
+import { SubmitButton } from "~/components/submit-button";
+import { TrainingDayFieldset } from "./training-day-fieldset";
+import { prisma } from "~/db.server";
 
-export const action = async ({ request, params }: ActionArgs) => {
-  return createMesocycle(request, params);
+export const action = async ({ request }: ActionArgs) => {
+  await requireUser(request);
+  return null;
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
   const { id } = params;
   if (!id) {
-    return redirect(configRoutes.newMesocycle);
+    return redirect(configRoutes.mesocycles);
   }
 
-  const mesocycle = await getDraftMesocycle(request, id);
+  const mesocycle = await getMesocycle(id, user.id);
   if (!mesocycle) {
-    return redirect(configRoutes.newMesocycle);
+    throw new Response("Not Found", {
+      status: 404,
+    });
   }
 
   const exercises = await prisma.exercise.findMany({
@@ -45,9 +58,43 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ mesocycle, exercises });
 };
 
-export const schema = z.object({
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return (
+        <ErrorPage
+          statusCode={error.status}
+          title="Mesocycle not found"
+          subtitle={`We couldn't find the mesocycle you were looking for. So sorry.`}
+          action={
+            <Link
+              to={configRoutes.mesocycles}
+              className="text-sm font-semibold leading-7 text-orange-600"
+            >
+              <span aria-hidden="true">&larr;</span> Back to mesocycles
+            </Link>
+          }
+        />
+      );
+    }
+
+    throw error;
+  }
+}
+
+const schema = z.object({
   trainingDays: z.array(
     z.object({
+      id: z
+        .string({
+          invalid_type_error: "The day id is not valid.",
+          required_error: "The day id is required.",
+        })
+        .min(1, "The day id is required.")
+        .max(100, "The day id must be at most 100 characters long."),
+
       label: z
         .string({
           invalid_type_error: "The label is not valid.",
@@ -59,9 +106,28 @@ export const schema = z.object({
       exercises: z
         .array(
           z.object({
+            id: z
+              .string({
+                invalid_type_error: "The exercise id is not valid.",
+                required_error: "The exercise id is required.",
+              })
+              .min(1, "The exercise id is required.")
+              .max(100, "The exercise id must be at most 100 characters long."),
+
             sets: z
               .array(
                 z.object({
+                  id: z
+                    .string({
+                      invalid_type_error: "The set id is not valid.",
+                      required_error: "The set id is required.",
+                    })
+                    .min(1, "The set id is required.")
+                    .max(
+                      100,
+                      "The set id must be at most 100 characters long."
+                    ),
+
                   rir: z.coerce
                     .number({
                       invalid_type_error: "The RIR is not valid.",
@@ -114,7 +180,7 @@ export const schema = z.object({
               .min(1, `You must add at least 1 set.`)
               .max(10, `The sets must be at most 10.`),
 
-            id: z
+            searchedExerciseId: z
               .string({
                 invalid_type_error: "The exercise is not valid.",
                 required_error: "The exercise is required.",
@@ -126,14 +192,6 @@ export const schema = z.object({
                 invalid_type_error: "The notes are not valid.",
               })
               .optional(),
-
-            dayNumber: z.coerce
-              .number({
-                invalid_type_error: "The day number is not valid.",
-                required_error: "The day number is required.",
-              })
-              .min(1, `The day number must be at least 1.`)
-              .max(6, `The day number can't be greater than 6.`),
           }),
           {
             required_error: "You must add at least 1 exercise.",
@@ -144,48 +202,44 @@ export const schema = z.object({
           8,
           "You can't add more than 7 exercises on a given day, this is to prevent junk volume."
         ),
-
-      dayNumber: z.coerce
-        .number({
-          invalid_type_error: "The day number is not valid.",
-          required_error: "The day number is required.",
-        })
-        .min(1, `The day number must be at least 1.`)
-        .max(6, `The day number can't be greater than 6.`),
     })
   ),
 });
 
-export type Schema = z.infer<typeof schema>;
+export type Schema = z.TypeOf<typeof schema>;
 
-export default function NewMesocycleDesign() {
+export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData();
   const [form, { trainingDays }] = useForm<Schema>({
-    id: "save-mesocycle",
+    id: "edit-mesocycle",
     lastSubmission,
     onValidate({ formData }) {
       return parse(formData, { schema });
     },
     defaultValue: {
-      trainingDays: Array.from(
-        { length: mesocycle.trainingDaysPerWeek },
-        (_, index) => ({
-          dayNumber: (index + 1).toString(),
-          exercises: [],
-        })
-      ),
+      trainingDays: mesocycle.trainingDays.map((trainingDay) => ({
+        id: trainingDay.id,
+        label: trainingDay.label,
+        exercises: trainingDay.exercises.map((exercise) => ({
+          id: exercise.id,
+          searchedExerciseId: exercise.exercise.id,
+          notes: exercise.notes ?? undefined,
+          sets: exercise.sets.map((set) => ({
+            id: set.id,
+            repRange: `${set.repRangeLowerBound}-${set.repRangeUpperBound}`,
+            weight: set.weight.toString(),
+            rir: set.rir.toString(),
+          })),
+        })),
+      })),
     },
   });
 
   const trainingDaysList = useFieldList(form.ref, trainingDays);
 
   return (
-    <Form
-      method="post"
-      {...form.props}
-      className="flex min-h-full flex-col py-10"
-    >
+    <Form className="flex min-h-full flex-col py-10">
       <div className="flex min-w-0 flex-col sm:flex-row">
         <div>
           <Heading>{mesocycle.name}</Heading>
@@ -203,7 +257,7 @@ export default function NewMesocycleDesign() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.trainingDaysPerWeek} days per week
+              {mesocycle.trainingDays.length} days per week
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <svg
@@ -228,7 +282,7 @@ export default function NewMesocycleDesign() {
         </div>
 
         <div className="ml-auto">
-          <SubmitButton text="Save and contine" />
+          <SubmitButton text="Save changes" />
         </div>
       </div>
 

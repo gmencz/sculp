@@ -5,12 +5,17 @@ import type {
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  Link,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
+  useCatch,
+  useLocation,
+  useRouteError,
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
@@ -18,6 +23,8 @@ import { getUser } from "~/session.server";
 import { useOptionalUser } from "./utils";
 import { RequestAccessModal } from "./components/request-access-modal";
 import { SignInModal } from "./components/sign-in-modal";
+import { ErrorPage } from "./components/error-page";
+import type { PropsWithChildren } from "react";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -53,7 +60,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full overflow-x-hidden">
+      <body className="h-full overflow-x-hidden scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
         <Outlet />
 
         {!user ? (
@@ -68,5 +75,91 @@ export default function App() {
         <LiveReload />
       </body>
     </html>
+  );
+}
+
+function ErrorDoc({ children }: PropsWithChildren) {
+  return (
+    <html lang="en" className="h-full">
+      <head>
+        <title>Oh no...</title>
+        <Links />
+      </head>
+      <body className="h-full">
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const location = useLocation();
+
+  if (isRouteErrorResponse(error)) {
+    console.error("Caught route error", error);
+
+    if (error.status === 404) {
+      return (
+        <ErrorDoc>
+          <ErrorPage
+            statusCode={error.status}
+            title="Page not found"
+            subtitle={`"${location.pathname}" is not a page. So sorry.`}
+            action={
+              <Link
+                to="/"
+                className="text-sm font-semibold leading-7 text-orange-600"
+              >
+                <span aria-hidden="true">&larr;</span> Back to home
+              </Link>
+            }
+          />
+        </ErrorDoc>
+      );
+    }
+
+    if (error.status !== 500) {
+      return (
+        <ErrorDoc>
+          <ErrorPage
+            statusCode={error.status}
+            title="Oh no, something did not go well."
+            subtitle={`"${location.pathname}" is currently not working. So sorry.`}
+            action={
+              <Link
+                to="/"
+                className="text-sm font-semibold leading-7 text-orange-600"
+              >
+                <span aria-hidden="true">&larr;</span> Back to home
+              </Link>
+            }
+          />
+        </ErrorDoc>
+      );
+    }
+
+    throw new Error(`Unhandled error: ${error.status}`);
+  }
+
+  console.error(`Uncaught error`, error);
+
+  return (
+    <ErrorDoc>
+      <ErrorPage
+        statusCode={500}
+        title="Oh no, something did not go well."
+        subtitle={`"${location.pathname}" is currently not working. So sorry.`}
+        action={
+          <Link
+            to="/"
+            className="text-sm font-semibold leading-7 text-orange-600"
+          >
+            <span aria-hidden="true">&larr;</span> Back to home
+          </Link>
+        }
+      />
+    </ErrorDoc>
   );
 }

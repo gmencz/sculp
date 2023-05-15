@@ -107,9 +107,10 @@ export async function createMesocycle(
             label: trainingDay.label,
             number: trainingDay.dayNumber,
             exercises: {
-              create: trainingDay.exercises.map((exercise) => ({
+              create: trainingDay.exercises.map((exercise, index) => ({
                 notes: exercise.notes,
                 exerciseId: exercise.id,
+                number: index + 1,
                 sets: {
                   create: exercise.sets.map((set, index) => {
                     // The incoming set rep range will have the format:
@@ -164,6 +165,53 @@ export async function getMesocycles(userId: string) {
       goal: true,
       durationInWeeks: true,
       _count: { select: { trainingDays: true } },
+    },
+  });
+}
+
+export async function getMesocycle(id: string, userId: string) {
+  return prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      goal: true,
+      durationInWeeks: true,
+      trainingDays: {
+        orderBy: { number: "asc" },
+        select: {
+          id: true,
+          number: true,
+          label: true,
+          exercises: {
+            select: {
+              id: true,
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              number: true,
+              notes: true,
+              sets: {
+                select: {
+                  id: true,
+                  number: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                  weight: true,
+                  rir: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }

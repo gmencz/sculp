@@ -8,10 +8,19 @@ import {
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { NavLink, Outlet } from "@remix-run/react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  isRouteErrorResponse,
+  useLocation,
+  useRouteError,
+} from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
+import type { PropsWithChildren } from "react";
 import { Fragment, useState } from "react";
+import { ErrorPage } from "~/components/error-page";
 import { requireUser } from "~/session.server";
 
 const navigation = [
@@ -38,7 +47,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   return null;
 };
 
-export default function App() {
+function Layout({ children }: PropsWithChildren) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -211,11 +220,88 @@ export default function App() {
         </a>
       </div>
 
-      <main className="h-full lg:pl-72">
-        <div className="h-full px-4 sm:px-6 lg:px-8">
-          <Outlet />
-        </div>
+      <main className="h-full bg-zinc-50 lg:pl-72">
+        <div className="h-full px-4 sm:px-6 lg:px-8">{children}</div>
       </main>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const location = useLocation();
+
+  if (isRouteErrorResponse(error)) {
+    console.error("Caught route error", error);
+
+    if (error.status === 404) {
+      return (
+        <Layout>
+          <ErrorPage
+            statusCode={error.status}
+            title="Page not found"
+            subtitle={`"${location.pathname}" is not a page. So sorry.`}
+            action={
+              <Link
+                to="/app"
+                className="text-sm font-semibold leading-7 text-orange-600"
+              >
+                <span aria-hidden="true">&larr;</span> Back to app
+              </Link>
+            }
+          />
+        </Layout>
+      );
+    }
+
+    if (error.status !== 500) {
+      return (
+        <Layout>
+          <ErrorPage
+            statusCode={error.status}
+            title="Oh no, something did not go well."
+            subtitle={`"${location.pathname}" is currently not working. So sorry.`}
+            action={
+              <Link
+                to="/app"
+                className="text-sm font-semibold leading-7 text-orange-600"
+              >
+                <span aria-hidden="true">&larr;</span> Back to app
+              </Link>
+            }
+          />
+        </Layout>
+      );
+    }
+
+    throw new Error(`Unhandled error: ${error.status}`);
+  }
+
+  console.error(`Uncaught error`, error);
+
+  return (
+    <Layout>
+      <ErrorPage
+        statusCode={500}
+        title="Oh no, something did not go well."
+        subtitle={`"${location.pathname}" is currently not working. So sorry.`}
+        action={
+          <Link
+            to="/app"
+            className="text-sm font-semibold leading-7 text-orange-600"
+          >
+            <span aria-hidden="true">&larr;</span> Back to app
+          </Link>
+        }
+      />
+    </Layout>
   );
 }
