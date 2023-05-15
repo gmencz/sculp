@@ -63,7 +63,7 @@ export default function Mesocycles() {
             </div>
 
             <div>
-              <div className="-mt-px flex divide-x divide-gray-200">
+              <div className="-mt-px flex divide-x divide-zinc-200">
                 <div className="flex w-0 flex-1">
                   <Link
                     to={`./${mesocycle.id}/start`}
@@ -79,7 +79,7 @@ export default function Mesocycles() {
                 <div className="-ml-px flex w-0 flex-1">
                   <Link
                     to={`./${mesocycle.id}`}
-                    className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                    className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-zinc-900"
                   >
                     <PencilSquareIcon
                       className="h-5 w-5 text-zinc-400"

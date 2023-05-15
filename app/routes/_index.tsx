@@ -25,7 +25,7 @@ export default function Index() {
             <path d="M.5 200V.5H200" fill="none" />
           </pattern>
         </defs>
-        <svg x="50%" y={-1} className="overflow-visible fill-gray-800/20">
+        <svg x="50%" y={-1} className="overflow-visible fill-zinc-800/20">
           <path
             d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
             strokeWidth={0}
@@ -58,7 +58,7 @@ export default function Index() {
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-6xl">
             Smart hypertrophy app
           </h1>
-          <p className="mt-6 text-lg leading-8 text-gray-300">
+          <p className="mt-6 text-lg leading-8 text-zinc-300">
             Want to build muscle like a pro? Our evidence-based app provides
             personalized recommendations and data-driven insights to help you
             achieve your hypertrophy goals.

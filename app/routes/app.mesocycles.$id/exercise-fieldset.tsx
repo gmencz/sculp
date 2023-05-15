@@ -46,7 +46,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
         fieldConfig={searchedExerciseId}
       />
 
-      <Disclosure>
+      <Disclosure defaultOpen={!id.defaultValue}>
         <Disclosure.Button
           ref={disclosureButtonRef}
           className="mb-3 mt-4 flex w-full items-center justify-center rounded bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"

@@ -7,15 +7,10 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import type {
-  ActionArgs,
-  ActionFunction,
-  LoaderArgs,
-} from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import { ErrorPage } from "~/components/error-page";
 import { configRoutes } from "~/config-routes";
-import { getMesocycle } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 import { parse } from "@conform-to/zod";
 import { z } from "zod";
@@ -25,11 +20,8 @@ import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
 import { prisma } from "~/db.server";
-
-export const action = async ({ request }: ActionArgs) => {
-  await requireUser(request);
-  return null;
-};
+import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
+import { validateRepRange } from "~/utils";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -61,30 +53,28 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export function ErrorBoundary() {
   const error = useRouteError();
 
-  if (isRouteErrorResponse(error)) {
-    if (error.status === 404) {
-      return (
-        <ErrorPage
-          statusCode={error.status}
-          title="Mesocycle not found"
-          subtitle={`We couldn't find the mesocycle you were looking for. So sorry.`}
-          action={
-            <Link
-              to={configRoutes.mesocycles}
-              className="text-sm font-semibold leading-7 text-orange-600"
-            >
-              <span aria-hidden="true">&larr;</span> Back to mesocycles
-            </Link>
-          }
-        />
-      );
-    }
-
-    throw error;
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return (
+      <ErrorPage
+        statusCode={error.status}
+        title="Mesocycle not found"
+        subtitle={`We couldn't find the mesocycle you were looking for. So sorry.`}
+        action={
+          <Link
+            to={configRoutes.mesocycles}
+            className="text-sm font-semibold leading-7 text-orange-600"
+          >
+            <span aria-hidden="true">&larr;</span> Back to mesocycles
+          </Link>
+        }
+      />
+    );
   }
+
+  throw error;
 }
 
-const schema = z.object({
+export const schema = z.object({
   trainingDays: z.array(
     z.object({
       id: z
@@ -93,7 +83,7 @@ const schema = z.object({
           required_error: "The day id is required.",
         })
         .min(1, "The day id is required.")
-        .max(100, "The day id must be at most 100 characters long."),
+        .max(25, "The day id must be at most 25 characters long."),
 
       label: z
         .string({
@@ -109,10 +99,9 @@ const schema = z.object({
             id: z
               .string({
                 invalid_type_error: "The exercise id is not valid.",
-                required_error: "The exercise id is required.",
               })
-              .min(1, "The exercise id is required.")
-              .max(100, "The exercise id must be at most 100 characters long."),
+              .max(25, "The exercise id must be at most 25 characters long.")
+              .nullable(),
 
             sets: z
               .array(
@@ -120,13 +109,9 @@ const schema = z.object({
                   id: z
                     .string({
                       invalid_type_error: "The set id is not valid.",
-                      required_error: "The set id is required.",
                     })
-                    .min(1, "The set id is required.")
-                    .max(
-                      100,
-                      "The set id must be at most 100 characters long."
-                    ),
+                    .max(25, "The set id must be at most 25 characters long.")
+                    .nullable(),
 
                   rir: z.coerce
                     .number({
@@ -150,30 +135,9 @@ const schema = z.object({
                       required_error: "The rep range is required.",
                     })
                     .min(1, "The rep range is required.")
-                    .refine(
-                      (data) => {
-                        // Format: 5-8
-                        if (data.length !== 3 || data[1] !== "-") {
-                          return false;
-                        }
-
-                        const lowerBound = Number(data[0]);
-                        const upperBound = Number(data[2]);
-                        if (
-                          Number.isNaN(lowerBound) ||
-                          Number.isNaN(upperBound)
-                        ) {
-                          return false;
-                        }
-
-                        if (lowerBound >= upperBound) {
-                          return false;
-                        }
-
-                        return true;
-                      },
-                      { message: "The rep range is not valid." }
-                    ),
+                    .refine(validateRepRange, {
+                      message: "The rep range is not valid.",
+                    }),
                 }),
                 { required_error: "You must add at least 1 set." }
               )
@@ -208,12 +172,17 @@ const schema = z.object({
 
 export type Schema = z.TypeOf<typeof schema>;
 
+export const action = async ({ request, params }: ActionArgs) => {
+  return updateMesocycle(request, params);
+};
+
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
     lastSubmission,
+    noValidate: true,
     onValidate({ formData }) {
       return parse(formData, { schema });
     },
@@ -239,7 +208,11 @@ export default function Mesocycle() {
   const trainingDaysList = useFieldList(form.ref, trainingDays);
 
   return (
-    <Form className="flex min-h-full flex-col py-10">
+    <Form
+      method="post"
+      className="flex min-h-full flex-col py-10"
+      {...form.props}
+    >
       <div className="flex min-w-0 flex-col sm:flex-row">
         <div>
           <Heading>{mesocycle.name}</Heading>

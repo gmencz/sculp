@@ -4,9 +4,11 @@ import { json, redirect } from "@remix-run/server-runtime";
 import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
+import { schema } from "~/routes/app.mesocycles.$id/route";
 import { schema as createDraftMesocycleSchema } from "~/routes/app.new-mesocycle._index/schema";
 import { schema as createMesocycleSchema } from "~/routes/app.new-mesocycle.design.$id/route";
 import { getSession, requireUser, sessionStorage } from "~/session.server";
+import { getRepRangeBounds } from "~/utils";
 
 export type DraftMesocycle = {
   name: string;
@@ -109,15 +111,16 @@ export async function createMesocycle(
             exercises: {
               create: trainingDay.exercises.map((exercise, index) => ({
                 notes: exercise.notes,
-                exerciseId: exercise.id,
+                exercise: {
+                  connect: {
+                    id: exercise.id,
+                  },
+                },
                 number: index + 1,
                 sets: {
                   create: exercise.sets.map((set, index) => {
-                    // The incoming set rep range will have the format:
-                    // "x-y" or for example "5-8" so we need to extract the bounds.
-                    const repRangeBounds = set.repRange.split("-");
-                    const repRangeLowerBound = Number(repRangeBounds[0]);
-                    const repRangeUpperBound = Number(repRangeBounds[1]);
+                    const [repRangeLowerBound, repRangeUpperBound] =
+                      getRepRangeBounds(set.repRange);
 
                     return {
                       number: index + 1,
@@ -151,6 +154,89 @@ export async function createMesocycle(
 
     return json(submission, { status: 500 });
   }
+}
+
+export async function updateMesocycle(
+  request: Request,
+  params: ActionArgs["params"]
+) {
+  const user = await requireUser(request);
+  const { id } = params;
+  if (!id) {
+    return redirect(configRoutes.mesocycles);
+  }
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  const mesocycle = await prisma.mesocycle.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      userId: true,
+    },
+  });
+
+  if (!mesocycle || mesocycle.userId !== user.id) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const { trainingDays } = submission.value;
+
+  const updatedMesocycle = await prisma.mesocycle.update({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+    },
+    data: {
+      trainingDays: {
+        update: trainingDays.map((trainingDay) => ({
+          where: { id: trainingDay.id },
+          data: {
+            label: { set: trainingDay.label },
+            exercises: {
+              deleteMany: { mesocycleTrainingDayId: trainingDay.id },
+
+              create: trainingDay.exercises.map((exercise, index) => ({
+                notes: exercise.notes,
+                exercise: {
+                  connect: {
+                    id: exercise.searchedExerciseId,
+                  },
+                },
+                number: index + 1,
+                sets: {
+                  create: exercise.sets.map((set, index) => {
+                    const [repRangeLowerBound, repRangeUpperBound] =
+                      getRepRangeBounds(set.repRange);
+
+                    return {
+                      number: index + 1,
+                      weight: set.weight,
+                      repRangeLowerBound,
+                      repRangeUpperBound,
+                      rir: set.rir,
+                    };
+                  }),
+                },
+              })),
+            },
+          },
+        })),
+      },
+    },
+  });
+
+  return redirect(configRoutes.mesocycleView(updatedMesocycle.id));
 }
 
 export async function getMesocycles(userId: string) {
@@ -188,6 +274,7 @@ export async function getMesocycle(id: string, userId: string) {
           number: true,
           label: true,
           exercises: {
+            orderBy: { number: "asc" },
             select: {
               id: true,
               exercise: {
@@ -199,6 +286,7 @@ export async function getMesocycle(id: string, userId: string) {
               number: true,
               notes: true,
               sets: {
+                orderBy: { number: "asc" },
                 select: {
                   id: true,
                   number: true,

@@ -15,6 +15,7 @@ import { Heading } from "~/components/heading";
 import { TrainingDayFieldset } from "./training-day-fieldset";
 import { SubmitButton } from "~/components/submit-button";
 import { ErrorMessage } from "~/components/error-message";
+import { validateRepRange } from "~/utils";
 
 export const action = async ({ request, params }: ActionArgs) => {
   return createMesocycle(request, params);
@@ -84,30 +85,9 @@ export const schema = z.object({
                       required_error: "The rep range is required.",
                     })
                     .min(1, "The rep range is required.")
-                    .refine(
-                      (data) => {
-                        // Format: 5-8
-                        if (data.length !== 3 || data[1] !== "-") {
-                          return false;
-                        }
-
-                        const lowerBound = Number(data[0]);
-                        const upperBound = Number(data[2]);
-                        if (
-                          Number.isNaN(lowerBound) ||
-                          Number.isNaN(upperBound)
-                        ) {
-                          return false;
-                        }
-
-                        if (lowerBound >= upperBound) {
-                          return false;
-                        }
-
-                        return true;
-                      },
-                      { message: "The rep range is not valid." }
-                    ),
+                    .refine(validateRepRange, {
+                      message: "The rep range is not valid.",
+                    }),
                 }),
                 { required_error: "You must add at least 1 set." }
               )
