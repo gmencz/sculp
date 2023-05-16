@@ -67,14 +67,12 @@ export default function NewMesocycle() {
 
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
-      <div className="flex flex-col gap-2">
-        <Heading>Plan a new mesocycle</Heading>
-        <Paragraph>
-          A mesocycle is a structured training plan designed to help you achieve
-          maximum muscle growth. Here you can build your own to fit your
-          preferences and needs.
-        </Paragraph>
-      </div>
+      <Heading>Plan a new mesocycle</Heading>
+      <Paragraph>
+        A mesocycle is a structured training plan designed to help you achieve
+        maximum muscle growth. Here you can build your own to fit your
+        preferences and needs.
+      </Paragraph>
 
       <Form
         method="post"

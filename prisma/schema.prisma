@@ -64,7 +64,7 @@ model Exercise {
 
 model MuscleGroup {
   id        String     @id @default(cuid())
-  name      String // The name of the muscle group, like "Chest" or "Back" for example.
+  name      String     @unique // The name of the muscle group, like "Chest" or "Back" for example.
   exercises Exercise[]
 
   @@map("muscle_groups")

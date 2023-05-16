@@ -8,9 +8,8 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import { ErrorPage } from "~/components/error-page";
-import { configRoutes } from "~/config-routes";
 import { requireUser } from "~/session.server";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
@@ -31,7 +30,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
   const { id } = params;
   if (!id) {
-    return redirect(configRoutes.mesocycles);
+    throw new Error("id param is falsy, this should never happen");
   }
 
   const mesocycle = await getMesocycle(id, user.id);

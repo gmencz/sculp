@@ -164,3 +164,7 @@ export function useDelayedEffect(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
+
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

@@ -77,6 +77,7 @@ type ExerciseRowProps = {
     id: string;
     name: string;
     jointPain: JointPain;
+    userId: string | null;
     muscleGroups: {
       id: string;
       name: string;
@@ -114,14 +115,17 @@ function ExerciseRow({ exercise }: ExerciseRowProps) {
         {jointPainText[exercise.jointPain]}
       </td>
 
-      <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-        <Link
-          to={`./${exercise.id}`}
-          className="text-orange-600 hover:text-orange-900"
-        >
-          Edit<span className="sr-only">, {exercise.name}</span>
-        </Link>
-      </td>
+      {/* Only show edit link if the exercise was created by the user */}
+      {exercise.userId ? (
+        <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+          <Link
+            to={`./${exercise.id}`}
+            className="text-orange-600 hover:text-orange-900"
+          >
+            Edit<span className="sr-only">, {exercise.name}</span>
+          </Link>
+        </td>
+      ) : null}
     </tr>
   );
 }
