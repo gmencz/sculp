@@ -121,7 +121,7 @@ export default function Mesocycle() {
             description="Your changes have been saved."
           />
         ),
-        { duration: 3000, position: "top-center" }
+        { duration: 3000, position: "bottom-center" }
       );
     }
   }, [successId]);

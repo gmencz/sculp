@@ -22,7 +22,10 @@ export default function Exercises() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>Exercises</Heading>
-          <Paragraph>A list of all your exercises.</Paragraph>
+          <Paragraph>
+            A list of all your exercises including their name, muscle groups
+            worked and joint pain.
+          </Paragraph>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
@@ -76,7 +79,7 @@ type ExerciseRowProps = {
   exercise: {
     id: string;
     name: string;
-    jointPain: JointPain;
+    jointPain: JointPain | null;
     userId: string | null;
     muscleGroups: {
       id: string;
@@ -112,7 +115,7 @@ function ExerciseRow({ exercise }: ExerciseRowProps) {
         {formattedMuscleGroups}
       </td>
       <td className="px-3 py-4 text-sm text-zinc-500">
-        {jointPainText[exercise.jointPain]}
+        {exercise.jointPain ? jointPainText[exercise.jointPain] : "Unknown"}
       </td>
 
       {/* Only show edit link if the exercise was created by the user */}

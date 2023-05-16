@@ -4,4 +4,5 @@ export const configRoutes = {
   mesocycles: `/app/mesocycles`,
   mesocycleView: (id: string) => `/app/mesocycles/${id}`,
   newExercise: `/app/new-exercise`,
+  exerciseView: (id: string) => `/app/exercises/${id}`,
 };
