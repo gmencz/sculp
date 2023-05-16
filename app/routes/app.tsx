@@ -8,19 +8,11 @@ import {
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import {
-  NavLink,
-  Outlet,
-  isRouteErrorResponse,
-  useLocation,
-  useRouteError,
-} from "@remix-run/react";
+import { NavLink, Outlet } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, SVGAttributes } from "react";
 import { Fragment, useState } from "react";
-import { BackLink } from "~/components/back-link";
-import { ErrorPage } from "~/components/error-page";
 import { requireUser } from "~/session.server";
 
 const navigation = [
@@ -28,7 +20,38 @@ const navigation = [
   {
     name: "Exercises",
     href: "/app/exercises",
-    icon: BookOpenIcon,
+    icon: (props: SVGAttributes<SVGElement>) => (
+      <svg
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 485.535 485.535"
+        {...props}
+      >
+        <g>
+          <g id="_x35__13_">
+            <g>
+              <path
+                d="M55.465,123.228c-15.547,0-28.159,12.608-28.159,28.161v56.673C11.653,211.908,0,225.928,0,242.765
+         c0,16.842,11.652,30.861,27.306,34.707v56.666c0,15.555,12.612,28.16,28.159,28.16c15.546,0,28.16-12.605,28.16-28.16V151.389
+         C83.625,135.837,71.011,123.228,55.465,123.228z"
+              />
+              <path
+                d="M334.498,65.278c-23.092,0-41.811,18.719-41.811,41.812v93.864h-12.801h-60.585h-19.625l-6.827-0.163V107.09
+         c0-23.092-18.72-41.812-41.813-41.812c-23.091,0-41.812,18.719-41.812,41.812v271.355c0,23.093,18.721,41.812,41.812,41.812
+         c23.094,0,41.813-18.719,41.813-41.812v-93.653c0,0,4.501-0.211,6.827-0.211h19.625h60.585h12.801v93.864
+         c0,23.093,18.719,41.812,41.811,41.812c23.094,0,41.812-18.719,41.812-41.812V107.089
+         C376.311,83.998,357.592,65.278,334.498,65.278z"
+              />
+              <path
+                d="M458.229,208.062v-56.673c0-15.552-12.613-28.161-28.158-28.161c-15.547,0-28.16,12.608-28.16,28.161v182.749
+         c0,15.555,12.613,28.16,28.16,28.16c15.545,0,28.158-12.605,28.158-28.16v-56.666c15.654-3.846,27.307-17.865,27.307-34.707
+         C485.535,225.927,473.883,211.908,458.229,208.062z"
+              />
+            </g>
+          </g>
+        </g>
+      </svg>
+    ),
   },
   {
     name: "Mesocycles",
@@ -212,7 +235,7 @@ function Layout({ children }: PropsWithChildren) {
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
         <div className="flex-1 text-sm font-semibold leading-6 text-white">
-          App
+          Hypertrophy App
         </div>
         <a href="/">
           <span className="sr-only">Your profile</span>
@@ -231,56 +254,6 @@ export default function App() {
   return (
     <Layout>
       <Outlet />
-    </Layout>
-  );
-}
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-  const location = useLocation();
-
-  if (isRouteErrorResponse(error)) {
-    console.error("Caught route error", error);
-
-    if (error.status === 404) {
-      return (
-        <Layout>
-          <ErrorPage
-            statusCode={error.status}
-            title="Page not found"
-            subtitle={`"${location.pathname}" is not a page. So sorry.`}
-            action={<BackLink to="/app">Back to app</BackLink>}
-          />
-        </Layout>
-      );
-    }
-
-    if (error.status !== 500) {
-      return (
-        <Layout>
-          <ErrorPage
-            statusCode={error.status}
-            title="Oh no, something did not go well."
-            subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-            action={<BackLink to="/app">Back to app</BackLink>}
-          />
-        </Layout>
-      );
-    }
-
-    throw new Error(`Unhandled error: ${error.status}`);
-  }
-
-  console.error(`Uncaught error`, error);
-
-  return (
-    <Layout>
-      <ErrorPage
-        statusCode={500}
-        title="Oh no, something did not go well."
-        subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-        action={<BackLink to="/app">Back to app</BackLink>}
-      />
     </Layout>
   );
 }

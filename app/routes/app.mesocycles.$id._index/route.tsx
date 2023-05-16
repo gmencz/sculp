@@ -18,7 +18,6 @@ import { CalendarDaysIcon, CalendarIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
-import { prisma } from "~/db.server";
 import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
@@ -26,6 +25,7 @@ import { schema } from "./schema";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { useDelayedEffect } from "~/utils";
+import { getExercisesForAutocomplete } from "~/models/exercise.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -41,15 +41,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
-  const exercises = await prisma.exercise.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+  const exercises = await getExercisesForAutocomplete(user.id);
 
   return json({ mesocycle, exercises });
 };

@@ -7,6 +7,8 @@ import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Heading } from "~/components/heading";
+import { Paragraph } from "~/components/paragraph";
+import { configRoutes } from "~/config-routes";
 import { getMesocycles } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 
@@ -21,9 +23,22 @@ export default function Mesocycles() {
 
   return (
     <div className="py-10">
-      <Heading>Mesocycles</Heading>
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <Heading>Mesocycles</Heading>
+          <Paragraph>A list of all your mesocycles.</Paragraph>
+        </div>
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <Link
+            to={configRoutes.newMesocycle}
+            className="block rounded-md bg-orange-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+          >
+            New mesocycle
+          </Link>
+        </div>
+      </div>
 
-      <ul className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {mesocycles.map((mesocycle) => (
           <li
             key={mesocycle.id}

@@ -6,7 +6,6 @@ import { requireUser } from "~/session.server";
 import { CalendarDaysIcon } from "@heroicons/react/20/solid";
 import { useFieldList, useForm } from "@conform-to/react";
 import { CalendarIcon } from "@heroicons/react/24/outline";
-import { prisma } from "~/db.server";
 import { parse } from "@conform-to/zod";
 import { createMesocycle, getDraftMesocycle } from "~/models/mesocycle.server";
 import { configRoutes } from "~/config-routes";
@@ -16,6 +15,7 @@ import { SubmitButton } from "~/components/submit-button";
 import { ErrorMessage } from "~/components/error-message";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
+import { getExercisesForAutocomplete } from "~/models/exercise.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -59,15 +59,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     return redirect(configRoutes.newMesocycle);
   }
 
-  const exercises = await prisma.exercise.findMany({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+  const exercises = await getExercisesForAutocomplete(user.id);
 
   return json({ mesocycle, exercises });
 };
