@@ -20,6 +20,7 @@ type SelectProps = {
     formRef: RefObject<HTMLFormElement>;
     min: number;
     max: number;
+    emptyOption?: string;
     list: ({
       key: string;
     } & FieldConfig<string | number>)[];
@@ -155,6 +156,7 @@ function SelectMultipleOptions({
   multipleOptions,
 }: SelectProps) {
   const multipleOptionsSettings = multipleOptions!;
+  const emptyOption = multipleOptionsSettings.emptyOption || "Please select";
 
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
     config.defaultValue ?? []
@@ -218,11 +220,13 @@ function SelectMultipleOptions({
                 )}
               >
                 <span className="block truncate">
-                  {capitalizeOptions
-                    ? selectedOptions
-                        .map((option) => capitalize(option.toString()))
-                        .join(", ")
-                    : selectedOptions.join(", ")}
+                  {selectedOptions.length
+                    ? capitalizeOptions
+                      ? selectedOptions
+                          .map((option) => capitalize(option.toString()))
+                          .join(", ")
+                      : selectedOptions.join(", ")
+                    : emptyOption}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronUpDownIcon

@@ -1,20 +1,10 @@
 import { useFieldList, useForm } from "@conform-to/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import {
-  findExerciseByNameUserId,
-  getExercise,
-  updateExercise,
-} from "~/models/exercise.server";
 import { requireUser } from "~/session.server";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
@@ -23,17 +13,13 @@ import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
-import { useDelayedEffect } from "~/utils";
-import { toast } from "react-hot-toast";
-import { SuccessToast } from "~/components/success-toast";
+import {
+  createExercise,
+  findExerciseByNameUserId,
+} from "~/models/exercise.server";
 
-export const action = async ({ request, params }: ActionArgs) => {
+export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
-  const { id } = params;
-  if (!id) {
-    throw new Error("id param is falsy, this should never happen");
-  }
-
   const formData = await request.formData();
   const submission = parse(formData, { schema });
 
@@ -49,79 +35,42 @@ export const action = async ({ request, params }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  return updateExercise(id, user.id, { name, jointPain, muscleGroups });
+  return createExercise(user.id, { name, jointPain, muscleGroups });
 };
 
-export const loader = async ({ request, params }: LoaderArgs) => {
-  const user = await requireUser(request);
-  const { id } = params;
-  if (!id) {
-    throw new Error("id param is falsy, this should never happen");
-  }
-
-  const exercise = await getExercise(id, user.id);
-  if (!exercise) {
-    throw new Response("Not Found", {
-      status: 404,
-    });
-  }
-
+export const loader = async ({ request }: LoaderArgs) => {
+  await requireUser(request);
   const muscleGroups = await getMuscleGroups();
 
   return json({
-    exercise,
     jointPainEnum: JointPain,
     muscleGroupsOptions: muscleGroups.map((m) => m.name),
   });
 };
 
 export default function Exercise() {
-  const [searchParams] = useSearchParams();
-
-  const { exercise, jointPainEnum, muscleGroupsOptions } =
-    useLoaderData<typeof loader>();
-
+  const { jointPainEnum, muscleGroupsOptions } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData();
-
   const [form, { name, jointPain, muscleGroups }] = useForm<Schema>({
-    id: "edit-exercise",
+    id: "new-exercise",
     lastSubmission,
     onValidate({ formData }) {
       return parse(formData, { schema });
     },
     defaultValue: {
-      name: exercise.name,
-      jointPain: exercise.jointPain || jointPainEnum.NONE,
-      muscleGroups: exercise.muscleGroups.map(
-        (muscleGroup) => muscleGroup.name
-      ),
+      jointPain: jointPainEnum.NONE,
+      muscleGroups: [],
     },
   });
 
   const muscleGroupsList = useFieldList(form.ref, muscleGroups);
 
-  const successId = searchParams.get("success_id");
-  useDelayedEffect(() => {
-    if (successId) {
-      toast.custom(
-        (t) => (
-          <SuccessToast
-            t={t}
-            title="Success"
-            description="Your changes have been saved."
-          />
-        ),
-        { duration: 3000, position: "bottom-center" }
-      );
-    }
-  }, [successId]);
-
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
-      <Heading>Edit exercise</Heading>
+      <Heading>New exercise</Heading>
       <Paragraph>
-        On this page you can edit the exercise's name, how your joints feel when
-        performing it and the muscle groups worked.
+        On this page you can create a new exercise which you will be able to add
+        to your mesocycles.
       </Paragraph>
 
       <Form
@@ -134,6 +83,7 @@ export default function Exercise() {
             config={name}
             label="How is this exercise called?"
             autoComplete="exercise-name"
+            placeholder="Chest Press, Lateral Raise..."
           />
 
           <Select
@@ -156,7 +106,7 @@ export default function Exercise() {
             }}
           />
 
-          <SubmitButton text="Save changes" />
+          <SubmitButton text="Save and continue" />
         </div>
       </Form>
     </div>

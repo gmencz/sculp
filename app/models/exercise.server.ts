@@ -3,6 +3,45 @@ import { redirect } from "@remix-run/server-runtime";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
 
+export async function findExerciseByNameUserId(name: string, userId: string) {
+  return prisma.exercise.findUnique({
+    where: {
+      name_userId: {
+        name,
+        userId,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
+type CreateExerciseInput = {
+  name: string;
+  jointPain: string;
+  muscleGroups: string[];
+};
+
+export async function createExercise(
+  userId: string,
+  input: CreateExerciseInput
+) {
+  await prisma.exercise.create({
+    data: {
+      name: input.name,
+      userId,
+      jointPain: input.jointPain as JointPain,
+      muscleGroups: {
+        connect: input.muscleGroups.map((name) => ({ name })),
+      },
+    },
+    select: { id: true },
+  });
+
+  return redirect(configRoutes.exercises);
+}
+
 type UpdateExerciseInput = {
   name: string;
   jointPain: string;
