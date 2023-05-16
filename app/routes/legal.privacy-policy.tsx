@@ -2,16 +2,16 @@ import { LegalHeader } from "~/components/legal-header";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="bg-zinc-950 text-white">
+    <div className="bg-zinc-50 text-white">
       <LegalHeader />
 
       <div className="flex items-center justify-center border-b border-t border-zinc-600 px-6 py-24">
-        <h1 className="text-5xl font-semibold text-zinc-100 sm:text-6xl">
+        <h1 className="text-5xl font-semibold text-zinc-950 sm:text-6xl">
           Privacy Policy
         </h1>
       </div>
 
-      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-300">
+      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-700">
         <p className="mb-4">Last updated: April 16, 2023</p>
 
         <p className="mb-4">
@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
           Interpretation and Definitions
         </h1>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Interpretation
         </h2>
 
@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
           singular or in plural.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Definitions
         </h2>
 
@@ -153,7 +153,7 @@ export default function PrivacyPolicy() {
         <h1 className="mb-4 mt-10 text-2xl font-semibold text-zinc-50">
           Collecting and Using Your Personal Data
         </h1>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Types of Data Collected
         </h2>
         <h3 className="text-zinc-150 mb-4 text-lg font-semibold">
@@ -292,7 +292,7 @@ export default function PrivacyPolicy() {
           regarding cookies, please visit our Cookies Policy or the Cookies
           section of our Privacy Policy.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Use of Your Personal Data
         </h2>
         <p className="mb-4">
@@ -406,7 +406,7 @@ export default function PrivacyPolicy() {
             information for any other purpose with Your consent.
           </li>
         </ul>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Retention of Your Personal Data
         </h2>
         <p className="mb-4">
@@ -424,7 +424,7 @@ export default function PrivacyPolicy() {
           improve the functionality of Our Service, or We are legally obligated
           to retain this data for longer time periods.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Transfer of Your Personal Data
         </h2>
         <p className="mb-4">
@@ -447,7 +447,7 @@ export default function PrivacyPolicy() {
           organization or a country unless there are adequate controls in place
           including the security of Your data and other personal information.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Delete Your Personal Data
         </h2>
         <p className="mb-4">
@@ -469,7 +469,7 @@ export default function PrivacyPolicy() {
           Please note, however, that We may need to retain certain information
           when we have a legal obligation or lawful basis to do so.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Disclosure of Your Personal Data
         </h2>
         <h3 className="text-zinc-150 mb-4 text-lg font-semibold">
@@ -508,7 +508,7 @@ export default function PrivacyPolicy() {
           </li>
           <li>Protect against legal liability</li>
         </ul>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Security of Your Personal Data
         </h2>
         <p className="mb-10">
@@ -518,7 +518,7 @@ export default function PrivacyPolicy() {
           acceptable means to protect Your Personal Data, We cannot guarantee
           its absolute security.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Children's Privacy
         </h2>
         <p className="mb-4">
@@ -536,7 +536,7 @@ export default function PrivacyPolicy() {
           require Your parent's consent before We collect and use that
           information.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Links to Other Websites
         </h2>
         <p className="mb-4">
@@ -549,7 +549,7 @@ export default function PrivacyPolicy() {
           We have no control over and assume no responsibility for the content,
           privacy policies or practices of any third party sites or services.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           Changes to this Privacy Policy
         </h2>
         <p className="mb-4">
@@ -566,7 +566,7 @@ export default function PrivacyPolicy() {
           changes. Changes to this Privacy Policy are effective when they are
           posted on this page.
         </p>
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">Contact Us</h2>
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">Contact Us</h2>
         <p className="mb-4">
           If you have any questions about this Privacy Policy, You can contact
           us:

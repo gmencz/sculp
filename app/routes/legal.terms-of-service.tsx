@@ -2,17 +2,17 @@ import { LegalHeader } from "~/components/legal-header";
 
 export default function TermsOfService() {
   return (
-    <div className="bg-zinc-950 text-white">
+    <div className="bg-zinc-50 text-white">
       <LegalHeader />
 
-      <div className="flex items-center justify-center border-b border-t border-zinc-600 px-6 py-24">
-        <h1 className="text-5xl font-semibold text-zinc-100 sm:text-6xl">
+      <div className="flex items-center justify-center border-b border-t border-zinc-200 px-6 py-24">
+        <h1 className="text-5xl font-semibold text-zinc-950 sm:text-6xl">
           Terms and Conditions of Use
         </h1>
       </div>
 
-      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-300">
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">1. Terms</h2>
+      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-700">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">1. Terms</h2>
 
         <p className="mb-10">
           By accessing this Website, accessible from
@@ -24,7 +24,7 @@ export default function TermsOfService() {
           trade mark law.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           2. Use License
         </h2>
 
@@ -72,7 +72,7 @@ export default function TermsOfService() {
           .
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           3. Disclaimer
         </h2>
 
@@ -86,7 +86,7 @@ export default function TermsOfService() {
           linked to this Website.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           4. Limitations
         </h2>
 
@@ -101,7 +101,7 @@ export default function TermsOfService() {
           not apply to you.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           5. Revisions and Errata
         </h2>
 
@@ -115,7 +115,7 @@ export default function TermsOfService() {
           the materials.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">6. Links</h2>
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">6. Links</h2>
 
         <p className="mb-10">
           The Hypertrophy Logbook has not reviewed all of the sites linked to
@@ -125,7 +125,7 @@ export default function TermsOfService() {
           the user's own risk.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           7. Site Terms of Use Modifications
         </h2>
 
@@ -136,13 +136,13 @@ export default function TermsOfService() {
           Conditions of Use.
         </p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           8. Your Privacy
         </h2>
 
         <p className="mb-10">Please read our Privacy Policy.</p>
 
-        <h2 className="mb-4 text-xl font-semibold text-zinc-100">
+        <h2 className="mb-4 text-xl font-semibold text-zinc-900">
           9. Governing Law
         </h2>
 

@@ -6,10 +6,17 @@ type SubmitButtonProps = {
   text: string;
   value?: string;
   secondary?: boolean;
+  isSubmitting?: boolean;
 };
 
-export function SubmitButton({ text, value, secondary }: SubmitButtonProps) {
-  const isSubmitting = useNavigation().state === "submitting";
+export function SubmitButton({
+  text,
+  value,
+  secondary,
+  isSubmitting: customIsSubmitting,
+}: SubmitButtonProps) {
+  const navigation = useNavigation();
+  const isSubmitting = customIsSubmitting || navigation.state === "submitting";
 
   return (
     <button

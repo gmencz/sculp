@@ -12,11 +12,7 @@ export function LegalHeader() {
         className="flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
         to="/"
       >
-        <img
-          className="h-10 w-10 rounded-full border-2 border-zinc-600"
-          src="/logo.png"
-          alt="Logo"
-        />
+        <img className="h-10 w-10 rounded-full" src="/logo.png" alt="Logo" />
       </Link>
 
       {user ? (

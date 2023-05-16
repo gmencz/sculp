@@ -11,6 +11,8 @@ import { requestAccessSchema } from "~/routes/request-access";
 import { useModal } from "~/utils";
 import { Spinner } from "./spinner";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { Input } from "./input";
+import { SubmitButton } from "./submit-button";
 
 export const MODAL_NAME = "request-access";
 
@@ -51,25 +53,12 @@ export function RequestAccessModal() {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative w-full transform overflow-hidden rounded-lg bg-zinc-900 p-6 text-left shadow-xl transition-all sm:my-8 sm:max-w-md">
-                <div
-                  className="absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
-                  aria-hidden="true"
-                >
-                  <div
-                    className="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"
-                    style={{
-                      clipPath:
-                        "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
-                    }}
-                  />
-                </div>
-
+              <Dialog.Panel className="relative w-full transform overflow-hidden rounded-lg bg-zinc-50 p-6 text-left shadow-xl transition-all sm:my-8 sm:max-w-md">
                 {isSuccess ? (
                   <div className="relative flex flex-col items-center justify-center text-center">
                     <button
                       type="button"
-                      className="absolute right-0 top-0 rounded-md bg-zinc-800 p-1 text-white hover:bg-zinc-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-white"
+                      className="absolute right-0 top-0 rounded-md bg-zinc-200 p-1 text-zinc-950 hover:bg-zinc-300 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-950"
                       onClick={closeModal}
                     >
                       <span className="sr-only">Close</span>
@@ -77,19 +66,19 @@ export function RequestAccessModal() {
                     </button>
 
                     <img
-                      className="h-24 w-24 rounded-full border-2 border-zinc-600"
+                      className="h-24 w-24 rounded-full"
                       src="/logo.png"
                       alt="Logo"
                     />
 
                     <Dialog.Title
                       as="h3"
-                      className="mt-6 flex text-xl font-semibold text-white"
+                      className="mt-6 flex text-xl font-semibold text-zinc-950"
                     >
                       You are on the waitlist
                     </Dialog.Title>
 
-                    <p className="my-4 text-sm text-zinc-300">
+                    <p className="my-4 text-sm text-zinc-700">
                       We are glad you want to take your hypertrophy training to
                       the next level. We will send you an email at{" "}
                       <span className="font-bold">
@@ -103,10 +92,10 @@ export function RequestAccessModal() {
                     <div className="flex items-center gap-4">
                       <Dialog.Title
                         as="h3"
-                        className="flex items-center gap-4 text-xl font-semibold text-white"
+                        className="flex items-center gap-4 text-xl font-semibold text-zinc-950"
                       >
                         <img
-                          className="h-11 w-11 rounded-full border-2 border-zinc-600"
+                          className="h-11 w-11 rounded-full"
                           src="/logo.png"
                           alt="Logo"
                         />
@@ -115,7 +104,7 @@ export function RequestAccessModal() {
 
                       <button
                         type="button"
-                        className="ml-auto rounded-md bg-zinc-800 p-1 text-white hover:bg-zinc-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-white"
+                        className="ml-auto rounded-md bg-zinc-200 p-1 text-zinc-950 hover:bg-zinc-300 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-950"
                         onClick={closeModal}
                       >
                         <span className="sr-only">Close</span>
@@ -123,7 +112,7 @@ export function RequestAccessModal() {
                       </button>
                     </div>
 
-                    <p className="mt-4 text-sm text-zinc-200">
+                    <p className="mt-4 text-sm text-zinc-700">
                       Join our waitlist and we will reach out to you as soon as
                       possible. Don't miss out on this opportunity to take your
                       hypertrophy training to the next level.
@@ -159,103 +148,24 @@ function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
     <fetcher.Form
       method="post"
       action="/request-access"
-      className="mt-6 text-white"
+      className="mt-6 text-zinc-950"
       {...form.props}
     >
-      <div className="mt-6">
-        <label
-          htmlFor={email.id}
-          className="block text-sm font-medium text-white"
-        >
-          Email
-        </label>
-        <div className="mt-2">
-          <input
-            id={email.id}
-            name={email.name}
-            defaultValue={email.defaultValue}
-            type="email"
-            aria-invalid={email.error ? true : undefined}
-            aria-describedby={email.errorId}
-            autoFocus={Boolean(email.initialError)}
-            placeholder="you@example.com"
-            className={clsx(
-              "block w-full rounded-md border-0 bg-zinc-700 px-3 py-2 text-sm text-white shadow-sm ring-1 ring-inset ring-zinc-500 focus:outline-none focus:ring-2 focus:ring-inset",
-              email.error
-                ? "text-red-300 ring-red-500 focus:ring-red-600"
-                : "focus:ring-orange-600"
-            )}
-          />
-        </div>
-        {email.error ? (
-          <p
-            className="mt-2 text-sm text-red-500"
-            id={email.errorId}
-            role="alert"
-          >
-            {email.error}
-          </p>
-        ) : (
-          <p className="mt-2 text-sm text-zinc-200" id="email-description">
-            We'll send you an email once we grant you access.
-          </p>
-        )}
+      <div className="flex flex-col gap-4">
+        <Input label="Email" config={email} type="email" />
+        <Input
+          label="Current logbook (optional)"
+          config={currentLogbook}
+          type="text"
+          helperText="Are you currently using a logbook? E.g. Strong app, Notes on your phone, Excel sheets."
+        />
       </div>
 
       <div className="mt-6">
-        <label
-          htmlFor={currentLogbook.id}
-          className="block text-sm font-medium text-white"
-        >
-          Current logbook (optional)
-        </label>
-        <div className="mt-2">
-          <input
-            id={currentLogbook.id}
-            name={currentLogbook.name}
-            defaultValue={currentLogbook.defaultValue}
-            type="text"
-            aria-invalid={currentLogbook.error ? true : undefined}
-            aria-describedby={currentLogbook.errorId}
-            autoFocus={Boolean(currentLogbook.initialError)}
-            className={clsx(
-              "block w-full rounded-md border-0 bg-zinc-700 px-3 py-2 text-sm text-white shadow-sm ring-1 ring-inset ring-zinc-500 focus:outline-none focus:ring-2 focus:ring-inset",
-              currentLogbook.error
-                ? "text-red-300 ring-red-500 focus:ring-red-600"
-                : "focus:ring-orange-600"
-            )}
-          />
-        </div>
-        {currentLogbook.error ? (
-          <p
-            className="mt-2 text-sm text-red-500"
-            id={currentLogbook.errorId}
-            role="alert"
-          >
-            {currentLogbook.error}
-          </p>
-        ) : (
-          <p
-            className="mt-2 text-sm text-zinc-200"
-            id="current-logbook-description"
-          >
-            Are you currently using a logbook? E.g. Strong app, Notes on your
-            phone, Excel sheets.
-          </p>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <button
-          disabled={isSubmitting}
-          type="submit"
-          className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {isSubmitting ? <Spinner /> : null}
-          <span>
-            {isSubmitting ? "Requesting Access..." : "Request Access"}
-          </span>
-        </button>
+        <SubmitButton
+          isSubmitting={isSubmitting}
+          text={isSubmitting ? "Requesting Access..." : "Request Access"}
+        />
       </div>
     </fetcher.Form>
   );
