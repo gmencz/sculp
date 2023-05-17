@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const durationInWeeksArray = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+export const durationInWeeksArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export const trainingDaysPerWeekArray = [1, 2, 3, 4, 5, 6];
 

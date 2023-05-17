@@ -84,26 +84,28 @@ export default function NewMesocycle() {
             config={name}
             label="How do you want to name the mesocycle?"
             placeholder="My New Mesocycle"
+            helperText="This cannot be changed later."
           />
 
           <Select
             config={durationInWeeks}
             options={durationInWeeksArray}
             label="How many weeks will the mesocycle last?"
-            helperText="You can repeat the mesocycle once it's over. If you're unsure what to choose, we recommend 12 weeks."
+            helperText="You can repeat the mesocycle once it's over. If you're unsure what to choose, we recommend 12 weeks. This cannot be changed later."
           />
 
           <Select
             config={trainingDaysPerWeek}
             options={trainingDaysPerWeekArray}
             label="How many days per week will you train?"
-            helperText="Please select a realistic number that you can commit to. More isn't better, better is better."
+            helperText="Please select a realistic number that you can commit to. More isn't better, better is better. This cannot be changed later."
           />
 
           <Input
             config={goal}
             label="What is the main goal of the mesocycle?"
             placeholder="Overall hypertrophy, bringing up legs..."
+            helperText="This cannot be changed later."
           />
 
           <SubmitButton text="Save and continue" />

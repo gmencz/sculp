@@ -23,7 +23,7 @@ import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
-import { useDelayedEffect } from "~/utils";
+import { useAfterPaintEffect } from "~/utils";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 
@@ -44,7 +44,7 @@ export const action = async ({ request, params }: ActionArgs) => {
   const { name, jointPain, muscleGroups } = submission.value;
 
   const existingExercise = await findExerciseByNameUserId(name, user.id);
-  if (existingExercise) {
+  if (existingExercise && name !== existingExercise.name) {
     submission.error["name"] = "An exercise with that name already exists.";
     return json(submission, { status: 400 });
   }
@@ -101,7 +101,7 @@ export default function Exercise() {
   const muscleGroupsList = useFieldList(form.ref, muscleGroups);
 
   const successId = searchParams.get("success_id");
-  useDelayedEffect(() => {
+  useAfterPaintEffect(() => {
     if (successId) {
       toast.custom(
         (t) => (

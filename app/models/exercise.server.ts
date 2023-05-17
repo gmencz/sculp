@@ -2,6 +2,7 @@ import type { JointPain } from "@prisma/client";
 import { redirect } from "@remix-run/server-runtime";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
+import { generateId } from "~/utils";
 
 export async function findExerciseByNameUserId(name: string, userId: string) {
   return prisma.exercise.findUnique({
@@ -12,7 +13,15 @@ export async function findExerciseByNameUserId(name: string, userId: string) {
       },
     },
     select: {
-      id: true,
+      name: true,
+    },
+  });
+}
+
+export async function deleteExercises(ids: string[], userId: string) {
+  return prisma.exercise.deleteMany({
+    where: {
+      AND: [{ userId }, { id: { in: ids } }],
     },
   });
 }
@@ -88,7 +97,7 @@ export async function updateExercise(
 
   return redirect(
     configRoutes.exerciseView(updatedExercise.id) +
-      `?success_id=${new Date().getTime()}`
+      `?success_id=${generateId()}`
   );
 }
 

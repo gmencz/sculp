@@ -1,4 +1,5 @@
 import { useMatches, useSearchParams } from "@remix-run/react";
+import { nanoid } from "nanoid";
 import type { DependencyList, EffectCallback, RefObject } from "react";
 import { useCallback } from "react";
 import { useEffect, useMemo, useRef } from "react";
@@ -148,23 +149,24 @@ export function validateRepRange(repRange: string) {
   return true;
 }
 
-export function useDelayedEffect(
-  callback: () => void,
+export function useAfterPaintEffect(
+  effect: EffectCallback,
   deps?: DependencyList | undefined
 ) {
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      callback();
-    }, 0);
-
-    return () => {
-      clearTimeout(timeout);
-    };
-
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        effect();
+      }, 0);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function generateId() {
+  return nanoid();
 }

@@ -102,7 +102,8 @@ export default function NewMesocycleDesign() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.durationInWeeks} weeks
+              {mesocycle.durationInWeeks}{" "}
+              {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <CalendarIcon

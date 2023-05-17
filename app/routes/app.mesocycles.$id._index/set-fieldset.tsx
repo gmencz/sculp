@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { Input } from "~/components/input";
 import { TrashIcon } from "@heroicons/react/20/solid";
-import type { Schema } from "./route";
+import type { Schema } from "./schema";
 
 type SetFieldsetProps = {
   setsConfig: FieldConfig<

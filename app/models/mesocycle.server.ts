@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
 import { getSession, sessionStorage } from "~/session.server";
-import { getRepRangeBounds } from "~/utils";
+import { generateId, getRepRangeBounds } from "~/utils";
 
 export type DraftMesocycle = {
   name: string;
@@ -78,7 +78,7 @@ export async function createMesocycle(
   userId: string,
   { trainingDays, name, goal, durationInWeeks, draftId }: CreateMesocycleInput
 ) {
-  const mesocycle = await prisma.mesocycle.create({
+  await prisma.mesocycle.create({
     data: {
       name,
       durationInWeeks,
@@ -123,7 +123,7 @@ export async function createMesocycle(
 
   const session = await getSession(request);
   session.unset(getDraftMesocycleSessionKey(draftId));
-  return redirect(configRoutes.mesocycleView(mesocycle.id), {
+  return redirect(configRoutes.mesocycles, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },
@@ -218,7 +218,7 @@ export async function updateMesocycle(
 
   return redirect(
     configRoutes.mesocycleView(updatedMesocycle.id) +
-      `?success_id=${new Date().getTime()}`
+      `?success_id=${generateId()}`
   );
 }
 

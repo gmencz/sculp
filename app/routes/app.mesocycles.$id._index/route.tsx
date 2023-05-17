@@ -23,7 +23,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
-import { useDelayedEffect } from "~/utils";
+import { useAfterPaintEffect } from "~/utils";
 import { getExercisesForAutocomplete } from "~/models/exercise.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -111,7 +111,7 @@ export default function Mesocycle() {
 
   const trainingDaysList = useFieldList(form.ref, trainingDays);
   const successId = searchParams.get("success_id");
-  useDelayedEffect(() => {
+  useAfterPaintEffect(() => {
     if (successId) {
       toast.custom(
         (t) => (
@@ -142,7 +142,8 @@ export default function Mesocycle() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.durationInWeeks} weeks
+              {mesocycle.durationInWeeks}{" "}
+              {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <CalendarIcon

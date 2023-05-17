@@ -88,7 +88,8 @@ export default function Mesocycles() {
                   {mesocycle.name}
                 </h3>
                 <span className="inline-flex flex-shrink-0 items-center rounded-full bg-orange-50 px-1.5 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
-                  {mesocycle.durationInWeeks} weeks
+                  {mesocycle.durationInWeeks}{" "}
+                  {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
                 </span>
               </div>
               <div className="mt-4 flex flex-col gap-3">
