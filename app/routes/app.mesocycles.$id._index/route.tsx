@@ -150,7 +150,7 @@ export default function Mesocycle() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.trainingDays.length} days per week
+              {mesocycle.trainingDays.length} days per microcycle
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <svg

@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { useFieldList, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Form, useActionData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
@@ -17,7 +17,7 @@ import type { Schema } from "./schema";
 import {
   durationInWeeksArray,
   schema,
-  trainingDaysPerWeekArray,
+  trainingDaysPerMicrocycleArray,
 } from "./schema";
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -34,7 +34,8 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  const { durationInWeeks, goal, name, trainingDaysPerWeek } = submission.value;
+  const { durationInWeeks, goal, name, trainingDaysPerMicrocycle } =
+    submission.value;
   const existingMesocycle = await findMesocycleByNameUserId(name, user.id);
 
   if (existingMesocycle) {
@@ -46,24 +47,29 @@ export const action = async ({ request }: ActionArgs) => {
     durationInWeeks,
     goal,
     name,
-    trainingDaysPerWeek,
+    trainingDaysPerMicrocycle,
   });
 };
 
 export default function NewMesocycle() {
   const lastSubmission = useActionData();
-  const [form, { name, durationInWeeks, goal, trainingDaysPerWeek }] =
+  const [form, { name, durationInWeeks, goal, trainingDaysPerMicrocycle }] =
     useForm<Schema>({
       id: "new-mesocycle",
       lastSubmission,
       defaultValue: {
         durationInWeeks: "Select weeks",
-        trainingDaysPerWeek: "Select days",
+        trainingDaysPerMicrocycle: [],
       },
       onValidate({ formData }) {
         return parse(formData, { schema });
       },
     });
+
+  const trainingDaysPerMicrocycleList = useFieldList(
+    form.ref,
+    trainingDaysPerMicrocycle
+  );
 
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
@@ -85,6 +91,7 @@ export default function NewMesocycle() {
             label="How do you want to name the mesocycle?"
             placeholder="My New Mesocycle"
             helperText="This cannot be changed later."
+            autoComplete="mesocycle-name"
           />
 
           <Select
@@ -95,10 +102,17 @@ export default function NewMesocycle() {
           />
 
           <Select
-            config={trainingDaysPerWeek}
-            options={trainingDaysPerWeekArray}
-            label="How many days per week will you train?"
-            helperText="Please select a realistic number that you can commit to. More isn't better, better is better. This cannot be changed later."
+            config={trainingDaysPerMicrocycle}
+            options={trainingDaysPerMicrocycleArray}
+            multipleOptions={{
+              formRef: form.ref,
+              list: trainingDaysPerMicrocycleList,
+              min: 1,
+              max: 7,
+              emptyOption: "Please select days",
+            }}
+            label="On which days of the microcycle will you train?"
+            helperText="For example if you want to train on Monday, Tuesday, Thursday and Friday, you would select 1, 2, 4 and 5. Or if for example you want to train 3 days and rest 1 day, you would select 1, 2, 3, 5, 6, 7. Please select a realistic number of days that you can commit to. More isn't better, better is better. This cannot be changed later."
           />
 
           <Input

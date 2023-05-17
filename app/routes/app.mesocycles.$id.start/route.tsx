@@ -1,16 +1,16 @@
 import { useForm } from "@conform-to/react";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
-import type { LoaderArgs } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
 import { getMesocycle } from "~/models/mesocycle.server";
 import clsx from "clsx";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -29,24 +29,31 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ mesocycle });
 };
 
+export const action = async ({ request }: ActionArgs) => {
+  const user = await requireUser(request);
+  throw new Error("Not implemented");
+};
+
 export default function StartMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData();
-  const [form, { deleteExercisesIds: deleteExercisesIdsConfig }] =
-    useForm<Schema>({
-      id: "delete-exercises",
-      lastSubmission,
-      onValidate({ formData }) {
-        return parse(formData, { schema });
-      },
-    });
+  const [form, { startDate }] = useForm<Schema>({
+    id: "delete-exercises",
+    lastSubmission,
+    onValidate({ formData }) {
+      return parse(formData, { schema });
+    },
+  });
 
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
       <Heading>{mesocycle.name}</Heading>
       <Paragraph>
-        On this page you can review your mesocycle to make sure everything looks
-        good before starting your training.
+        Review your mesocycle to make sure everything looks good before starting
+        your training. Keep in mind that the sets, weights and RIR (Reps In
+        Reserve) shown here are your starting point which means the app will
+        adjust those values weekly as needed throughout the mesocycle to make
+        sure you are progressing.
       </Paragraph>
 
       <nav
@@ -61,6 +68,8 @@ export default function StartMesocycle() {
           />
         ))}
       </nav>
+
+      <Form method="post" {...form.props}></Form>
     </div>
   );
 }
@@ -167,37 +176,40 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
               </g>
             </svg>
             <div className="min-w-0 flex-1  ">
-              <p className="text-sm font-semibold leading-6 text-zinc-900">
-                {exercise.exercise.name}
+              <p className="flex items-center gap-2 text-sm font-semibold leading-6 text-zinc-900">
+                <span>{exercise.exercise.name}</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500/10 px-3 py-0.5 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
+                  {exercise.number}
+                </span>
               </p>
               <p className="mt-1 truncate text-sm leading-5 text-zinc-500">
-                {exercise.sets.length} initial sets
+                {exercise.sets.length} sets
               </p>
 
-              <table className="min-w-full divide-y divide-zinc-300">
+              <table className="mt-2 min-w-full divide-y divide-zinc-300 border-b border-zinc-300">
                 <thead>
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                      className="py-2 pl-0 pr-3 text-left text-sm font-semibold text-zinc-900"
                     >
                       Set
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900"
+                      className="px-3 py-2 text-left text-sm font-semibold text-zinc-900"
                     >
                       Weight
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900"
+                      className="hidden px-3 py-2 text-left text-sm font-semibold text-zinc-900 xs:table-cell"
                     >
                       Rep range
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900"
+                      className="px-3 py-2 text-left text-sm font-semibold text-zinc-900"
                     >
                       RIR
                     </th>
@@ -206,16 +218,23 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
                 <tbody className="divide-y divide-zinc-200">
                   {exercise.sets.map((set) => (
                     <tr key={set.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 sm:pl-0">
+                      <td className="w-full max-w-0 py-2 pl-0 pr-3 text-sm font-medium text-zinc-900 xs:w-auto xs:max-w-none">
                         {set.number}
+                        <dl className="font-normal xs:hidden">
+                          <dt className="sr-only">Rep range</dt>
+                          <dd className="mt-1 truncate text-gray-700">
+                            {set.repRangeLowerBound}-{set.repRangeUpperBound}{" "}
+                            reps
+                          </dd>
+                        </dl>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-zinc-500">
+                      <td className="whitespace-nowrap px-3 py-2 text-sm text-zinc-500">
                         {set.weight}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-zinc-500">
+                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-zinc-500 xs:table-cell">
                         {set.repRangeLowerBound}-{set.repRangeUpperBound}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-zinc-500">
+                      <td className="whitespace-nowrap px-3 py-2 text-sm text-zinc-500">
                         {set.rir}
                       </td>
                     </tr>

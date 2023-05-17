@@ -6,6 +6,8 @@ import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import type { RefObject } from "react";
+import { useMemo } from "react";
+import { useEffect } from "react";
 import { Fragment, useRef, useState } from "react";
 import { ErrorMessage } from "./error-message";
 import { capitalize } from "~/utils";
@@ -15,7 +17,9 @@ type SelectProps = {
   label: string;
   options: (string | number)[];
   helperText?: string;
+  disabled?: boolean;
   capitalizeOptions?: boolean;
+  onChange?: (value: any) => void;
   multipleOptions?: {
     formRef: RefObject<HTMLFormElement>;
     min: number;
@@ -33,6 +37,8 @@ function SelectSingleOption({
   helperText,
   capitalizeOptions,
   options,
+  onChange,
+  disabled,
 }: Omit<SelectProps, "multipleOptions">) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [value, setValue] = useState(config.defaultValue ?? "");
@@ -50,8 +56,12 @@ function SelectSingleOption({
       />
 
       <Listbox
+        disabled={disabled}
         value={value}
-        onChange={(value) => control.change({ target: { value } })}
+        onChange={(value) => {
+          control.change({ target: { value } });
+          onChange?.(value);
+        }}
       >
         {({ open }) => (
           <>
@@ -63,7 +73,7 @@ function SelectSingleOption({
               <Listbox.Button
                 ref={buttonRef}
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600",
+                  "relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "focus:ring-orange-600"
@@ -154,6 +164,8 @@ function SelectMultipleOptions({
   capitalizeOptions,
   helperText,
   multipleOptions,
+  onChange,
+  disabled,
 }: SelectProps) {
   const multipleOptionsSettings = multipleOptions!;
   const emptyOption = multipleOptionsSettings.emptyOption || "Please select";
@@ -162,7 +174,7 @@ function SelectMultipleOptions({
     config.defaultValue ?? []
   );
 
-  const onChange = (newSelected: string[]) => {
+  const handleChange = (newSelected: (string | number)[]) => {
     if (
       newSelected.length < multipleOptionsSettings.min ||
       newSelected.length > multipleOptionsSettings.max ||
@@ -192,6 +204,29 @@ function SelectMultipleOptions({
     setSelectedOptions(newSelected);
   };
 
+  const hasNumericOptions = typeof options[0] === "number";
+  const listValues = useMemo(
+    () => multipleOptionsSettings.list.map(({ defaultValue }) => defaultValue),
+    [multipleOptionsSettings.list]
+  );
+
+  // Make sure both list values and selected options are in sync.
+  useEffect(() => {
+    if (JSON.stringify(listValues) !== JSON.stringify(selectedOptions)) {
+      setSelectedOptions(
+        multipleOptionsSettings.list.map(({ defaultValue }) =>
+          hasNumericOptions ? Number(defaultValue!) : defaultValue!
+        )
+      );
+    }
+  }, [
+    hasNumericOptions,
+    listValues,
+    multipleOptionsSettings.list,
+    selectedOptions,
+    selectedOptions.length,
+  ]);
+
   return (
     <div>
       {multipleOptionsSettings.list.map((item, index) => (
@@ -203,7 +238,15 @@ function SelectMultipleOptions({
         </Fragment>
       ))}
 
-      <Listbox value={selectedOptions} onChange={onChange} multiple>
+      <Listbox
+        value={selectedOptions}
+        onChange={(value) => {
+          handleChange(value);
+          onChange?.(value);
+        }}
+        multiple
+        disabled={disabled}
+      >
         {({ open }) => (
           <>
             <Listbox.Label className="block text-sm font-medium leading-6 text-zinc-900">
@@ -213,7 +256,7 @@ function SelectMultipleOptions({
             <div className="relative mt-2">
               <Listbox.Button
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600",
+                  "relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-sm text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "focus:ring-orange-600"
@@ -310,6 +353,8 @@ export function Select({
   helperText,
   capitalizeOptions,
   multipleOptions,
+  disabled,
+  onChange,
 }: SelectProps) {
   if (!multipleOptions) {
     return (
@@ -319,6 +364,8 @@ export function Select({
         options={options}
         helperText={helperText}
         capitalizeOptions={capitalizeOptions}
+        disabled={disabled}
+        onChange={onChange}
       />
     );
   }
@@ -331,6 +378,8 @@ export function Select({
       helperText={helperText}
       capitalizeOptions={capitalizeOptions}
       multipleOptions={multipleOptions}
+      disabled={disabled}
+      onChange={onChange}
     />
   );
 }

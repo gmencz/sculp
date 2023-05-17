@@ -9,7 +9,7 @@ export type DraftMesocycle = {
   name: string;
   goal: string;
   durationInWeeks: number;
-  trainingDaysPerWeek: number;
+  trainingDaysPerMicrocycle: number[];
 };
 
 const getDraftMesocycleSessionKey = (id: string) => `draft-mesocycle-${id}`;

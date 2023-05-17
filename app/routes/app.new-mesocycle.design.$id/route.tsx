@@ -75,7 +75,7 @@ export default function NewMesocycleDesign() {
     },
     defaultValue: {
       trainingDays: Array.from(
-        { length: mesocycle.trainingDaysPerWeek },
+        { length: mesocycle.trainingDaysPerMicrocycle.length },
         (_, index) => ({
           dayNumber: (index + 1).toString(),
           exercises: [],
@@ -110,7 +110,7 @@ export default function NewMesocycleDesign() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.trainingDaysPerWeek} days per week
+              {mesocycle.trainingDaysPerMicrocycle.length} days per microcycle
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <svg

@@ -68,7 +68,7 @@ export const schema = z.object({
                 required_error: "The day number is required.",
               })
               .min(1, `The day number must be at least 1.`)
-              .max(6, `The day number can't be greater than 6.`),
+              .max(10, `The day number can't be greater than 6.`),
           }),
           {
             required_error: "You must add at least 1 exercise.",
@@ -86,7 +86,7 @@ export const schema = z.object({
           required_error: "The day number is required.",
         })
         .min(1, `The day number must be at least 1.`)
-        .max(6, `The day number can't be greater than 6.`),
+        .max(10, `The day number can't be greater than 6.`),
     })
   ),
 });

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const durationInWeeksArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-export const trainingDaysPerWeekArray = [1, 2, 3, 4, 5, 6];
+export const trainingDaysPerMicrocycleArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const schema = z.object({
   name: z
@@ -29,20 +29,21 @@ export const schema = z.object({
       }.`
     ),
 
-  trainingDaysPerWeek: z.coerce
-    .number({
-      invalid_type_error: "The selected days are not valid.",
-      required_error: "The selected days are required.",
-    })
-    .min(
-      trainingDaysPerWeekArray[0],
-      `The selected days must be at least ${trainingDaysPerWeekArray[0]}.`
+  trainingDaysPerMicrocycle: z
+    .array(
+      z.coerce.number({
+        invalid_type_error: "The training day is not valid.",
+        required_error: "The training day is required.",
+      }),
+      {
+        invalid_type_error: "The selected days are not valid.",
+        required_error: "You must select at least 1 day.",
+      }
     )
+    .min(1, "You must select at least 1 day.")
     .max(
-      trainingDaysPerWeekArray[trainingDaysPerWeekArray.length - 1],
-      `The selected days must be at most ${
-        trainingDaysPerWeekArray[trainingDaysPerWeekArray.length - 1]
-      }.`
+      7,
+      "You can't select more than 7 days, this is to avoid overtraining."
     ),
 
   goal: z
