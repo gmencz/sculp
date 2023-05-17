@@ -111,7 +111,7 @@ export default function Exercise() {
             description="Your changes have been saved."
           />
         ),
-        { duration: 3000, position: "bottom-center" }
+        { duration: 3000, position: "bottom-center", id: successId }
       );
     }
   }, [successId]);

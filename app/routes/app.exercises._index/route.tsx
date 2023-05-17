@@ -101,7 +101,7 @@ export default function Exercises() {
             description="The selected exercises were deleted."
           />
         ),
-        { duration: 3000, position: "bottom-center" }
+        { duration: 3000, position: "bottom-center", id: successId }
       );
     }
   }, [successId]);
