@@ -3,18 +3,19 @@ import { CalendarIcon } from "@heroicons/react/24/outline";
 import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { prisma } from "~/db.server";
+import {
+  getCurrentMesocycle,
+  getMesocyclesCount,
+} from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
-  const currentMesocycle = { id: "123" };
 
-  const userMesocyclesCount = await prisma.mesocycle.count({
-    where: {
-      userId: user.id,
-    },
-  });
+  const [currentMesocycle, userMesocyclesCount] = await Promise.all([
+    getCurrentMesocycle(user.id),
+    getMesocyclesCount(user.id),
+  ]);
 
   return json({
     currentMesocycle,

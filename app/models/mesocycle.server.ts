@@ -238,7 +238,11 @@ export async function getMesocycles(userId: string) {
   });
 }
 
-export async function getMesocycle(id: string, userId: string) {
+export async function getMesocycle(
+  id: string,
+  userId: string,
+  includeMuscleGroups: boolean = false
+) {
   return prisma.mesocycle.findFirst({
     where: {
       id,
@@ -264,6 +268,13 @@ export async function getMesocycle(id: string, userId: string) {
                 select: {
                   id: true,
                   name: true,
+                  muscleGroups: includeMuscleGroups
+                    ? {
+                        select: {
+                          name: true,
+                        },
+                      }
+                    : false,
                 },
               },
               number: true,
@@ -283,6 +294,22 @@ export async function getMesocycle(id: string, userId: string) {
           },
         },
       },
+    },
+  });
+}
+
+export async function getCurrentMesocycle(userId: string) {
+  return prisma.currentMesocycle.findUnique({
+    where: {
+      userId,
+    },
+  });
+}
+
+export async function getMesocyclesCount(userId: string) {
+  return prisma.mesocycle.count({
+    where: {
+      userId,
     },
   });
 }

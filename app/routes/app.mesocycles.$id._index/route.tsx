@@ -179,7 +179,7 @@ export default function Mesocycle() {
         </div>
       </div>
 
-      <ul className="mt-6 flex flex-1 gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
+      <ol className="mt-6 flex flex-1 gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
         {trainingDaysList.map((trainingDay, index) => (
           <li
             className="min-w-full max-w-sm flex-1 rounded border border-zinc-200 bg-white xs:min-w-[26rem]"
@@ -192,7 +192,7 @@ export default function Mesocycle() {
             />
           </li>
         ))}
-      </ul>
+      </ol>
     </Form>
   );
 }
