@@ -1,4 +1,6 @@
-import { redirect } from "@remix-run/server-runtime";
+import type { Submission } from "@conform-to/react";
+import { json, redirect } from "@remix-run/server-runtime";
+import { addDays } from "date-fns";
 import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
@@ -8,8 +10,9 @@ import { generateId, getRepRangeBounds } from "~/utils";
 export type DraftMesocycle = {
   name: string;
   goal: string;
-  durationInWeeks: number;
+  durationInMicrocycles: number;
   trainingDaysPerMicrocycle: number[];
+  restDaysPerMicrocycle: number[];
 };
 
 const getDraftMesocycleSessionKey = (id: string) => `draft-mesocycle-${id}`;
@@ -35,7 +38,7 @@ export async function createDraftMesocycle(
   const session = await getSession(request);
   const id = nanoid();
   session.set(getDraftMesocycleSessionKey(id), input);
-  return redirect(configRoutes.newMesocycleDesign(id), {
+  return redirect(configRoutes.mesocycles.newStepTwo(id), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },
@@ -70,18 +73,27 @@ type CreateMesocycleInput = {
   draftId: string;
   name: string;
   goal: string;
-  durationInWeeks: number;
+  microcycles: number;
+  restDays: number[];
 };
 
 export async function createMesocycle(
   request: Request,
   userId: string,
-  { trainingDays, name, goal, durationInWeeks, draftId }: CreateMesocycleInput
+  {
+    trainingDays,
+    name,
+    goal,
+    microcycles,
+    restDays,
+    draftId,
+  }: CreateMesocycleInput
 ) {
   await prisma.mesocycle.create({
     data: {
       name,
-      durationInWeeks,
+      microcycles,
+      restDays,
       goal,
       userId,
       trainingDays: {
@@ -123,7 +135,7 @@ export async function createMesocycle(
 
   const session = await getSession(request);
   session.unset(getDraftMesocycleSessionKey(draftId));
-  return redirect(configRoutes.mesocycles, {
+  return redirect(configRoutes.mesocycles.list, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },
@@ -149,6 +161,7 @@ type UpdateMesocycleInput = {
 };
 
 export async function updateMesocycle(
+  url: URL,
   id: string,
   userId: string,
   input: UpdateMesocycleInput
@@ -216,9 +229,10 @@ export async function updateMesocycle(
     },
   });
 
+  url.searchParams.set("success_id", generateId());
+
   return redirect(
-    configRoutes.mesocycleView(updatedMesocycle.id) +
-      `?success_id=${generateId()}`
+    configRoutes.mesocycles.view(updatedMesocycle.id) + url.search
   );
 }
 
@@ -232,7 +246,8 @@ export async function getMesocycles(userId: string) {
       name: true,
       createdAt: true,
       goal: true,
-      durationInWeeks: true,
+      microcycles: true,
+      restDays: true,
       _count: { select: { trainingDays: true } },
     },
   });
@@ -253,7 +268,8 @@ export async function getMesocycle(
       name: true,
       createdAt: true,
       goal: true,
-      durationInWeeks: true,
+      microcycles: true,
+      restDays: true,
       trainingDays: {
         orderBy: { number: "asc" },
         select: {
@@ -299,10 +315,11 @@ export async function getMesocycle(
 }
 
 export async function getCurrentMesocycle(userId: string) {
-  return prisma.currentMesocycle.findUnique({
+  return prisma.mesocycleRun.findFirst({
     where: {
-      userId,
+      currentUserId: userId,
     },
+    select: { id: true, mesocycle: { select: { id: true } } },
   });
 }
 
@@ -312,4 +329,94 @@ export async function getMesocyclesCount(userId: string) {
       userId,
     },
   });
+}
+
+type StartMesocycleInput = {
+  startDate: Date;
+};
+
+export async function startMesocycle(
+  userId: string,
+  id: string,
+  submission: Submission,
+  input: StartMesocycleInput
+) {
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    select: {
+      microcycles: true,
+      restDays: true,
+      _count: { select: { trainingDays: true } },
+    },
+  });
+
+  if (!mesocycle) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const currentMesocycle = await getCurrentMesocycle(userId);
+  if (currentMesocycle) {
+    submission.error["form"] =
+      "You can't start this mesocycle because you are currently in the middle of one. You can stop your current mesocycle on the mesocycles page and then start this one.";
+
+    return json(submission, { status: 400 });
+  }
+
+  const totalMesocycleDays =
+    mesocycle.microcycles *
+    (mesocycle.restDays.length + mesocycle._count.trainingDays);
+
+  const endDate = addDays(input.startDate, totalMesocycleDays);
+
+  await prisma.mesocycleRun.create({
+    data: {
+      mesocycle: { connect: { id } },
+      currentUser: { connect: { id: userId } },
+      ranByUser: { connect: { id: userId } },
+      startDate: input.startDate,
+      endDate,
+    },
+  });
+
+  return redirect(configRoutes.appRoot);
+}
+
+export async function stopMesocycle(userId: string, id: string) {
+  const mesocycle = await getMesocycle(id, userId, true);
+  if (!mesocycle) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const currentMesocycle = await getCurrentMesocycle(userId);
+
+  // Can't stop a mesocycle that is not the current one.
+  if (
+    !currentMesocycle?.mesocycle ||
+    currentMesocycle.mesocycle.id !== mesocycle.id
+  ) {
+    return redirect(configRoutes.mesocycles.list);
+  }
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      currentMesocycleRun: {
+        disconnect: true,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return redirect(configRoutes.mesocycles.list);
 }

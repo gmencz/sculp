@@ -4,16 +4,17 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
-import { Fragment } from "react";
-import type { RequestAccessSchema, action } from "~/routes/request-access";
-import { requestAccessSchema } from "~/routes/request-access";
-import { useModal } from "~/utils";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { Fragment } from "react";
+import type { action } from "~/routes/sign-in";
+import { useModal } from "~/utils";
 import { Input } from "./input";
 import { SubmitButton } from "./submit-button";
+import type { ForgotPasswordSchema } from "~/routes/forgot-password";
+import { forgotPasswordSchema } from "~/routes/forgot-password";
 
-export function RequestAccessModal() {
-  const { show, closeModal } = useModal("request_access");
+export function ForgotPasswordModal() {
+  const { show, closeModal } = useModal("forgot_password");
   const fetcher = useFetcher<typeof action>();
   const isSuccess =
     fetcher.data?.intent === "submit" &&
@@ -71,16 +72,16 @@ export function RequestAccessModal() {
                       as="h3"
                       className="mt-6 flex text-xl font-semibold text-zinc-950"
                     >
-                      You are on the waitlist
+                      Check your inbox
                     </Dialog.Title>
 
                     <p className="my-4 text-sm text-zinc-700">
-                      We are glad you want to take your hypertrophy training to
-                      the next level. We will send you an email at{" "}
+                      If your account email is correct, we've sent you an email
+                      at{" "}
                       <span className="font-bold">
                         {fetcher.data?.payload.email}
                       </span>{" "}
-                      as soon as we have a spot ready for you!
+                      with a password reset link.
                     </p>
                   </div>
                 ) : (
@@ -95,7 +96,7 @@ export function RequestAccessModal() {
                           src="/logo.png"
                           alt="Logo"
                         />
-                        <span>Request Access</span>
+                        <span>Reset your password</span>
                       </Dialog.Title>
 
                       <button
@@ -109,12 +110,12 @@ export function RequestAccessModal() {
                     </div>
 
                     <p className="mt-4 text-sm text-zinc-700">
-                      Join our waitlist and we will reach out to you as soon as
-                      possible. Don't miss out on this opportunity to take your
-                      hypertrophy training to the next level.
+                      If you've forgotten your password or need to reset it for
+                      any reason, enter your account email below and we'll send
+                      you a password reset link.
                     </p>
 
-                    <RequestAccessForm fetcher={fetcher} />
+                    <ForgotPasswordForm fetcher={fetcher} />
                   </>
                 )}
               </Dialog.Panel>
@@ -126,43 +127,45 @@ export function RequestAccessModal() {
   );
 }
 
-interface RequestAccessFormProps {
+interface ForgotPasswordFormProps {
   fetcher: FetcherWithComponents<SerializeFrom<typeof action>>;
 }
 
-function RequestAccessForm({ fetcher }: RequestAccessFormProps) {
+function ForgotPasswordForm({ fetcher }: ForgotPasswordFormProps) {
   const isSubmitting = fetcher.state === "submitting";
   const lastSubmission = fetcher.data;
-  const [form, { email, currentLogbook }] = useForm<RequestAccessSchema>({
+
+  const [form, { email }] = useForm<ForgotPasswordSchema>({
+    id: "forgot-password",
     lastSubmission,
     onValidate({ formData }) {
-      return parse(formData, { schema: requestAccessSchema });
+      return parse(formData, { schema: forgotPasswordSchema });
     },
   });
 
   return (
     <fetcher.Form
       method="post"
-      action="/request-access"
+      action="/forgot-password"
       className="mt-6 text-zinc-950"
       {...form.props}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <Input label="Email" config={email} type="email" />
-        <Input
-          label="Current logbook (optional)"
-          config={currentLogbook}
-          type="text"
-          helperText="Are you currently using a logbook? E.g. Strong app, Notes on your phone, Excel sheets."
-        />
       </div>
 
       <div className="mt-6">
         <SubmitButton
           isSubmitting={isSubmitting}
-          text={isSubmitting ? "Requesting Access..." : "Request Access"}
+          text={isSubmitting ? "Sending email..." : "Send email"}
         />
       </div>
+
+      {lastSubmission?.error.form ? (
+        <p className="mt-4 text-sm text-red-500" role="alert">
+          {lastSubmission?.error.form}
+        </p>
+      ) : null}
     </fetcher.Form>
   );
 }

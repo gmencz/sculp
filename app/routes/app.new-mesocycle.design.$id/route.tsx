@@ -32,18 +32,20 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const draftMesocycle = await getDraftMesocycle(request, id);
   if (!draftMesocycle) {
-    return redirect(configRoutes.newMesocycle);
+    return redirect(configRoutes.mesocycles.newStepOne);
   }
 
-  const { name, goal, durationInWeeks } = draftMesocycle;
+  const { name, goal, durationInMicrocycles, restDaysPerMicrocycle } =
+    draftMesocycle;
   const { trainingDays } = submission.value;
 
   return createMesocycle(request, user.id, {
     draftId: id,
     goal,
     name,
-    durationInWeeks,
     trainingDays,
+    microcycles: durationInMicrocycles,
+    restDays: restDaysPerMicrocycle,
   });
 };
 
@@ -56,7 +58,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const mesocycle = await getDraftMesocycle(request, id);
   if (!mesocycle) {
-    return redirect(configRoutes.newMesocycle);
+    return redirect(configRoutes.mesocycles.newStepOne);
   }
 
   const exercises = await getExercisesForAutocomplete(user.id);
@@ -102,15 +104,21 @@ export default function NewMesocycleDesign() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.durationInWeeks}{" "}
-              {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
+              {mesocycle.durationInMicrocycles}{" "}
+              {mesocycle.durationInMicrocycles === 1
+                ? "microcycle"
+                : "microcycles"}
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <CalendarIcon
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.trainingDaysPerMicrocycle.length} days per microcycle
+              {mesocycle.trainingDaysPerMicrocycle.length} training{" "}
+              {mesocycle.trainingDaysPerMicrocycle.length === 1
+                ? "day"
+                : "days"}{" "}
+              per microcycle
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <svg

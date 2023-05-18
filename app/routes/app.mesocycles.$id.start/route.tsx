@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
@@ -8,9 +8,12 @@ import { Paragraph } from "~/components/paragraph";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
-import { getMesocycle } from "~/models/mesocycle.server";
+import { getMesocycle, startMesocycle } from "~/models/mesocycle.server";
 import clsx from "clsx";
-import { useMemo, useState } from "react";
+import { Input } from "~/components/input";
+import { configRoutes } from "~/config-routes";
+import { SubmitButton } from "~/components/submit-button";
+import { PencilSquareIcon } from "@heroicons/react/20/solid";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -29,9 +32,21 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ mesocycle });
 };
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
-  throw new Error("Not implemented");
+  const { id } = params;
+  if (!id) {
+    throw new Error("id param is falsy, this should never happen");
+  }
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  const { startDate } = submission.value;
+  return startMesocycle(user.id, id, submission, { startDate });
 };
 
 export default function StartMesocycle() {
@@ -47,7 +62,16 @@ export default function StartMesocycle() {
 
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
-      <Heading>{mesocycle.name}</Heading>
+      <div className="flex items-end justify-between gap-2">
+        <Heading>{mesocycle.name}</Heading>
+        <Link
+          to={configRoutes.mesocycles.view(mesocycle.id)}
+          className="inline-flex justify-center gap-3 rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <PencilSquareIcon className="h-5 w-5 text-white" aria-hidden="true" />
+          Edit mesocycle
+        </Link>
+      </div>
       <Paragraph>
         Review your mesocycle to make sure everything looks good before starting
         your training. Keep in mind that the sets, weights and RIR (Reps In
@@ -69,7 +93,18 @@ export default function StartMesocycle() {
         ))}
       </nav>
 
-      <Form method="post" {...form.props}></Form>
+      <Form method="post" className="mt-8" {...form.props}>
+        <Input
+          config={startDate}
+          label="When do you want to start the mesocycle?"
+          helperText="This is the date your training will commence."
+          type="date"
+        />
+
+        <div className="mt-6">
+          <SubmitButton text="Start mesocycle" />
+        </div>
+      </Form>
     </div>
   );
 }

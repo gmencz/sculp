@@ -17,7 +17,11 @@ import { CalendarDaysIcon, CalendarIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
-import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
+import {
+  getCurrentMesocycle,
+  getMesocycle,
+  updateMesocycle,
+} from "~/models/mesocycle.server";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
@@ -40,9 +44,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
+  const currentMesocycle = await getCurrentMesocycle(user.id);
+  const isCurrent = currentMesocycle?.mesocycle?.id === mesocycle.id;
+
   const exercises = await getExercisesForAutocomplete(user.id);
 
-  return json({ mesocycle, exercises });
+  return json({ mesocycle, exercises, isCurrent });
 };
 
 export function ErrorBoundary() {
@@ -76,11 +83,11 @@ export const action = async ({ request, params }: ActionArgs) => {
   }
 
   const { trainingDays } = submission.value;
-  return updateMesocycle(id, user.id, { trainingDays });
+  return updateMesocycle(new URL(request.url), id, user.id, { trainingDays });
 };
 
 export default function Mesocycle() {
-  const { mesocycle } = useLoaderData<typeof loader>();
+  const { mesocycle, isCurrent } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const lastSubmission = useActionData();
   const [form, { trainingDays }] = useForm<Schema>({
@@ -142,15 +149,17 @@ export default function Mesocycle() {
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.durationInWeeks}{" "}
-              {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
+              {mesocycle.microcycles}{" "}
+              {mesocycle.microcycles === 1 ? "microcycle" : "microcycles"}
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <CalendarIcon
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                 aria-hidden="true"
               />
-              {mesocycle.trainingDays.length} days per microcycle
+              {mesocycle.trainingDays.length} training{" "}
+              {mesocycle.trainingDays.length === 1 ? "day" : "days"} per
+              microcycle
             </div>
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <svg
@@ -171,6 +180,13 @@ export default function Mesocycle() {
             <div className="mt-5">
               <ErrorMessage>{lastSubmission?.error.form}</ErrorMessage>
             </div>
+          ) : null}
+
+          {isCurrent ? (
+            <span className="mt-4 block rounded-full bg-green-500/10 px-3 py-0.5 text-sm font-semibold leading-6 text-green-400 ring-1 ring-inset ring-green-500/20">
+              Currently ongoing. Any changes you make will not impact the
+              current mesocycle, but they will affect subsequent mesocycles.
+            </span>
           ) : null}
         </div>
 

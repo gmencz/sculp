@@ -4,6 +4,7 @@ import clsx from "clsx";
 import type { InputHTMLAttributes } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+import { Link } from "@remix-run/react";
 
 type InputProps = {
   config: FieldConfig;
@@ -11,6 +12,10 @@ type InputProps = {
   helperText?: string;
   hideErrorMessage?: boolean;
   hideLabel?: boolean;
+  linkAbove?: {
+    to: string;
+    text: string;
+  };
 };
 
 export function Input({
@@ -21,18 +26,32 @@ export function Input({
   type,
   hideLabel,
   className,
+  linkAbove,
   ...props
 }: InputProps & InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="flex flex-col gap-1">
-      {hideLabel ? null : (
-        <label
-          htmlFor={config.id}
-          className="block text-sm font-medium leading-6 text-zinc-900"
-        >
-          {label}
-        </label>
-      )}
+      <div className="flex items-center justify-between">
+        {hideLabel ? null : (
+          <label
+            htmlFor={config.id}
+            className="block text-sm font-medium leading-6 text-zinc-900"
+          >
+            {label}
+          </label>
+        )}
+
+        {linkAbove ? (
+          <div className="text-sm">
+            <Link
+              to={linkAbove.to}
+              className="font-semibold text-orange-600 hover:text-orange-500"
+            >
+              {linkAbove.text}
+            </Link>
+          </div>
+        ) : null}
+      </div>
 
       <div className="relative mt-1 rounded-md">
         <input

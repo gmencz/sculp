@@ -1,6 +1,6 @@
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
-import { MODAL_NAME as SIGN_IN_MODAL_NAME } from "~/components/sign-in-modal";
+import { configRoutes } from "~/config-routes";
 import { useOptionalUser } from "~/utils";
 
 export function LegalHeader() {
@@ -24,7 +24,7 @@ export function LegalHeader() {
         </Link>
       ) : (
         <Link
-          to={`.?modal=${SIGN_IN_MODAL_NAME}`}
+          to={configRoutes.auth.signIn}
           className="flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white shadow-sm ring-1 ring-zinc-700 hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
         >
           <span>Sign in</span>

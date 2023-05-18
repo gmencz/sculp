@@ -1,23 +1,20 @@
-import { conform, useForm } from "@conform-to/react";
+import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import clsx from "clsx";
 import { Fragment } from "react";
 import type { SignInSchema, action } from "~/routes/sign-in";
 import { signInSchema } from "~/routes/sign-in";
 import { useModal } from "~/utils";
-import { Spinner } from "./spinner";
 import { Input } from "./input";
 import { SubmitButton } from "./submit-button";
-
-export const MODAL_NAME = "sign-in";
+import { configRoutes } from "~/config-routes";
 
 export function SignInModal() {
-  const { show, closeModal } = useModal(MODAL_NAME);
+  const { show, closeModal } = useModal("sign_in");
   const fetcher = useFetcher<typeof action>();
 
   return (
@@ -111,9 +108,17 @@ function SignInForm({ fetcher }: SignInFormProps) {
       className="mt-6 text-zinc-950"
       {...form.props}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <Input label="Email" config={email} type="email" />
-        <Input label="Password" config={password} type="password" />
+        <Input
+          label="Password"
+          config={password}
+          type="password"
+          linkAbove={{
+            text: "Forgot password?",
+            to: configRoutes.auth.forgotPassword,
+          }}
+        />
       </div>
 
       <div className="mt-6">

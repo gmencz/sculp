@@ -1,7 +1,8 @@
 import {
-  ArrowLongRightIcon,
   PencilSquareIcon,
+  PlayIcon,
   PlusIcon,
+  StopIcon,
 } from "@heroicons/react/20/solid";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { Link, useLoaderData } from "@remix-run/react";
@@ -10,17 +11,18 @@ import { json } from "@remix-run/server-runtime";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
-import { getMesocycles } from "~/models/mesocycle.server";
+import { getCurrentMesocycle, getMesocycles } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
   const mesocycles = await getMesocycles(user.id);
-  return json({ mesocycles });
+  const currentMesocycle = await getCurrentMesocycle(user.id);
+  return json({ mesocycles, currentMesocycle });
 };
 
 export default function Mesocycles() {
-  const { mesocycles } = useLoaderData<typeof loader>();
+  const { mesocycles, currentMesocycle } = useLoaderData<typeof loader>();
 
   if (!mesocycles.length) {
     return (
@@ -48,7 +50,7 @@ export default function Mesocycles() {
         </p>
         <div className="mt-6">
           <Link
-            to={configRoutes.newMesocycle}
+            to={configRoutes.mesocycles.newStepOne}
             className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
@@ -68,7 +70,7 @@ export default function Mesocycles() {
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
-            to={configRoutes.newMesocycle}
+            to={configRoutes.mesocycles.newStepOne}
             className="block rounded-md bg-orange-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
           >
             New mesocycle
@@ -88,8 +90,8 @@ export default function Mesocycles() {
                   {mesocycle.name}
                 </h3>
                 <span className="inline-flex flex-shrink-0 items-center rounded-full bg-orange-50 px-1.5 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
-                  {mesocycle.durationInWeeks}{" "}
-                  {mesocycle.durationInWeeks === 1 ? "week" : "weeks"}
+                  {mesocycle.microcycles}{" "}
+                  {mesocycle.microcycles === 1 ? "microcycle" : "microcycles"}
                 </span>
               </div>
               <div className="mt-4 flex flex-col gap-3">
@@ -98,7 +100,9 @@ export default function Mesocycles() {
                     className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
                     aria-hidden="true"
                   />
-                  {mesocycle._count.trainingDays} days per microcycle
+                  {mesocycle._count.trainingDays} training{" "}
+                  {mesocycle._count.trainingDays === 1 ? "day" : "days"} per
+                  microcycle
                 </div>
                 <div className="flex items-center text-sm text-zinc-500">
                   <svg
@@ -119,16 +123,24 @@ export default function Mesocycles() {
             <div>
               <div className="-mt-px flex divide-x divide-zinc-200">
                 <div className="flex w-0 flex-1">
-                  <Link
-                    to={`./${mesocycle.id}/start`}
-                    className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent bg-orange-100 py-4 text-sm font-semibold text-orange-700"
-                  >
-                    Start
-                    <ArrowLongRightIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    />
-                  </Link>
+                  {currentMesocycle?.mesocycle &&
+                  mesocycle.id === currentMesocycle.mesocycle.id ? (
+                    <Link
+                      to={`./${mesocycle.id}/stop`}
+                      className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent bg-red-100 py-4 text-sm font-semibold text-red-700"
+                    >
+                      Stop
+                      <StopIcon className="h-5 w-5" aria-hidden="true" />
+                    </Link>
+                  ) : (
+                    <Link
+                      to={`./${mesocycle.id}/start`}
+                      className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent bg-orange-100 py-4 text-sm font-semibold text-orange-700"
+                    >
+                      Start
+                      <PlayIcon className="h-5 w-5" aria-hidden="true" />
+                    </Link>
+                  )}
                 </div>
                 <div className="-ml-px flex w-0 flex-1">
                   <Link

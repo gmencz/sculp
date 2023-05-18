@@ -58,7 +58,10 @@ export const action = async ({ request }: ActionArgs) => {
     throw error;
   }
 
-  return redirect(configRoutes.exercises + `?success_id=${generateId()}`);
+  const url = new URL(request.url);
+  url.searchParams.set("success_id", generateId());
+
+  return redirect(configRoutes.exercises.list + url.search);
 };
 
 export default function Exercises() {
@@ -122,7 +125,7 @@ export default function Exercises() {
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
-            to={configRoutes.newExercise}
+            to={configRoutes.exercises.new}
             className="block rounded-md bg-orange-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
           >
             New exercise

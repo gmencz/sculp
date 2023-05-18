@@ -48,7 +48,7 @@ export async function createExercise(
     select: { id: true },
   });
 
-  return redirect(configRoutes.exercises);
+  return redirect(configRoutes.exercises.list);
 }
 
 type UpdateExerciseInput = {
@@ -58,6 +58,7 @@ type UpdateExerciseInput = {
 };
 
 export async function updateExercise(
+  url: URL,
   id: string,
   userId: string,
   input: UpdateExerciseInput
@@ -95,10 +96,9 @@ export async function updateExercise(
     select: { id: true },
   });
 
-  return redirect(
-    configRoutes.exerciseView(updatedExercise.id) +
-      `?success_id=${generateId()}`
-  );
+  url.searchParams.set("success_id", generateId());
+
+  return redirect(configRoutes.exercises.view(updatedExercise.id) + url.search);
 }
 
 export async function getExercise(id: string, userId: string) {

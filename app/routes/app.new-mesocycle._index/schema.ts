@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const durationInWeeksArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+export const durationInMicrocyclesArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const trainingDaysPerMicrocycleArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -13,19 +13,19 @@ export const schema = z.object({
     .min(1, "The name is required.")
     .max(1024, "The name must be at most 1024 characters long."),
 
-  durationInWeeks: z.coerce
+  durationInMicrocycles: z.coerce
     .number({
-      invalid_type_error: "The selected weeks are not valid.",
-      required_error: "The selected weeks are required.",
+      invalid_type_error: "The selected microcycles are not valid.",
+      required_error: "The selected microcycles are required.",
     })
     .min(
-      durationInWeeksArray[0],
-      `The selected weeks must be at least ${durationInWeeksArray[0]}.`
+      durationInMicrocyclesArray[0],
+      `The selected microcycles must be at least ${durationInMicrocyclesArray[0]}.`
     )
     .max(
-      durationInWeeksArray[durationInWeeksArray.length - 1],
+      durationInMicrocyclesArray[durationInMicrocyclesArray.length - 1],
       `The selected weeks must be at most ${
-        durationInWeeksArray[durationInWeeksArray.length - 1]
+        durationInMicrocyclesArray[durationInMicrocyclesArray.length - 1]
       }.`
     ),
 
@@ -36,15 +36,29 @@ export const schema = z.object({
         required_error: "The training day is required.",
       }),
       {
-        invalid_type_error: "The selected days are not valid.",
-        required_error: "You must select at least 1 day.",
+        invalid_type_error: "The selected training days are not valid.",
+        required_error: "You must select at least 1 training day.",
       }
     )
-    .min(1, "You must select at least 1 day.")
+    .min(1, "You must select at least 1 training day.")
     .max(
       7,
-      "You can't select more than 7 days, this is to avoid overtraining."
+      "You can't select more than 7 training days, this is to avoid overtraining."
     ),
+
+  restDaysPerMicrocycle: z
+    .array(
+      z.coerce.number({
+        invalid_type_error: "The rest day is not valid.",
+        required_error: "The rest day is required.",
+      }),
+      {
+        invalid_type_error: "The selected rest days are not valid.",
+        required_error: "You must select at least 1 rest day.",
+      }
+    )
+    .min(1, "You must select at least 1 rest day.")
+    .max(9, "You can't select more than 9 days."),
 
   goal: z
     .string({

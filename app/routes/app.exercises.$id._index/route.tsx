@@ -49,7 +49,11 @@ export const action = async ({ request, params }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  return updateExercise(id, user.id, { name, jointPain, muscleGroups });
+  return updateExercise(new URL(request.url), id, user.id, {
+    name,
+    jointPain,
+    muscleGroups,
+  });
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
