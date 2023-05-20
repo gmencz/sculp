@@ -323,6 +323,34 @@ export async function getCurrentMesocycle(userId: string) {
   });
 }
 
+export async function getCurrentMesocycleDetailed(userId: string) {
+  return prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: userId,
+    },
+    select: {
+      startDate: true,
+      mesocycle: {
+        select: {
+          microcycles: true,
+          restDays: true,
+          _count: { select: { trainingDays: true } },
+        },
+      },
+      microcycles: {
+        select: {
+          restDays: true,
+          trainingDays: {
+            select: {
+              number: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 export async function getMesocyclesCount(userId: string) {
   return prisma.mesocycle.count({
     where: {
@@ -350,6 +378,28 @@ export async function startMesocycle(
       microcycles: true,
       restDays: true,
       _count: { select: { trainingDays: true } },
+      trainingDays: {
+        select: {
+          number: true,
+          label: true,
+          exercises: {
+            select: {
+              exercise: { select: { id: true } },
+              notes: true,
+              number: true,
+              sets: {
+                select: {
+                  number: true,
+                  weight: true,
+                  rir: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
@@ -380,6 +430,39 @@ export async function startMesocycle(
       ranByUser: { connect: { id: userId } },
       startDate: input.startDate,
       endDate,
+      microcycles: {
+        // Create the 1st microcycle with the values from the mesocycle.
+        create: {
+          restDays: mesocycle.restDays,
+          trainingDays: {
+            create: mesocycle.trainingDays.map((trainingDay) => ({
+              number: trainingDay.number,
+              label: trainingDay.label,
+              completed: false,
+              exercises: {
+                create: trainingDay.exercises.map((exercise) => ({
+                  number: exercise.number,
+                  notes: exercise.notes,
+                  exercise: { connect: { id: exercise.exercise.id } },
+                  sets: {
+                    create: exercise.sets.map((set) => ({
+                      number: set.number,
+                      repRangeLowerBound: set.repRangeLowerBound,
+                      repRangeUpperBound: set.repRangeUpperBound,
+                      rir: set.rir,
+                      weight: set.weight,
+                      completed: false,
+                      // Because this is the first microcycle, the target will just be the lower end of the configured rep range
+                      // so the user should be able to hit this no target no problem.
+                      targetRepsToComplete: set.repRangeLowerBound,
+                    })),
+                  },
+                })),
+              },
+            })),
+          },
+        },
+      },
     },
   });
 

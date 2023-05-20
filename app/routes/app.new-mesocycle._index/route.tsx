@@ -61,8 +61,8 @@ export const action = async ({ request }: ActionArgs) => {
     durationInMicrocycles,
     goal,
     name,
-    trainingDaysPerMicrocycle,
-    restDaysPerMicrocycle,
+    trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort((a, b) => a - b),
+    restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
   });
 };
 

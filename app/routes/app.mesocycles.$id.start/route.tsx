@@ -97,7 +97,7 @@ export default function StartMesocycle() {
         <Input
           config={startDate}
           label="When do you want to start the mesocycle?"
-          helperText="This is the date your training will commence."
+          helperText="This is the date your first microcycle will commence."
           type="date"
         />
 

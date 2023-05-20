@@ -76,13 +76,10 @@ export default function NewMesocycleDesign() {
       return parse(formData, { schema });
     },
     defaultValue: {
-      trainingDays: Array.from(
-        { length: mesocycle.trainingDaysPerMicrocycle.length },
-        (_, index) => ({
-          dayNumber: (index + 1).toString(),
-          exercises: [],
-        })
-      ),
+      trainingDays: mesocycle.trainingDaysPerMicrocycle.map((dayNumber) => ({
+        dayNumber: dayNumber.toString(),
+        exercises: [],
+      })),
     },
   });
 

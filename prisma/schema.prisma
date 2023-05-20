@@ -49,16 +49,17 @@ enum JointPain {
 }
 
 model Exercise {
-  id                              String                         @id @default(cuid())
-  name                            String
-  jointPain                       JointPain?                     @default(NONE) @map("joint_pain")
-  user                            User?                          @relation(fields: [userId], references: [id])
-  userId                          String?                        @map("user_id")
-  notes                           String? // Notes about the exercise like a link to a youtube video, notes about the execution of the exercise etc.
-  createdAt                       DateTime                       @default(now()) @map("created_at")
-  updatedAt                       DateTime                       @updatedAt @map("updated_at")
-  muscleGroups                    MuscleGroup[]
-  mesocyclesTrainingDaysExercises MesocycleTrainingDayExercise[]
+  id                                             String                                      @id @default(cuid())
+  name                                           String
+  jointPain                                      JointPain?                                  @default(NONE) @map("joint_pain")
+  user                                           User?                                       @relation(fields: [userId], references: [id])
+  userId                                         String?                                     @map("user_id")
+  notes                                          String? // Notes about the exercise like a link to a youtube video, notes about the execution of the exercise etc.
+  createdAt                                      DateTime                                    @default(now()) @map("created_at")
+  updatedAt                                      DateTime                                    @updatedAt @map("updated_at")
+  muscleGroups                                   MuscleGroup[]
+  mesocyclesTrainingDaysExercises                MesocycleTrainingDayExercise[]
+  mesocyclesRunsMicrocyclesTrainingDaysExercises MesocycleRunMicrocycleTrainingDayExercise[]
 
   @@unique([name, userId])
   @@map("exercises")
@@ -94,7 +95,7 @@ model MesocycleTrainingDay {
   mesocycle   Mesocycle?                     @relation(fields: [mesocycleId], references: [id])
   mesocycleId String?                        @map("mesocycle_id")
   label       String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
-  number      Int // The number of the day, if it is 2 then it will be the 2nd training day.
+  number      Int // The number of the day.
   exercises   MesocycleTrainingDayExercise[]
 
   @@map("mesocycles_training_days")
@@ -127,15 +128,67 @@ model MesocycleTrainingDayExerciseSet {
 }
 
 model MesocycleRun {
-  id            String     @id @default(cuid())
-  mesocycle     Mesocycle? @relation(fields: [mesocycleId], references: [id])
-  mesocycleId   String?    @unique @map("mesoycle_id")
-  startDate     DateTime   @map("start_date")
-  endDate       DateTime   @map("end_date")
-  ranByUser     User?      @relation("MesocyclesRuns", fields: [ranByUserId], references: [id])
-  ranByUserId   String?    @map("ran_by_user_id")
-  currentUser   User?      @relation(fields: [currentUserId], references: [id])
-  currentUserId String?    @unique
+  id            String                   @id @default(cuid())
+  mesocycle     Mesocycle                @relation(fields: [mesocycleId], references: [id])
+  mesocycleId   String                   @map("mesoycle_id")
+  startDate     DateTime                 @map("start_date")
+  endDate       DateTime                 @map("end_date")
+  ranByUser     User?                    @relation("MesocyclesRuns", fields: [ranByUserId], references: [id])
+  ranByUserId   String?                  @map("ran_by_user_id")
+  currentUser   User?                    @relation(fields: [currentUserId], references: [id])
+  currentUserId String?                  @unique @map("current_user_id")
+  microcycles   MesocycleRunMicrocycle[]
 
   @@map("mesocycles_runs")
+}
+
+model MesocycleRunMicrocycle {
+  id             String                              @id @default(cuid())
+  mesocycleRun   MesocycleRun?                       @relation(fields: [mesocycleRunId], references: [id])
+  mesocycleRunId String?                             @map("mesocycle_run_id")
+  trainingDays   MesocycleRunMicrocycleTrainingDay[]
+  restDays       Int[]                               @map("rest_days")
+
+  @@map("mesocycles_runs_microcycles")
+}
+
+model MesocycleRunMicrocycleTrainingDay {
+  id           String                                      @id @default(cuid())
+  number       Int
+  label        String
+  completed    Boolean                                     @default(false) // Whether the user completed this training day.
+  exercises    MesocycleRunMicrocycleTrainingDayExercise[]
+  microcycle   MesocycleRunMicrocycle?                     @relation(fields: [microcycleId], references: [id])
+  microcycleId String?                                     @map("microcycle_id")
+
+  @@map("mesocycles_runs_microcycles_training_days")
+}
+
+model MesocycleRunMicrocycleTrainingDayExercise {
+  id            String                                         @id @default(cuid())
+  number        Int
+  notes         String?
+  sets          MesocycleRunMicrocycleTrainingDayExerciseSet[]
+  trainingDay   MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id])
+  trainingDayId String?                                        @map("training_day_id")
+  exercise      Exercise                                       @relation(fields: [exerciseId], references: [id])
+  exerciseId    String                                         @map("exercise_id")
+
+  @@map("mesocycles_runs_microcycles_training_days_exercises")
+}
+
+model MesocycleRunMicrocycleTrainingDayExerciseSet {
+  id                   String                                     @id @default(cuid())
+  completed            Boolean                                    @default(false) // Whether the user completed this set.
+  targetRepsToComplete Int                                        @map("target_reps_to_complete")
+  repsCompleted        Int?                                       @map("reps_completed") // The quality reps the user managed to complete.
+  number               Int
+  weight               Float
+  rir                  Int
+  repRangeLowerBound   Int                                        @map("rep_range_lower_bound")
+  repRangeUpperBound   Int                                        @map("rep_range_upper_bound")
+  exercise             MesocycleRunMicrocycleTrainingDayExercise? @relation(fields: [exerciseId], references: [id])
+  exerciseId           String?                                    @map("exercise_id")
+
+  @@map("mesocycles_runs_microcycles_training_days_exercises_sets")
 }
