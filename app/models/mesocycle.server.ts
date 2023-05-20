@@ -1,6 +1,6 @@
 import type { Submission } from "@conform-to/react";
 import { json, redirect } from "@remix-run/server-runtime";
-import { addDays } from "date-fns";
+import { addDays, startOfDay } from "date-fns";
 import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
@@ -332,6 +332,7 @@ export async function getCurrentMesocycleDetailed(userId: string) {
       startDate: true,
       mesocycle: {
         select: {
+          name: true,
           microcycles: true,
           restDays: true,
           _count: { select: { trainingDays: true } },
@@ -342,6 +343,7 @@ export async function getCurrentMesocycleDetailed(userId: string) {
           restDays: true,
           trainingDays: {
             select: {
+              id: true,
               number: true,
             },
           },
@@ -355,6 +357,32 @@ export async function getMesocyclesCount(userId: string) {
   return prisma.mesocycle.count({
     where: {
       userId,
+    },
+  });
+}
+
+export async function getTrainingDay(id: string) {
+  return prisma.mesocycleRunMicrocycleTrainingDay.findUnique({
+    where: { id },
+    select: {
+      label: true,
+      exercises: {
+        select: {
+          id: true,
+          notes: true,
+          number: true,
+          exercise: {
+            select: {
+              name: true,
+              muscleGroups: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -428,7 +456,7 @@ export async function startMesocycle(
       mesocycle: { connect: { id } },
       currentUser: { connect: { id: userId } },
       ranByUser: { connect: { id: userId } },
-      startDate: input.startDate,
+      startDate: startOfDay(input.startDate),
       endDate,
       microcycles: {
         // Create the 1st microcycle with the values from the mesocycle.

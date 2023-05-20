@@ -158,7 +158,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
     <div className="relative">
       <div
         className={clsx(
-          "flex flex-col items-start gap-2 border-y border-b-zinc-200 border-t-zinc-100 bg-zinc-50 px-4 py-3 text-sm font-semibold leading-6 text-zinc-900",
+          "flex flex-col items-start gap-2 border-y border-b-zinc-200 border-t-zinc-100 bg-white px-4 py-3 text-sm font-semibold leading-6 text-zinc-900",
           index === 0 ? "sm:rounded-tl-xl sm:rounded-tr-xl" : null
         )}
       >
