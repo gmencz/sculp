@@ -14,6 +14,7 @@ import { Input } from "~/components/input";
 import { configRoutes } from "~/config-routes";
 import { SubmitButton } from "~/components/submit-button";
 import { PencilSquareIcon } from "@heroicons/react/20/solid";
+import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -167,12 +168,9 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
         </h3>
 
         <ul className="flex gap-2">
-          {muscleGroups.map((muscleGroup) => (
-            <li
-              key={muscleGroup}
-              className="rounded-full bg-orange-500/10 px-3 py-0.5 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20"
-            >
-              {muscleGroup}
+          {muscleGroups.map((muscleGroup, index) => (
+            <li key={muscleGroup}>
+              <MuscleGroupBadge index={index}>{muscleGroup}</MuscleGroupBadge>
             </li>
           ))}
         </ul>

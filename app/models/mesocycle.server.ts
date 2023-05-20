@@ -374,11 +374,26 @@ export async function getTrainingDay(id: string) {
           exercise: {
             select: {
               name: true,
+              jointPain: true,
+              notes: true,
               muscleGroups: {
                 select: {
                   name: true,
                 },
               },
+            },
+          },
+          sets: {
+            select: {
+              id: true,
+              number: true,
+              completed: true,
+              repRangeLowerBound: true,
+              repRangeUpperBound: true,
+              repsCompleted: true,
+              rir: true,
+              targetRepsToComplete: true,
+              weight: true,
             },
           },
         },
