@@ -1,12 +1,16 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
-import type { InputHTMLAttributes } from "react";
+import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
 
-type InputProps = {
+type InputProps = DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> & {
   config: FieldConfig;
   label: string;
   helperText?: string;
@@ -18,31 +22,34 @@ type InputProps = {
   };
 };
 
-export function Input({
-  config,
-  helperText,
-  label,
-  hideErrorMessage,
-  type,
-  hideLabel,
-  className,
-  linkAbove,
-  ...props
-}: InputProps & InputHTMLAttributes<HTMLInputElement>) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    config,
+    helperText,
+    label,
+    hideErrorMessage,
+    type,
+    hideLabel,
+    className,
+    linkAbove,
+    ...props
+  },
+  ref
+) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
         {hideLabel ? null : (
           <label
             htmlFor={config.id}
-            className="block text-sm font-medium leading-6 text-zinc-900"
+            className="mb-1 block text-sm font-medium leading-6 text-zinc-900"
           >
             {label}
           </label>
         )}
 
         {linkAbove ? (
-          <div className="text-sm">
+          <div className="mb-1 text-sm">
             <Link
               to={linkAbove.to}
               className="font-semibold text-orange-600 hover:text-orange-500"
@@ -53,7 +60,7 @@ export function Input({
         ) : null}
       </div>
 
-      <div className="relative mt-1 rounded-md">
+      <div className="relative rounded-md">
         <input
           className={clsx(
             "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
@@ -63,8 +70,8 @@ export function Input({
             className
           )}
           aria-label={hideLabel ? label : undefined}
-          {...props}
           {...conform.input(config, { type: type || "text" })}
+          {...props}
         />
 
         {config.error ? (
@@ -86,4 +93,4 @@ export function Input({
       ) : null}
     </div>
   );
-}
+});

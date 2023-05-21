@@ -29,6 +29,7 @@ import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { useAfterPaintEffect } from "~/utils";
 import { getExercisesForAutocomplete } from "~/models/exercise.server";
+import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -183,10 +184,12 @@ export default function Mesocycle() {
           ) : null}
 
           {isCurrent ? (
-            <span className="mt-4 block rounded-full bg-green-500/10 px-3 py-0.5 text-sm font-semibold leading-6 text-green-400 ring-1 ring-inset ring-green-500/20">
-              Currently ongoing. Any changes you make will not impact the
-              current mesocycle, but they will affect subsequent mesocycles.
-            </span>
+            <div className="mt-4">
+              <MuscleGroupBadge index={3}>
+                Currently ongoing. Any changes you make will not impact the
+                current mesocycle, but they will affect subsequent mesocycles.
+              </MuscleGroupBadge>
+            </div>
           ) : null}
         </div>
 
