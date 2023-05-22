@@ -1,13 +1,11 @@
 import { Heading } from "~/components/heading";
 import type { CurrentMesocycleStartedData } from "./route";
-import type { RefObject } from "react";
+import type { ChangeEvent, RefObject } from "react";
 import { useState } from "react";
-import { useMemo, useRef } from "react";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { useMemo } from "react";
+import { Form, useActionData } from "@remix-run/react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
-import { Paragraph } from "~/components/paragraph";
 import type { FieldConfig } from "@conform-to/react";
-import { useInputEvent } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import { useFieldset } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
@@ -31,30 +29,16 @@ export function TodayPlan({ data }: TodayPlanProps) {
         {data.mesocycleName} - M{microcycleNumber} D{dayNumber}
       </h2>
 
-      {trainingDay ? (
-        <TrainingDay
-          microcycleNumber={microcycleNumber}
-          dayNumber={dayNumber}
-          trainingDay={trainingDay}
-        />
-      ) : (
-        <RestDay microcycleNumber={microcycleNumber} dayNumber={dayNumber} />
-      )}
+      {trainingDay ? <TrainingDay trainingDay={trainingDay} /> : <RestDay />}
     </div>
   );
 }
 
 type TrainingDayProps = {
-  microcycleNumber: number;
-  dayNumber: number;
   trainingDay: NonNullable<CurrentMesocycleStartedData["today"]["trainingDay"]>;
 };
 
-function TrainingDay({
-  trainingDay,
-  microcycleNumber,
-  dayNumber,
-}: TrainingDayProps) {
+function TrainingDay({ trainingDay }: TrainingDayProps) {
   const muscleGroups = useMemo(() => {
     const set = new Set<string>();
 
@@ -112,7 +96,7 @@ type ExerciseFormProps = {
 
 function ExerciseForm({ exercise }: ExerciseFormProps) {
   const lastSubmission = useActionData();
-  const [form, { sets }] = useForm<ExerciseSchema>({
+  const [form, { id, sets }] = useForm<ExerciseSchema>({
     id: `exercise-${exercise.id}`,
     lastSubmission,
     defaultValue: {
@@ -134,6 +118,8 @@ function ExerciseForm({ exercise }: ExerciseFormProps) {
 
   return (
     <Form method="post" className="mt-5" {...form.props}>
+      <input {...conform.input(id, { hidden: true })} />
+
       <table>
         <thead>
           <tr>
@@ -173,10 +159,15 @@ type SetRowProps = {
 };
 
 function SetRow({ config, index, formRef }: SetRowProps) {
-  const { id, completed, repRange, repsCompleted, rir, weight } = useFieldset(
-    formRef,
-    config
-  );
+  const {
+    id,
+    completed,
+    wantsToComplete,
+    repRange,
+    repsCompleted,
+    rir,
+    weight,
+  } = useFieldset(formRef, config);
 
   const [values, setValues] = useState({
     repRange: repRange.defaultValue ?? "",
@@ -187,11 +178,22 @@ function SetRow({ config, index, formRef }: SetRowProps) {
 
   const canCompleteSet = Object.values(values).every(Boolean);
 
+  const handleValueChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    name: keyof typeof values
+  ) => {
+    setValues((currentValues) => ({
+      ...currentValues,
+      [name]: e.target.value,
+    }));
+  };
+
   return (
     <>
       <tr>
         <td className="pr-3">
           <input {...conform.input(id, { hidden: true })} />
+          <input {...conform.input(completed, { hidden: true })} />
 
           <Input
             hideErrorMessage
@@ -200,12 +202,7 @@ function SetRow({ config, index, formRef }: SetRowProps) {
             label="Weight"
             type="number"
             className="text-center"
-            onChange={(e) =>
-              setValues((currentValues) => ({
-                ...currentValues,
-                weight: e.target.value,
-              }))
-            }
+            onChange={(e) => handleValueChange(e, "weight")}
           />
         </td>
 
@@ -216,12 +213,7 @@ function SetRow({ config, index, formRef }: SetRowProps) {
             config={repRange}
             label="Rep range"
             className="text-center"
-            onChange={(e) =>
-              setValues((currentValues) => ({
-                ...currentValues,
-                repRange: e.target.value,
-              }))
-            }
+            onChange={(e) => handleValueChange(e, "repRange")}
           />
         </td>
 
@@ -233,12 +225,7 @@ function SetRow({ config, index, formRef }: SetRowProps) {
             label="RIR"
             type="number"
             className="text-center"
-            onChange={(e) =>
-              setValues((currentValues) => ({
-                ...currentValues,
-                rir: e.target.value,
-              }))
-            }
+            onChange={(e) => handleValueChange(e, "rir")}
           />
         </td>
 
@@ -250,21 +237,18 @@ function SetRow({ config, index, formRef }: SetRowProps) {
             label="Reps"
             type="number"
             className="text-center"
-            onChange={(e) =>
-              setValues((currentValues) => ({
-                ...currentValues,
-                repsCompleted: e.target.value,
-              }))
-            }
+            onChange={(e) => handleValueChange(e, "repsCompleted")}
           />
         </td>
 
         <td>
           <button
             type="submit"
+            name={wantsToComplete.name}
+            value="true"
             disabled={!canCompleteSet}
             className={clsx(
-              "mt-1 h-full rounded  px-3 py-1.5",
+              "mt-1 h-full rounded px-2 py-1.5",
               completed.defaultValue
                 ? "bg-green-500 text-white hover:bg-green-600"
                 : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200"
@@ -278,12 +262,7 @@ function SetRow({ config, index, formRef }: SetRowProps) {
   );
 }
 
-type RestDayProps = {
-  microcycleNumber: number;
-  dayNumber: number;
-};
-
-function RestDay({ dayNumber, microcycleNumber }: RestDayProps) {
+function RestDay() {
   return (
     <>
       <Heading>Rest</Heading>

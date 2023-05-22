@@ -129,7 +129,11 @@ export function getRepRangeBounds(repRange: string) {
   return [repRangeLowerBound, repRangeUpperBound];
 }
 
-export function validateRepRange(repRange: string) {
+export function validateRepRange(repRange: string, optional: boolean = false) {
+  if (optional && !repRange) {
+    return true;
+  }
+
   // Format: 5-8 or 5-10 or even 90-100.
   if (repRange.length > 5 || repRange[1] !== "-") {
     return false;
