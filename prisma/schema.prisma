@@ -165,16 +165,25 @@ model MesocycleRunMicrocycleTrainingDay {
 }
 
 model MesocycleRunMicrocycleTrainingDayExercise {
-  id            String                                         @id @default(cuid())
+  id            String                                               @id @default(cuid())
   number        Int
   notes         String?
   sets          MesocycleRunMicrocycleTrainingDayExerciseSet[]
-  trainingDay   MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id])
-  trainingDayId String?                                        @map("training_day_id")
-  exercise      Exercise                                       @relation(fields: [exerciseId], references: [id])
-  exerciseId    String                                         @map("exercise_id")
+  trainingDay   MesocycleRunMicrocycleTrainingDay?                   @relation(fields: [trainingDayId], references: [id])
+  trainingDayId String?                                              @map("training_day_id")
+  exercise      Exercise                                             @relation(fields: [exerciseId], references: [id])
+  exerciseId    String                                               @map("exercise_id")
+  bioFeedback   MesocycleRunMicrocycleTrainingDayExerciseBioFeedback @relation(fields: [bioFeedbackId], references: [id])
+  bioFeedbackId String                                               @unique @map("bio_feedback_id")
 
   @@map("mesocycles_runs_microcycles_training_days_exercises")
+}
+
+model MesocycleRunMicrocycleTrainingDayExerciseBioFeedback {
+  id       String                                     @id @default(cuid())
+  exercise MesocycleRunMicrocycleTrainingDayExercise?
+
+  @@map("mesocycles_runs_microcycles_training_days_exercises_bio_feedback")
 }
 
 model MesocycleRunMicrocycleTrainingDayExerciseSet {

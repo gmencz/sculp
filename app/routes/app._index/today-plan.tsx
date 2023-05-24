@@ -1,6 +1,7 @@
 import { Heading } from "~/components/heading";
 import type { CurrentMesocycleStartedData } from "./route";
 import type { ChangeEvent, FormEvent } from "react";
+import { Fragment } from "react";
 import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
@@ -23,6 +24,9 @@ import { updateSetSchema } from "./schema";
 import clsx from "clsx";
 import { Textarea } from "~/components/textarea";
 import { useDebounce } from "~/utils";
+import { Popover, Transition } from "@headlessui/react";
+import { animated, useSpring } from "@react-spring/web";
+import { useDrag } from "@use-gesture/react";
 
 type TodayPlanProps = {
   data: CurrentMesocycleStartedData;
@@ -135,35 +139,9 @@ function TrainingDay({
         <ol className="flex flex-col gap-6">
           {trainingDay.exercises.map((exercise) => (
             <li
-              className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white px-4 pb-6 pt-4 sm:px-6 sm:pb-10 lg:px-8"
+              className=" rounded border-b border-zinc-200 bg-white px-4 pb-6 pt-4 sm:px-6 sm:pb-10 lg:px-8"
               key={exercise.id}
             >
-              <div className="flex items-center gap-8">
-                <ul className="flex flex-wrap gap-2">
-                  {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
-                    <li key={muscleGroup.name}>
-                      <MuscleGroupBadge index={index}>
-                        {muscleGroup.name}
-                      </MuscleGroupBadge>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="ml-auto flex items-center gap-4">
-                  <button
-                    type="button"
-                    className="-m-2.5 p-2.5 text-zinc-600 hover:text-zinc-700"
-                  >
-                    <EllipsisVerticalIcon className="h-6 w-6" />
-                    <span className="sr-only">Notes</span>
-                  </button>
-                </div>
-              </div>
-
-              <h3 className="mt-3 text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
-                {exercise.exercise.name}
-              </h3>
-
               <Exercise exercise={exercise} />
             </li>
           ))}
@@ -216,52 +194,165 @@ function Exercise({ exercise }: ExerciseProps) {
     }
   }, [debouncedSubmitEvent, form.ref, submit]);
 
+  const [showNotes, setShowNotes] = useState(Boolean(exercise.notes));
+
+  const menuOptions = [
+    {
+      name: "Add notes",
+      onClick: () => {
+        setShowNotes(true);
+      },
+    },
+  ];
+
+  // const askBioFeedback = exercise.sets.every((set) => set.completed);
+
+  const navigation = useNavigation();
+
+  const isSubmitting =
+    navigation.state === "submitting" &&
+    navigation.formData.get("actionIntent") === actionIntents[2];
+
   return (
-    <div className="mt-3">
-      <Form
-        preventScrollReset
-        replace
-        method="post"
-        className="mb-4"
-        onChange={handleChange}
-        {...form.props}
-      >
-        <input {...conform.input(id, { hidden: true })} />
-        <input {...conform.input(actionIntent, { hidden: true })} />
-
-        <Textarea
-          hideLabel
-          hideErrorMessage
-          config={notes}
-          label="Notes"
-          rows={2}
-          placeholder="Notes"
-        />
-      </Form>
-
-      <table>
-        <thead>
-          <tr>
-            <td className="pb-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900">
-              Weight
-            </td>
-            <td className="pb-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900">
-              Rep range
-            </td>
-            <td className="pb-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900">
-              RIR
-            </td>
-            <td className="pb-2 text-center text-xs font-medium uppercase text-zinc-900">
-              Reps
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          {exercise.sets.map((set) => (
-            <SetRow key={set.id} set={set} />
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="flex items-center gap-8">
+        <ul className="flex flex-wrap gap-2">
+          {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
+            <li key={muscleGroup.name}>
+              <MuscleGroupBadge index={index}>
+                {muscleGroup.name}
+              </MuscleGroupBadge>
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+
+        <div className="ml-auto flex items-center gap-4">
+          <Popover className="relative flex items-center">
+            <Popover.Button
+              type="button"
+              className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
+            >
+              <EllipsisVerticalIcon className="h-6 w-6" />
+              <span className="sr-only">Notes</span>
+            </Popover.Button>
+
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
+                {({ close }) => (
+                  <div className="w-44 shrink rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
+                    {menuOptions.map((option) => (
+                      <button
+                        key={option.name}
+                        onClick={() => {
+                          close();
+                          option.onClick();
+                        }}
+                        type="button"
+                        className="block w-full text-left text-gray-600 hover:text-orange-600"
+                      >
+                        {option.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover.Panel>
+            </Transition>
+          </Popover>
+        </div>
+      </div>
+
+      <h3 className="mt-3 text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+        {exercise.exercise.name}
+      </h3>
+
+      <div className="mt-3">
+        <Form
+          preventScrollReset
+          replace
+          method="post"
+          className="mb-4"
+          onChange={handleChange}
+          {...form.props}
+        >
+          <input {...conform.input(id, { hidden: true })} />
+          <input {...conform.input(actionIntent, { hidden: true })} />
+
+          <Transition
+            as={Fragment}
+            show={showNotes}
+            appear
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div>
+              <Textarea
+                autoSize
+                hideLabel
+                hideErrorMessage
+                config={notes}
+                label="Notes"
+                placeholder="Notes"
+                rows={1}
+              />
+            </div>
+          </Transition>
+        </Form>
+
+        <div role="table">
+          <div role="rowgroup">
+            <div role="row" className="flex items-center gap-3">
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                Weight
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                Rep range
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                RIR
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                Reps
+              </div>
+
+              <div role="columnheader" className="h-8 w-8" />
+            </div>
+          </div>
+
+          <div role="rowgroup" className="flex flex-col gap-2">
+            {exercise.sets.map((set, index) => (
+              <SetRow index={index} key={set.id} set={set} />
+            ))}
+          </div>
+        </div>
+
+        <Form method="post" className="mt-4">
+          <SubmitButton isSubmitting={isSubmitting} secondary text="Add set" />
+        </Form>
+      </div>
     </div>
   );
 }
@@ -270,9 +361,10 @@ type SetRowProps = {
   set: NonNullable<
     CurrentMesocycleStartedData["today"]["trainingDay"]
   >["exercises"][number]["sets"][number];
+  index: number;
 };
 
-function SetRow({ set }: SetRowProps) {
+function SetRow({ set, index }: SetRowProps) {
   const lastSubmission = useActionData();
   const [
     form,
@@ -380,18 +472,32 @@ function SetRow({ set }: SetRowProps) {
     values.repRange && values.repsCompleted && values.rir && values.weight
   );
 
-  return (
-    <>
-      <tr>
-        <td className="pr-3">
-          <Form
-            preventScrollReset
-            replace
-            method="post"
-            className="hidden"
-            {...form.props}
-          />
+  const [{ x }, api] = useSpring(() => ({ x: 0 }));
 
+  // Set the drag hook and define component movement based on gesture data
+  const bind = useDrag(({ down, movement: [mx, my] }) => {
+    // Only allow dragging to the left.
+    if (mx <= 0) {
+      api.start({ x: down ? mx : 0, immediate: down });
+    }
+  });
+
+  return (
+    <animated.div
+      {...bind()}
+      role="row"
+      aria-rowindex={index}
+      className="touch-pan-y"
+      style={{ x }}
+    >
+      <Form
+        preventScrollReset
+        replace
+        method="post"
+        className="flex items-center gap-3"
+        {...form.props}
+      >
+        <div role="cell" className="flex-1">
           <input {...conform.input(id, { hidden: true })} />
           <input {...conform.input(completed, { hidden: true })} />
           <input {...conform.input(actionIntent, { hidden: true })} />
@@ -407,9 +513,9 @@ function SetRow({ set }: SetRowProps) {
             min={0}
             max={10000}
           />
-        </td>
+        </div>
 
-        <td className="pr-3">
+        <div role="cell" className="flex-1">
           <Input
             hideErrorMessage
             hideLabel
@@ -418,9 +524,9 @@ function SetRow({ set }: SetRowProps) {
             className="text-center"
             onChange={(e) => handleValueChange(e, "repRange")}
           />
-        </td>
+        </div>
 
-        <td className="pr-3">
+        <div role="cell" className="flex-1">
           <Input
             hideErrorMessage
             hideLabel
@@ -431,9 +537,9 @@ function SetRow({ set }: SetRowProps) {
             onChange={(e) => handleValueChange(e, "rir")}
             min={0}
           />
-        </td>
+        </div>
 
-        <td className="pr-3">
+        <div role="cell" className="flex-1">
           <Input
             hideErrorMessage
             hideLabel
@@ -444,26 +550,28 @@ function SetRow({ set }: SetRowProps) {
             onChange={(e) => handleValueChange(e, "repsCompleted")}
             min={0}
           />
-        </td>
+        </div>
 
-        <td>
+        <div role="cell">
           <button
-            form={form.id}
             type="submit"
             name={wantsToComplete.name}
             value={values.completed ? "" : "true"}
             disabled={values.completed ? false : !canCompleteSet}
             className={clsx(
-              "mt-1 h-full rounded px-2 py-1.5 transition-all",
+              "mt-1 flex h-8 w-8 items-center justify-center rounded transition-all",
               values.completed
                 ? "bg-green-500 text-white hover:bg-green-600"
                 : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:text-zinc-400 disabled:hover:bg-zinc-200"
             )}
           >
             <CheckIcon className="h-5 w-5" />
+            <span className="sr-only">
+              {values.completed ? "Mark as complete" : "Mark as uncomplete"}
+            </span>
           </button>
-        </td>
-      </tr>
-    </>
+        </div>
+      </Form>
+    </animated.div>
   );
 }
