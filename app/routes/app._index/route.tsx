@@ -9,7 +9,6 @@ import {
   isAfter,
   isToday,
   startOfToday,
-  subDays,
 } from "date-fns";
 import {
   getCurrentMesocycleDetailed,
@@ -20,11 +19,11 @@ import { requireUser } from "~/session.server";
 import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
 import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in-the-future";
 import { TodayPlan } from "./today-plan";
-import { exerciseSchema } from "./schema";
 import { parse } from "@conform-to/zod";
+import { schema, updateExerciseSchema, updateSetSchema } from "./schema";
+import { getRepRangeBounds, redirectBack } from "~/utils";
 import { prisma } from "~/db.server";
-import { getRepRangeBounds } from "~/utils";
-import { updateSetSchema } from "./schema";
+import { configRoutes } from "~/config-routes";
 
 export type CurrentMesocycleNotFoundData = {
   type: "current_mesocycle_not_found";
@@ -237,29 +236,34 @@ export const loader = async ({ request }: LoaderArgs) => {
 export const action = async ({ request }: ActionArgs) => {
   await requireUser(request);
   const formData = await request.formData();
-  const submission = parse(formData, { schema: exerciseSchema });
+  const intentSubmission = parse(formData, { schema });
 
-  if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
+  if (!intentSubmission.value || intentSubmission.intent !== "submit") {
+    return json(intentSubmission, { status: 400 });
   }
 
-  const { id: exerciseId, sets } = submission.value;
+  const { actionIntent } = intentSubmission.value;
 
-  const wantsToCompleteSet = sets.find((set) => set.wantsToComplete);
-  if (wantsToCompleteSet) {
-    const {
-      id: setId,
-      repRange,
-      repsCompleted,
-      rir,
-      weight,
-    } = updateSetSchema.parse(wantsToCompleteSet);
+  switch (actionIntent) {
+    case "update-set": {
+      const submission = parse(formData, { schema: updateSetSchema });
 
-    const [repRangeLowerBound, repRangeUpperBound] =
-      getRepRangeBounds(repRange);
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
 
-    // Update existing set
-    if (setId) {
+      const {
+        id: setId,
+        repRange,
+        repsCompleted,
+        rir,
+        weight,
+        wantsToComplete,
+      } = submission.value;
+
+      const [repRangeLowerBound, repRangeUpperBound] =
+        getRepRangeBounds(repRange);
+
       await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.update({
         where: {
           id: setId,
@@ -267,20 +271,45 @@ export const action = async ({ request }: ActionArgs) => {
         data: {
           repRangeLowerBound: { set: repRangeLowerBound },
           repRangeUpperBound: { set: repRangeUpperBound },
-          completed: { set: true },
+          completed: { set: wantsToComplete },
           repsCompleted: { set: repsCompleted },
           rir: { set: rir },
           weight: { set: weight },
         },
       });
 
-      return json(submission);
+      return redirectBack(request, { fallback: configRoutes.appRoot });
     }
 
-    // Create new set
-  }
+    case "update-exercise": {
+      const submission = parse(formData, { schema: updateExerciseSchema });
 
-  throw new Error("not impl");
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id, notes } = submission.value;
+
+      await prisma.mesocycleRunMicrocycleTrainingDayExercise.update({
+        where: {
+          id,
+        },
+        data: {
+          notes: { set: notes },
+        },
+      });
+
+      return redirectBack(request, { fallback: configRoutes.appRoot });
+    }
+
+    case "finish-session": {
+      throw new Error("Not implemented");
+    }
+
+    default: {
+      throw new Error("The action intent is not valid");
+    }
+  }
 };
 
 export default function Today() {

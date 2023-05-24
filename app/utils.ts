@@ -1,6 +1,8 @@
 import { useMatches, useSearchParams } from "@remix-run/react";
+import { redirect } from "@remix-run/server-runtime";
 import { nanoid } from "nanoid";
 import type { DependencyList, EffectCallback, RefObject } from "react";
+import { useState } from "react";
 import { useCallback } from "react";
 import { useEffect, useMemo, useRef } from "react";
 
@@ -173,4 +175,30 @@ export function capitalize(str: string) {
 
 export function generateId() {
   return nanoid();
+}
+
+export function redirectBack(
+  request: Request,
+  { fallback, ...init }: ResponseInit & { fallback: string }
+) {
+  const referer = request.headers.get("Referer");
+  if (referer) {
+    const url = new URL(referer);
+    return redirect(url.pathname + url.search, init);
+  }
+  return redirect(fallback, init);
+}
+
+export function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }

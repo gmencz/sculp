@@ -2,7 +2,6 @@ import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { forwardRef } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
@@ -22,20 +21,17 @@ type InputProps = DetailedHTMLProps<
   };
 };
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  {
-    config,
-    helperText,
-    label,
-    hideErrorMessage,
-    type,
-    hideLabel,
-    className,
-    linkAbove,
-    ...props
-  },
-  ref
-) {
+export function Input({
+  config,
+  helperText,
+  label,
+  hideErrorMessage,
+  type,
+  hideLabel,
+  className,
+  linkAbove,
+  ...props
+}: InputProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
@@ -89,8 +85,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ) : null}
 
       {config.error && !hideErrorMessage ? (
-        <ErrorMessage>{config.error}</ErrorMessage>
+        <ErrorMessage id={config.errorId}>{config.error}</ErrorMessage>
       ) : null}
     </div>
   );
-});
+}

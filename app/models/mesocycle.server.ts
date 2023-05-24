@@ -342,6 +342,9 @@ export async function getCurrentMesocycleDetailed(userId: string) {
         select: {
           restDays: true,
           trainingDays: {
+            orderBy: {
+              number: "asc",
+            },
             select: {
               id: true,
               number: true,
@@ -367,6 +370,9 @@ export async function getTrainingDay(id: string) {
     select: {
       label: true,
       exercises: {
+        orderBy: {
+          number: "asc",
+        },
         select: {
           id: true,
           notes: true,
@@ -384,6 +390,9 @@ export async function getTrainingDay(id: string) {
             },
           },
           sets: {
+            orderBy: {
+              number: "asc",
+            },
             select: {
               id: true,
               number: true,
