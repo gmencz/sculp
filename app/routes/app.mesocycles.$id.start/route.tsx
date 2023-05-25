@@ -156,7 +156,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
   const muscleGroups = getUniqueMuscleGroups();
 
   return (
-    <div className="relative">
+    <div className="relative px-4 sm:px-6 lg:px-8">
       <div
         className={clsx(
           "flex flex-col items-start gap-2 border-y border-b-zinc-200 border-t-zinc-100 bg-white px-4 py-3 text-sm font-semibold leading-6 text-zinc-900",

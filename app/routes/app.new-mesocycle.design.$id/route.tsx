@@ -89,7 +89,7 @@ export default function NewMesocycleDesign() {
     <Form
       method="post"
       {...form.props}
-      className="flex min-h-full flex-col py-10"
+      className="flex min-h-full flex-col px-4 py-10 sm:px-6 lg:px-8"
     >
       <div className="flex min-w-0 flex-col sm:flex-row">
         <div>

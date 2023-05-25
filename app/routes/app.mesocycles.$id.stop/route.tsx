@@ -54,7 +54,7 @@ export default function StopMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
 
   return (
-    <div className="mx-auto w-full max-w-2xl py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
       <Heading>Stop mesocycle</Heading>
       <Paragraph>
         Are you sure you want to stop the current mesocycle{" "}

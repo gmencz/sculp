@@ -102,7 +102,7 @@ export default function NewMesocycle() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-2xl py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
       <Heading>Plan a new mesocycle</Heading>
       <Paragraph>
         A mesocycle is a structured training plan designed to help you achieve

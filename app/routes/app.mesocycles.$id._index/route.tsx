@@ -137,7 +137,7 @@ export default function Mesocycle() {
   return (
     <Form
       method="post"
-      className="flex min-h-full flex-col py-10"
+      className="flex min-h-full flex-col px-4 py-10 sm:px-6 lg:px-8"
       {...form.props}
     >
       <div className="flex min-w-0 flex-col sm:flex-row">
