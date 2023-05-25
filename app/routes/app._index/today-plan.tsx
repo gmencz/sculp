@@ -235,7 +235,9 @@ function Exercise({ exercise }: ExerciseProps) {
 
   const isXs = useMediaQuery("(max-width: 600px)");
 
-  const [sets, setSets] = useState(exercise.sets);
+  const [sets, setSets] = useState(
+    exercise.sets.map((s) => ({ ...s, isNew: false }))
+  );
 
   // Optimistic UI to add a set.
   useEffect(() => {
@@ -259,6 +261,7 @@ function Exercise({ exercise }: ExerciseProps) {
                 rir: lastSet?.rir || 0,
                 completed: false,
                 repsCompleted: 0,
+                isNew: true,
               },
             ];
           });
@@ -439,17 +442,33 @@ function Exercise({ exercise }: ExerciseProps) {
 }
 
 type SetRowProps = {
-  set: NonNullable<
-    CurrentMesocycleStartedData["today"]["trainingDay"]
-  >["exercises"][number]["sets"][number];
+  set: {
+    isNew: boolean;
+    number: number;
+    id: string;
+    weight: number;
+    rir: number;
+    repRangeLowerBound: number;
+    repRangeUpperBound: number;
+    completed: boolean;
+    repsCompleted: number | null;
+  };
   index: number;
   isXs: boolean;
   exerciseId: string;
   setSets: React.Dispatch<
     React.SetStateAction<
-      NonNullable<
-        CurrentMesocycleStartedData["today"]["trainingDay"]
-      >["exercises"][number]["sets"]
+      {
+        isNew: boolean;
+        number: number;
+        id: string;
+        weight: number;
+        rir: number;
+        repRangeLowerBound: number;
+        repRangeUpperBound: number;
+        completed: boolean;
+        repsCompleted: number | null;
+      }[]
     >
   >;
 };
@@ -465,35 +484,35 @@ function SetRow({ set, index, isXs, setSets, exerciseId }: SetRowProps) {
 
     // If user drags to the left (at least half screen) and releases the drag, remove the set.
     if (Math.abs(mx) >= innerWidth / 2 && !down) {
-      setIsRemoved(true);
+      api.start({
+        x: -innerWidth,
+        immediate: false,
+        onResolve: () => {
+          setIsRemoved(true);
+        },
+      });
     }
   });
-
-  useEffect(() => {
-    if (isRemoved && isXs) {
-      api.start({ x: -innerWidth, immediate: false });
-      setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
-    }
-  }, [api, isXs, set.id, setSets, isRemoved]);
 
   const removeSetButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Transition
       show={!isRemoved}
-      appear
+      appear={set.isNew}
       unmount={false}
       afterLeave={() => {
         if (isXs) {
           removeSetButtonRef.current?.click();
+          setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
         }
       }}
-      enter="ease-out duration-300"
-      enterFrom="opacity-0 scale-95"
-      enterTo="opacity-100 scale-100"
-      leave="ease-in duration-200"
-      leaveFrom="opacity-100 scale-100"
-      leaveTo="opacity-0 scale-95"
+      enter="transition ease-out duration-200"
+      enterFrom="opacity-0 -translate-y-1"
+      enterTo="opacity-100 translate-y-0"
+      leave="transition-opacity duration-150"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
       className="relative"
     >
       <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
@@ -522,18 +541,34 @@ function SetRow({ set, index, isXs, setSets, exerciseId }: SetRowProps) {
 }
 
 type SetRowFormProps = {
-  set: NonNullable<
-    CurrentMesocycleStartedData["today"]["trainingDay"]
-  >["exercises"][number]["sets"][number];
+  set: {
+    isNew: boolean;
+    number: number;
+    id: string;
+    weight: number;
+    rir: number;
+    repRangeLowerBound: number;
+    repRangeUpperBound: number;
+    completed: boolean;
+    repsCompleted: number | null;
+  };
   setIsRemoved: React.Dispatch<React.SetStateAction<boolean>>;
   removeSetButtonRef: React.RefObject<HTMLButtonElement>;
   isRemoved: boolean;
   exerciseId: string;
   setSets: React.Dispatch<
     React.SetStateAction<
-      NonNullable<
-        CurrentMesocycleStartedData["today"]["trainingDay"]
-      >["exercises"][number]["sets"]
+      {
+        isNew: boolean;
+        number: number;
+        id: string;
+        weight: number;
+        rir: number;
+        repRangeLowerBound: number;
+        repRangeUpperBound: number;
+        completed: boolean;
+        repsCompleted: number | null;
+      }[]
     >
   >;
 };
