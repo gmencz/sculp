@@ -259,7 +259,18 @@ export const action = async ({ request }: ActionArgs) => {
         rir,
         weight,
         wantsToComplete,
+        wantsToDelete,
       } = submission.value;
+
+      if (wantsToDelete) {
+        await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.delete({
+          where: {
+            id: setId,
+          },
+        });
+
+        return redirectBack(request, { fallback: configRoutes.appRoot });
+      }
 
       const [repRangeLowerBound, repRangeUpperBound] =
         getRepRangeBounds(repRange);

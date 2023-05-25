@@ -1,6 +1,7 @@
 import { Heading } from "~/components/heading";
 import type { CurrentMesocycleStartedData } from "./route";
 import type { ChangeEvent, FormEvent } from "react";
+import { useRef } from "react";
 import { Fragment } from "react";
 import { useEffect } from "react";
 import { useMemo, useState } from "react";
@@ -14,7 +15,7 @@ import {
 } from "@remix-run/react";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { CheckIcon } from "@heroicons/react/20/solid";
+import { CheckIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { Input } from "~/components/input";
 import type { UpdateExerciseSchema, UpdateSetSchema } from "./schema";
@@ -23,7 +24,7 @@ import { actionIntents } from "./schema";
 import { updateSetSchema } from "./schema";
 import clsx from "clsx";
 import { Textarea } from "~/components/textarea";
-import { useDebounce } from "~/utils";
+import { useDebounce, useMediaQuery } from "~/utils";
 import { Popover, Transition } from "@headlessui/react";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -138,10 +139,7 @@ function TrainingDay({
       <div className="bg-zinc-50 pb-6 sm:mt-6 sm:pb-10">
         <ol className="flex flex-col gap-6">
           {trainingDay.exercises.map((exercise) => (
-            <li
-              className=" rounded border-b border-zinc-200 bg-white px-4 pb-6 pt-4 sm:px-6 sm:pb-10 lg:px-8"
-              key={exercise.id}
-            >
+            <li key={exercise.id}>
               <Exercise exercise={exercise} />
             </li>
           ))}
@@ -205,17 +203,17 @@ function Exercise({ exercise }: ExerciseProps) {
     },
   ];
 
-  // const askBioFeedback = exercise.sets.every((set) => set.completed);
-
   const navigation = useNavigation();
 
   const isSubmitting =
     navigation.state === "submitting" &&
     navigation.formData.get("actionIntent") === actionIntents[2];
 
+  const isXs = useMediaQuery("(max-width: 600px)");
+
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="flex items-center gap-8">
+    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pb-6 pt-4 sm:pb-10 ">
+      <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
             <li key={muscleGroup.name}>
@@ -269,16 +267,18 @@ function Exercise({ exercise }: ExerciseProps) {
         </div>
       </div>
 
-      <h3 className="mt-3 text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
-        {exercise.exercise.name}
-      </h3>
+      <div className="mt-3 px-4 sm:px-6 lg:px-8">
+        <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+          {exercise.exercise.name}
+        </h3>
+      </div>
 
       <div className="mt-3">
         <Form
           preventScrollReset
           replace
           method="post"
-          className="mb-4"
+          className="mb-4 px-4 sm:px-6 lg:px-8"
           onChange={handleChange}
           {...form.props}
         >
@@ -288,7 +288,6 @@ function Exercise({ exercise }: ExerciseProps) {
           <Transition
             as={Fragment}
             show={showNotes}
-            appear
             enter="ease-out duration-300"
             enterFrom="opacity-0 scale-95"
             enterTo="opacity-100 scale-100"
@@ -339,17 +338,18 @@ function Exercise({ exercise }: ExerciseProps) {
               </div>
 
               <div role="columnheader" className="h-8 w-8" />
+              <div role="columnheader" className="hidden h-8 w-8 sm:block" />
             </div>
           </div>
 
-          <div role="rowgroup" className="flex flex-col gap-2">
+          <div role="rowgroup" className="flex flex-col">
             {exercise.sets.map((set, index) => (
-              <SetRow index={index} key={set.id} set={set} />
+              <SetRow key={set.id} isXs={isXs} index={index} set={set} />
             ))}
           </div>
         </div>
 
-        <Form method="post" className="mt-4">
+        <Form method="post" className="mt-4 px-4 sm:px-6 lg:px-8">
           <SubmitButton isSubmitting={isSubmitting} secondary text="Add set" />
         </Form>
       </div>
@@ -362,9 +362,85 @@ type SetRowProps = {
     CurrentMesocycleStartedData["today"]["trainingDay"]
   >["exercises"][number]["sets"][number];
   index: number;
+  isXs: boolean;
 };
 
-function SetRow({ set, index }: SetRowProps) {
+function SetRow({ set, index, isXs }: SetRowProps) {
+  const [isRemoved, setIsRemoved] = useState(false);
+  const [{ x }, api] = useSpring(() => ({ x: 0 }));
+  const bind = useDrag(({ down, movement: [mx], ...rest }) => {
+    // Allow dragging to the left (to delete) and only on small screens.
+    if (!isXs || mx > 0) return;
+
+    api.start({ x: down ? mx : 0, immediate: down });
+
+    // If user drags to the left (at least half screen) and releases the drag, remove the set.
+    if (Math.abs(mx) >= innerWidth / 2 && !down) {
+      setIsRemoved(true);
+    }
+  });
+
+  useEffect(() => {
+    if (isRemoved && isXs) {
+      api.start({ x: -innerWidth, immediate: false });
+    }
+  }, [api, isRemoved, isXs]);
+
+  const removeSetButtonRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <Transition
+      show={!isRemoved}
+      unmount={false}
+      afterLeave={() => {
+        removeSetButtonRef.current?.click();
+      }}
+      enter="ease-out duration-300"
+      enterFrom="opacity-0 scale-95"
+      enterTo="opacity-100 scale-100"
+      leave="ease-in duration-200"
+      leaveFrom="opacity-100 scale-100"
+      leaveTo="opacity-0 scale-95"
+      className="relative"
+    >
+      <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
+        <TrashIcon className="h-5 w-5 text-white" />
+        <span className="sr-only">Remove</span>
+      </div>
+
+      <animated.div
+        {...bind()}
+        role="row"
+        aria-rowindex={index}
+        className="relative cursor-grab touch-pan-y bg-white py-1 sm:cursor-auto"
+        style={{ x }}
+      >
+        <SetRowForm
+          removeSetButtonRef={removeSetButtonRef}
+          set={set}
+          isRemoved={isRemoved}
+          setIsRemoved={setIsRemoved}
+        />
+      </animated.div>
+    </Transition>
+  );
+}
+
+type SetRowFormProps = {
+  set: NonNullable<
+    CurrentMesocycleStartedData["today"]["trainingDay"]
+  >["exercises"][number]["sets"][number];
+  setIsRemoved: React.Dispatch<React.SetStateAction<boolean>>;
+  removeSetButtonRef: React.RefObject<HTMLButtonElement>;
+  isRemoved: boolean;
+};
+
+function SetRowForm({
+  set,
+  setIsRemoved,
+  removeSetButtonRef,
+  isRemoved,
+}: SetRowFormProps) {
   const lastSubmission = useActionData();
   const [
     form,
@@ -375,6 +451,7 @@ function SetRow({ set, index }: SetRowProps) {
       repsCompleted,
       rir,
       wantsToComplete,
+      wantsToDelete,
       weight,
       actionIntent,
     },
@@ -413,17 +490,28 @@ function SetRow({ set, index }: SetRowProps) {
     }));
   };
 
+  const canCompleteSet = Boolean(
+    values.repRange && values.repsCompleted && values.rir && values.weight
+  );
+
   const navigation = useNavigation();
 
   // Optimistic UI:
-  // If user is trying to complete/uncomplete a set, update it on the client as that so the user gets the feeling
-  // that it works instantly.
   useEffect(() => {
     if (navigation.formData) {
       const actionIntent = navigation.formData.get("actionIntent");
       if (actionIntent === actionIntents[0]) {
         const updatedSetId = navigation.formData.get("id");
         if (updatedSetId === set.id) {
+          const wantsToDelete = navigation.formData.get("wantsToDelete");
+          if (wantsToDelete) {
+            if (!isRemoved) {
+              setIsRemoved(true);
+            }
+
+            return;
+          }
+
           const wantsToComplete = navigation.formData.get("wantsToComplete");
           if (typeof wantsToComplete === "string") {
             setValues((currentValues) => ({
@@ -434,7 +522,7 @@ function SetRow({ set, index }: SetRowProps) {
         }
       }
     }
-  }, [navigation.formData, set]);
+  }, [isRemoved, navigation.formData, set, setIsRemoved]);
 
   // Make sure the state values are up to date with the form's values.
   useEffect(() => {
@@ -468,110 +556,101 @@ function SetRow({ set, index }: SetRowProps) {
     weight.defaultValue,
   ]);
 
-  const canCompleteSet = Boolean(
-    values.repRange && values.repsCompleted && values.rir && values.weight
-  );
-
-  const [{ x }, api] = useSpring(() => ({ x: 0 }));
-
-  // Set the drag hook and define component movement based on gesture data
-  const bind = useDrag(({ down, movement: [mx, my] }) => {
-    // Only allow dragging to the left.
-    if (mx <= 0) {
-      api.start({ x: down ? mx : 0, immediate: down });
-    }
-  });
-
   return (
-    <animated.div
-      {...bind()}
-      role="row"
-      aria-rowindex={index}
-      className="touch-pan-y"
-      style={{ x }}
+    <Form
+      preventScrollReset
+      replace
+      method="post"
+      className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
+      {...form.props}
     >
-      <Form
-        preventScrollReset
-        replace
-        method="post"
-        className="flex items-center gap-3"
-        {...form.props}
-      >
-        <div role="cell" className="flex-1">
-          <input {...conform.input(id, { hidden: true })} />
-          <input {...conform.input(completed, { hidden: true })} />
-          <input {...conform.input(actionIntent, { hidden: true })} />
+      <div role="cell" className="flex-1">
+        <input {...conform.input(id, { hidden: true })} />
+        <input {...conform.input(completed, { hidden: true })} />
+        <input {...conform.input(actionIntent, { hidden: true })} />
 
-          <Input
-            hideErrorMessage
-            hideLabel
-            config={weight}
-            label="Weight"
-            type="number"
-            className="text-center"
-            onChange={(e) => handleValueChange(e, "weight")}
-            min={0}
-            max={10000}
-          />
-        </div>
+        <Input
+          hideErrorMessage
+          hideLabel
+          config={weight}
+          label="Weight"
+          type="number"
+          className="text-center"
+          onChange={(e) => handleValueChange(e, "weight")}
+          min={0}
+          max={10000}
+        />
+      </div>
 
-        <div role="cell" className="flex-1">
-          <Input
-            hideErrorMessage
-            hideLabel
-            config={repRange}
-            label="Rep range"
-            className="text-center"
-            onChange={(e) => handleValueChange(e, "repRange")}
-          />
-        </div>
+      <div role="cell" className="flex-1">
+        <Input
+          hideErrorMessage
+          hideLabel
+          config={repRange}
+          label="Rep range"
+          className="text-center"
+          onChange={(e) => handleValueChange(e, "repRange")}
+        />
+      </div>
 
-        <div role="cell" className="flex-1">
-          <Input
-            hideErrorMessage
-            hideLabel
-            config={rir}
-            label="RIR"
-            type="number"
-            className="text-center"
-            onChange={(e) => handleValueChange(e, "rir")}
-            min={0}
-          />
-        </div>
+      <div role="cell" className="flex-1">
+        <Input
+          hideErrorMessage
+          hideLabel
+          config={rir}
+          label="RIR"
+          type="number"
+          className="text-center"
+          onChange={(e) => handleValueChange(e, "rir")}
+          min={0}
+        />
+      </div>
 
-        <div role="cell" className="flex-1">
-          <Input
-            hideErrorMessage
-            hideLabel
-            config={repsCompleted}
-            label="Reps"
-            type="number"
-            className="text-center"
-            onChange={(e) => handleValueChange(e, "repsCompleted")}
-            min={0}
-          />
-        </div>
+      <div role="cell" className="flex-1">
+        <Input
+          hideErrorMessage
+          hideLabel
+          config={repsCompleted}
+          label="Reps"
+          type="number"
+          className="text-center"
+          onChange={(e) => handleValueChange(e, "repsCompleted")}
+          min={0}
+        />
+      </div>
 
-        <div role="cell">
-          <button
-            type="submit"
-            name={wantsToComplete.name}
-            value={values.completed ? "" : "true"}
-            disabled={values.completed ? false : !canCompleteSet}
-            className={clsx(
-              "mt-1 flex h-8 w-8 items-center justify-center rounded transition-all",
-              values.completed
-                ? "bg-green-500 text-white hover:bg-green-600"
-                : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:text-zinc-400 disabled:hover:bg-zinc-200"
-            )}
-          >
-            <CheckIcon className="h-5 w-5" />
-            <span className="sr-only">
-              {values.completed ? "Mark as complete" : "Mark as uncomplete"}
-            </span>
-          </button>
-        </div>
-      </Form>
-    </animated.div>
+      <div role="cell">
+        <button
+          type="submit"
+          name={wantsToComplete.name}
+          value={values.completed ? "" : "true"}
+          disabled={values.completed ? false : !canCompleteSet}
+          className={clsx(
+            "flex h-8 w-8 items-center justify-center rounded transition-all",
+            values.completed
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:text-zinc-400 disabled:hover:bg-zinc-200"
+          )}
+        >
+          <CheckIcon className="h-5 w-5" />
+          <span className="sr-only">
+            {values.completed ? "Mark as complete" : "Mark as uncomplete"}
+          </span>
+        </button>
+      </div>
+
+      <div className="hidden sm:block" role="cell">
+        <button
+          ref={removeSetButtonRef}
+          type="submit"
+          name={wantsToDelete.name}
+          value="true"
+          className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
+        >
+          <TrashIcon className="h-5 w-5" />
+          <span className="sr-only">Remove</span>
+        </button>
+      </div>
+    </Form>
   );
 }

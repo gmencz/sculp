@@ -86,6 +86,11 @@ export const updateSetSchema = z.object({
     required_error: "The wants to complete value is required.",
   }),
 
+  wantsToDelete: z.coerce.boolean({
+    invalid_type_error: "The wants to delete value is not valid.",
+    required_error: "The wants to delete value is required.",
+  }),
+
   repsCompleted: z.coerce
     .number({
       invalid_type_error: "The reps completed is not valid.",

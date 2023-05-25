@@ -47,11 +47,11 @@ export function Textarea({
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       {hideLabel ? null : (
         <label
           htmlFor={config.id}
-          className="block text-sm font-medium leading-6 text-zinc-900"
+          className="mb-1 block text-sm font-medium leading-6 text-zinc-900"
         >
           {label}
         </label>

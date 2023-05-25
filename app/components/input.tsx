@@ -33,7 +33,7 @@ export function Input({
   ...props
 }: InputProps) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col">
       <div className="flex items-center justify-between">
         {hideLabel ? null : (
           <label
