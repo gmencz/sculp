@@ -20,7 +20,12 @@ import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
 import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in-the-future";
 import { TodayPlan } from "./today-plan";
 import { parse } from "@conform-to/zod";
-import { schema, updateExerciseSchema, updateSetSchema } from "./schema";
+import {
+  addSetSchema,
+  schema,
+  updateExerciseSchema,
+  updateSetSchema,
+} from "./schema";
 import { getRepRangeBounds, redirectBack } from "~/utils";
 import { prisma } from "~/db.server";
 import { configRoutes } from "~/config-routes";
@@ -56,7 +61,6 @@ export type CurrentMesocycleStartedData = {
           repRangeUpperBound: number;
           completed: boolean;
           repsCompleted: number | null;
-          targetRepsToComplete: number;
         }[];
         exercise: {
           name: string;
@@ -259,10 +263,10 @@ export const action = async ({ request }: ActionArgs) => {
         rir,
         weight,
         wantsToComplete,
-        wantsToDelete,
+        wantsToRemove,
       } = submission.value;
 
-      if (wantsToDelete) {
+      if (wantsToRemove) {
         await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.delete({
           where: {
             id: setId,
@@ -307,6 +311,42 @@ export const action = async ({ request }: ActionArgs) => {
         },
         data: {
           notes: { set: notes },
+        },
+      });
+
+      return redirectBack(request, { fallback: configRoutes.appRoot });
+    }
+
+    case "add-set": {
+      const submission = parse(formData, { schema: addSetSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id, setId } = submission.value;
+
+      const lastSet =
+        await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.findFirst({
+          where: {
+            exerciseId: id,
+          },
+          orderBy: {
+            number: "desc",
+          },
+        });
+
+      await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.create({
+        data: {
+          id: setId,
+          exercise: { connect: { id } },
+          number: lastSet?.number ? lastSet.number + 1 : 1,
+          repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
+          repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
+          weight: lastSet?.weight || 0,
+          rir: lastSet?.rir || 0,
+          completed: false,
+          repsCompleted: 0,
         },
       });
 

@@ -5,6 +5,7 @@ export const actionIntents = [
   "update-set",
   "finish-session",
   "update-exercise",
+  "add-set",
 ] as const;
 
 export const schema = z.object({
@@ -13,6 +14,29 @@ export const schema = z.object({
     invalid_type_error: "The action intent is not valid",
   }),
 });
+
+export const addSetSchema = z.object({
+  id: z
+    .string({
+      invalid_type_error: "The id is not valid.",
+    })
+    .length(25, "The id is not valid"),
+
+  setId: z
+    .string({
+      invalid_type_error: "The set id is not valid.",
+    })
+    .length(25, "The set id is not valid"),
+
+  actionIntent: z
+    .literal(actionIntents[3], {
+      required_error: "The action intent is required",
+      invalid_type_error: "The action intent is not valid",
+    })
+    .default(actionIntents[3]),
+});
+
+export type AddSetSchema = z.TypeOf<typeof addSetSchema>;
 
 export const updateExerciseSchema = z.object({
   id: z
@@ -86,7 +110,7 @@ export const updateSetSchema = z.object({
     required_error: "The wants to complete value is required.",
   }),
 
-  wantsToDelete: z.coerce.boolean({
+  wantsToRemove: z.coerce.boolean({
     invalid_type_error: "The wants to delete value is not valid.",
     required_error: "The wants to delete value is required.",
   }),

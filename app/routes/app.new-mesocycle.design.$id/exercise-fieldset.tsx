@@ -100,7 +100,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
             <button
               className="mt-5 flex w-full items-center justify-center rounded bg-orange-100 px-3 py-2 text-sm font-semibold text-orange-700 shadow-sm hover:bg-orange-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
               {...list.append(sets.name, {
-                defaultValue: { rir: "1", repRange: "5-8", weight: "" },
+                defaultValue: { rir: "0", repRange: "5-8", weight: "" },
               })}
             >
               <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />

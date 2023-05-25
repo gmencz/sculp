@@ -401,7 +401,6 @@ export async function getTrainingDay(id: string) {
               repRangeUpperBound: true,
               repsCompleted: true,
               rir: true,
-              targetRepsToComplete: true,
               weight: true,
             },
           },
@@ -504,9 +503,6 @@ export async function startMesocycle(
                       rir: set.rir,
                       weight: set.weight,
                       completed: false,
-                      // Because this is the first microcycle, the target will just be the lower end of the configured rep range
-                      // so the user should be able to hit this no target no problem.
-                      targetRepsToComplete: set.repRangeLowerBound,
                     })),
                   },
                 })),

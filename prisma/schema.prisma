@@ -165,39 +165,29 @@ model MesocycleRunMicrocycleTrainingDay {
 }
 
 model MesocycleRunMicrocycleTrainingDayExercise {
-  id            String                                               @id @default(cuid())
+  id            String                                         @id @default(cuid())
   number        Int
   notes         String?
   sets          MesocycleRunMicrocycleTrainingDayExerciseSet[]
-  trainingDay   MesocycleRunMicrocycleTrainingDay?                   @relation(fields: [trainingDayId], references: [id])
-  trainingDayId String?                                              @map("training_day_id")
-  exercise      Exercise                                             @relation(fields: [exerciseId], references: [id])
-  exerciseId    String                                               @map("exercise_id")
-  bioFeedback   MesocycleRunMicrocycleTrainingDayExerciseBioFeedback @relation(fields: [bioFeedbackId], references: [id])
-  bioFeedbackId String                                               @unique @map("bio_feedback_id")
+  trainingDay   MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id])
+  trainingDayId String?                                        @map("training_day_id")
+  exercise      Exercise                                       @relation(fields: [exerciseId], references: [id])
+  exerciseId    String                                         @map("exercise_id")
 
   @@map("mesocycles_runs_microcycles_training_days_exercises")
 }
 
-model MesocycleRunMicrocycleTrainingDayExerciseBioFeedback {
-  id       String                                     @id @default(cuid())
-  exercise MesocycleRunMicrocycleTrainingDayExercise?
-
-  @@map("mesocycles_runs_microcycles_training_days_exercises_bio_feedback")
-}
-
 model MesocycleRunMicrocycleTrainingDayExerciseSet {
-  id                   String                                     @id @default(cuid())
-  completed            Boolean                                    @default(false) // Whether the user completed this set.
-  targetRepsToComplete Int                                        @map("target_reps_to_complete")
-  repsCompleted        Int?                                       @map("reps_completed") // The quality reps the user managed to complete.
-  number               Int
-  weight               Float
-  rir                  Int
-  repRangeLowerBound   Int                                        @map("rep_range_lower_bound")
-  repRangeUpperBound   Int                                        @map("rep_range_upper_bound")
-  exercise             MesocycleRunMicrocycleTrainingDayExercise? @relation(fields: [exerciseId], references: [id])
-  exerciseId           String?                                    @map("exercise_id")
+  id                 String                                     @id @default(cuid())
+  completed          Boolean                                    @default(false) // Whether the user completed this set.
+  repsCompleted      Int?                                       @map("reps_completed") // The quality reps the user managed to complete.
+  number             Int
+  weight             Float
+  rir                Int
+  repRangeLowerBound Int                                        @map("rep_range_lower_bound")
+  repRangeUpperBound Int                                        @map("rep_range_upper_bound")
+  exercise           MesocycleRunMicrocycleTrainingDayExercise? @relation(fields: [exerciseId], references: [id])
+  exerciseId         String?                                    @map("exercise_id")
 
   @@map("mesocycles_runs_microcycles_training_days_exercises_sets")
 }

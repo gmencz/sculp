@@ -40,7 +40,7 @@ export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
             {...list.append(exercises.name, {
               defaultValue: {
                 dayNumber: props.dayNumber,
-                sets: [{ rir: "1", repRange: "5-8", weight: "" }],
+                sets: [{ rir: "0", repRange: "5-8", weight: "" }],
               },
             })}
           >

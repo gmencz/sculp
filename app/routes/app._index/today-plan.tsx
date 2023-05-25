@@ -18,13 +18,18 @@ import { parse } from "@conform-to/zod";
 import { CheckIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { Input } from "~/components/input";
-import type { UpdateExerciseSchema, UpdateSetSchema } from "./schema";
+import type {
+  AddSetSchema,
+  UpdateExerciseSchema,
+  UpdateSetSchema,
+} from "./schema";
+import { addSetSchema } from "./schema";
 import { updateExerciseSchema } from "./schema";
 import { actionIntents } from "./schema";
 import { updateSetSchema } from "./schema";
 import clsx from "clsx";
 import { Textarea } from "~/components/textarea";
-import { useDebounce, useMediaQuery } from "~/utils";
+import { generateId, useDebounce, useMediaQuery } from "~/utils";
 import { Popover, Transition } from "@headlessui/react";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -166,7 +171,14 @@ function Exercise({ exercise }: ExerciseProps) {
   const debouncedSubmitEvent = useDebounce(submitEvent, 3000);
   const submit = useSubmit();
   const lastSubmission = useActionData();
-  const [form, { id, notes, actionIntent }] = useForm<UpdateExerciseSchema>({
+  const [
+    updateExerciseForm,
+    {
+      id: updateExerciseId,
+      notes: updateExerciseNotes,
+      actionIntent: updateExerciseActionIntent,
+    },
+  ] = useForm<UpdateExerciseSchema>({
     id: `exercise-${exercise.id}`,
     lastSubmission,
     defaultValue: {
@@ -179,18 +191,34 @@ function Exercise({ exercise }: ExerciseProps) {
     },
   });
 
+  const [
+    addSetForm,
+    { id: addSetId, actionIntent: addSetActionintent, setId: addSetSetId },
+  ] = useForm<AddSetSchema>({
+    id: `add-set-${exercise.id}`,
+    lastSubmission,
+    defaultValue: {
+      id: exercise.id,
+      setId: generateId(),
+      actionIntent: actionIntents[3],
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema: addSetSchema });
+    },
+  });
+
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
     setSubmitEvent(event);
   };
 
   useEffect(() => {
     if (debouncedSubmitEvent) {
-      submit(form.ref.current, {
+      submit(updateExerciseForm.ref.current, {
         replace: true,
         preventScrollReset: true,
       });
     }
-  }, [debouncedSubmitEvent, form.ref, submit]);
+  }, [debouncedSubmitEvent, updateExerciseForm.ref, submit]);
 
   const [showNotes, setShowNotes] = useState(Boolean(exercise.notes));
 
@@ -205,11 +233,39 @@ function Exercise({ exercise }: ExerciseProps) {
 
   const navigation = useNavigation();
 
-  const isSubmitting =
-    navigation.state === "submitting" &&
-    navigation.formData.get("actionIntent") === actionIntents[2];
-
   const isXs = useMediaQuery("(max-width: 600px)");
+
+  const [sets, setSets] = useState(exercise.sets);
+
+  // Optimistic UI to add a set.
+  useEffect(() => {
+    if (navigation.formData) {
+      const actionIntent = navigation.formData.get("actionIntent");
+      if (actionIntent === actionIntents[3]) {
+        const id = navigation.formData.get("id");
+        const setId = navigation.formData.get("setId");
+        if (id === exercise.id && typeof setId === "string") {
+          setSets((prevSets) => {
+            const lastSet = prevSets.at(-1);
+
+            return [
+              ...prevSets,
+              {
+                id: setId,
+                number: lastSet?.number ? lastSet.number + 1 : 1,
+                repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
+                repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
+                weight: lastSet?.weight || 0,
+                rir: lastSet?.rir || 0,
+                completed: false,
+                repsCompleted: 0,
+              },
+            ];
+          });
+        }
+      }
+    }
+  }, [exercise.id, navigation.formData]);
 
   return (
     <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pb-6 pt-4 sm:pb-10 ">
@@ -278,12 +334,14 @@ function Exercise({ exercise }: ExerciseProps) {
           preventScrollReset
           replace
           method="post"
-          className="mb-4 px-4 sm:px-6 lg:px-8"
+          className="px-4 sm:px-6 lg:px-8"
           onChange={handleChange}
-          {...form.props}
+          {...updateExerciseForm.props}
         >
-          <input {...conform.input(id, { hidden: true })} />
-          <input {...conform.input(actionIntent, { hidden: true })} />
+          <input {...conform.input(updateExerciseId, { hidden: true })} />
+          <input
+            {...conform.input(updateExerciseActionIntent, { hidden: true })}
+          />
 
           <Transition
             as={Fragment}
@@ -300,57 +358,80 @@ function Exercise({ exercise }: ExerciseProps) {
                 autoSize
                 hideLabel
                 hideErrorMessage
-                config={notes}
+                config={updateExerciseNotes}
                 label="Notes"
                 placeholder="Notes"
                 rows={1}
+                className="mb-4"
               />
             </div>
           </Transition>
         </Form>
 
         <div role="table">
-          <div role="rowgroup">
-            <div role="row" className="flex items-center gap-3">
+          {sets.length > 0 ? (
+            <div role="rowgroup">
               <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                role="row"
+                className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
               >
-                Weight
-              </div>
-              <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-              >
-                Rep range
-              </div>
-              <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-              >
-                RIR
-              </div>
-              <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-              >
-                Reps
-              </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Weight
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Rep range
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  RIR
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Reps
+                </div>
 
-              <div role="columnheader" className="h-8 w-8" />
-              <div role="columnheader" className="hidden h-8 w-8 sm:block" />
+                <div role="columnheader" className="h-8 w-8" />
+                <div role="columnheader" className="hidden h-8 w-8 sm:block" />
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div role="rowgroup" className="flex flex-col">
-            {exercise.sets.map((set, index) => (
-              <SetRow key={set.id} isXs={isXs} index={index} set={set} />
+            {sets.map((set, index) => (
+              <SetRow
+                exerciseId={exercise.id}
+                setSets={setSets}
+                key={set.id}
+                isXs={isXs}
+                index={index}
+                set={set}
+              />
             ))}
           </div>
         </div>
 
-        <Form method="post" className="mt-4 px-4 sm:px-6 lg:px-8">
-          <SubmitButton isSubmitting={isSubmitting} secondary text="Add set" />
+        <Form
+          preventScrollReset
+          replace
+          method="post"
+          className={clsx("px-4 sm:px-6 lg:px-8", sets.length > 0 && "mt-4")}
+          {...addSetForm.props}
+        >
+          <input {...conform.input(addSetId, { hidden: true })} />
+          <input {...conform.input(addSetActionintent, { hidden: true })} />
+          <input {...conform.input(addSetSetId, { hidden: true })} />
+
+          <SubmitButton isSubmitting={false} secondary text="Add set" />
         </Form>
       </div>
     </div>
@@ -363,9 +444,17 @@ type SetRowProps = {
   >["exercises"][number]["sets"][number];
   index: number;
   isXs: boolean;
+  exerciseId: string;
+  setSets: React.Dispatch<
+    React.SetStateAction<
+      NonNullable<
+        CurrentMesocycleStartedData["today"]["trainingDay"]
+      >["exercises"][number]["sets"]
+    >
+  >;
 };
 
-function SetRow({ set, index, isXs }: SetRowProps) {
+function SetRow({ set, index, isXs, setSets, exerciseId }: SetRowProps) {
   const [isRemoved, setIsRemoved] = useState(false);
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
   const bind = useDrag(({ down, movement: [mx], ...rest }) => {
@@ -383,17 +472,21 @@ function SetRow({ set, index, isXs }: SetRowProps) {
   useEffect(() => {
     if (isRemoved && isXs) {
       api.start({ x: -innerWidth, immediate: false });
+      setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
     }
-  }, [api, isRemoved, isXs]);
+  }, [api, isXs, set.id, setSets, isRemoved]);
 
   const removeSetButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Transition
       show={!isRemoved}
+      appear
       unmount={false}
       afterLeave={() => {
-        removeSetButtonRef.current?.click();
+        if (isXs) {
+          removeSetButtonRef.current?.click();
+        }
       }}
       enter="ease-out duration-300"
       enterFrom="opacity-0 scale-95"
@@ -416,10 +509,12 @@ function SetRow({ set, index, isXs }: SetRowProps) {
         style={{ x }}
       >
         <SetRowForm
+          exerciseId={exerciseId}
           removeSetButtonRef={removeSetButtonRef}
           set={set}
           isRemoved={isRemoved}
           setIsRemoved={setIsRemoved}
+          setSets={setSets}
         />
       </animated.div>
     </Transition>
@@ -433,6 +528,14 @@ type SetRowFormProps = {
   setIsRemoved: React.Dispatch<React.SetStateAction<boolean>>;
   removeSetButtonRef: React.RefObject<HTMLButtonElement>;
   isRemoved: boolean;
+  exerciseId: string;
+  setSets: React.Dispatch<
+    React.SetStateAction<
+      NonNullable<
+        CurrentMesocycleStartedData["today"]["trainingDay"]
+      >["exercises"][number]["sets"]
+    >
+  >;
 };
 
 function SetRowForm({
@@ -440,6 +543,8 @@ function SetRowForm({
   setIsRemoved,
   removeSetButtonRef,
   isRemoved,
+  setSets,
+  exerciseId,
 }: SetRowFormProps) {
   const lastSubmission = useActionData();
   const [
@@ -451,7 +556,7 @@ function SetRowForm({
       repsCompleted,
       rir,
       wantsToComplete,
-      wantsToDelete,
+      wantsToRemove,
       weight,
       actionIntent,
     },
@@ -462,9 +567,17 @@ function SetRowForm({
       id: set.id,
       completed: set.completed ? "yes" : undefined,
       repRange: `${set.repRangeLowerBound}-${set.repRangeUpperBound}`,
-      repsCompleted: set.repsCompleted?.toString(),
+      repsCompleted: set.repsCompleted
+        ? set.repsCompleted === 0
+          ? undefined
+          : set.repsCompleted.toString()
+        : undefined,
       rir: set.rir.toString(),
-      weight: set.weight.toString(),
+      weight: set.weight
+        ? set.weight === 0
+          ? undefined
+          : set.weight.toString()
+        : undefined,
       actionIntent: actionIntents[0],
     },
     onValidate({ formData }) {
@@ -496,15 +609,15 @@ function SetRowForm({
 
   const navigation = useNavigation();
 
-  // Optimistic UI:
+  // Optimistic UI to remove set
   useEffect(() => {
     if (navigation.formData) {
       const actionIntent = navigation.formData.get("actionIntent");
       if (actionIntent === actionIntents[0]) {
         const updatedSetId = navigation.formData.get("id");
         if (updatedSetId === set.id) {
-          const wantsToDelete = navigation.formData.get("wantsToDelete");
-          if (wantsToDelete) {
+          const wantsToRemove = navigation.formData.get("wantsToRemove");
+          if (wantsToRemove) {
             if (!isRemoved) {
               setIsRemoved(true);
             }
@@ -514,47 +627,37 @@ function SetRowForm({
 
           const wantsToComplete = navigation.formData.get("wantsToComplete");
           if (typeof wantsToComplete === "string") {
-            setValues((currentValues) => ({
-              ...currentValues,
-              completed: wantsToComplete ? "yes" : undefined,
-            }));
+            setSets((prevSets) =>
+              prevSets.map((s) => {
+                if (s.id !== set.id) {
+                  return s;
+                }
+
+                return {
+                  ...s,
+                  completed: Boolean(wantsToComplete),
+                };
+              })
+            );
           }
         }
       }
     }
-  }, [isRemoved, navigation.formData, set, setIsRemoved]);
+  }, [isRemoved, navigation.formData, set.id, setIsRemoved, setSets]);
 
-  // Make sure the state values are up to date with the form's values.
   useEffect(() => {
-    if (
-      repRange.defaultValue !== values.repRange ||
-      repsCompleted.defaultValue !== values.repsCompleted ||
-      rir.defaultValue !== values.rir ||
-      weight.defaultValue !== values.weight ||
-      (completed.defaultValue !== values.completed &&
-        navigation.state === "idle")
-    ) {
-      setValues({
-        repRange: repRange.defaultValue,
-        repsCompleted: repsCompleted.defaultValue,
-        rir: rir.defaultValue,
-        weight: weight.defaultValue,
-        completed: completed.defaultValue,
-      });
+    if (set.completed !== Boolean(values.completed)) {
+      setValues((currentValues) => ({
+        ...currentValues,
+        completed: set.completed ? "yes" : undefined,
+      }));
     }
-  }, [
-    completed.defaultValue,
-    navigation.state,
-    repRange.defaultValue,
-    repsCompleted.defaultValue,
-    rir.defaultValue,
-    values.completed,
-    values.repRange,
-    values.repsCompleted,
-    values.rir,
-    values.weight,
-    weight.defaultValue,
-  ]);
+  }, [set.completed, values.completed]);
+
+  const isBeingCreated =
+    navigation.state === "submitting" &&
+    navigation.formData.get("actionIntent") === actionIntents[3] &&
+    navigation.formData.get("id") === exerciseId;
 
   return (
     <Form
@@ -624,12 +727,14 @@ function SetRowForm({
           type="submit"
           name={wantsToComplete.name}
           value={values.completed ? "" : "true"}
-          disabled={values.completed ? false : !canCompleteSet}
+          disabled={
+            isBeingCreated ? true : values.completed ? false : !canCompleteSet
+          }
           className={clsx(
             "flex h-8 w-8 items-center justify-center rounded transition-all",
             values.completed
               ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:text-zinc-400 disabled:hover:bg-zinc-200"
+              : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200"
           )}
         >
           <CheckIcon className="h-5 w-5" />
@@ -643,9 +748,10 @@ function SetRowForm({
         <button
           ref={removeSetButtonRef}
           type="submit"
-          name={wantsToDelete.name}
+          disabled={isBeingCreated}
+          name={wantsToRemove.name}
           value="true"
-          className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
+          className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:cursor-not-allowed disabled:text-red-300 disabled:hover:bg-red-100"
         >
           <TrashIcon className="h-5 w-5" />
           <span className="sr-only">Remove</span>

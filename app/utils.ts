@@ -174,7 +174,7 @@ export function capitalize(str: string) {
 }
 
 export function generateId() {
-  return nanoid();
+  return nanoid(25);
 }
 
 export function redirectBack(
