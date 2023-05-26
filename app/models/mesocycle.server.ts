@@ -377,6 +377,25 @@ export async function getTrainingDay(id: string) {
           id: true,
           notes: true,
           number: true,
+          previousRun: {
+            select: {
+              sets: {
+                orderBy: {
+                  number: "asc",
+                },
+                select: {
+                  id: true,
+                  number: true,
+                  completed: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                  repsCompleted: true,
+                  rir: true,
+                  weight: true,
+                },
+              },
+            },
+          },
           exercise: {
             select: {
               name: true,

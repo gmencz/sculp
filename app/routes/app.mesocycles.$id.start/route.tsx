@@ -63,14 +63,14 @@ export default function StartMesocycle() {
 
   return (
     <div className="mx-auto w-full max-w-2xl py-10">
-      <div className="flex items-end justify-between gap-2">
+      <div className="mb-2 flex items-end justify-between gap-2">
         <Heading>{mesocycle.name}</Heading>
         <Link
           to={configRoutes.mesocycles.view(mesocycle.id)}
           className="inline-flex justify-center gap-3 rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <PencilSquareIcon className="h-5 w-5 text-white" aria-hidden="true" />
-          Edit mesocycle
+          Make changes
         </Link>
       </div>
       <Paragraph>
@@ -156,11 +156,12 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
   const muscleGroups = getUniqueMuscleGroups();
 
   return (
-    <div className="relative px-4 sm:px-6 lg:px-8">
+    <div className="relative">
       <div
         className={clsx(
-          "flex flex-col items-start gap-2 border-y border-b-zinc-200 border-t-zinc-100 bg-white px-4 py-3 text-sm font-semibold leading-6 text-zinc-900",
-          index === 0 ? "sm:rounded-tl-xl sm:rounded-tr-xl" : null
+          "flex flex-col items-start gap-2 border-y border-b-zinc-200 bg-white px-6 py-4 text-sm font-semibold leading-6 text-zinc-900",
+          index === 0 ? "sm:rounded-tl-xl sm:rounded-tr-xl" : null,
+          index > 0 ? "border-t-zinc-200" : null
         )}
       >
         <h3>
@@ -177,7 +178,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
       </div>
       <ol className="divide-y divide-zinc-100">
         {trainingDay.exercises.map((exercise) => (
-          <li key={exercise.id} className="flex w-full gap-x-4 px-4 py-5">
+          <li key={exercise.id} className="flex w-full gap-x-4 px-6 py-5">
             <svg
               fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"

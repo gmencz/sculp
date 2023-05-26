@@ -235,3 +235,8 @@ export function useMediaQuery(query: string): boolean {
 
   return matches;
 }
+
+export function useFallbackRef<T>(forwardedRef: RefObject<T>) {
+  const fallbackRef = useRef<T>(null);
+  return forwardedRef || fallbackRef;
+}

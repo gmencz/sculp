@@ -159,7 +159,7 @@ export default function NewMesocycle() {
                 )
               );
             }}
-            label="On which days of each microcycle will you train?"
+            label="On which days of the microcycle will you train?"
             helperText="For example if you want to train on Monday, Tuesday, Thursday and Friday, you would select 1, 2, 4 and 5. Please select a realistic number of days that you can commit to. More isn't better, better is better. This cannot be changed later."
           />
 
@@ -177,7 +177,7 @@ export default function NewMesocycle() {
                   ? "Please select training days first"
                   : "Please select rest days",
             }}
-            label="On which days of each microcycle will you rest?"
+            label="On which days of the microcycle will you rest?"
             helperText="For example if you want to train on Monday, Tuesday, Thursday and Friday and rest on Wednesday, Saturday and Sunday, you would select 3, 6 and 7. Please select a realistic number of days that you can commit to. More isn't better, better is better. This cannot be changed later."
           />
 

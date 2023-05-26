@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { useRef } from "react";
 import { Fragment } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -17,11 +18,13 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { Popover, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
 import clsx from "clsx";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
+import { useDrag } from "@use-gesture/react";
 
 type TrainingDayExerciseProps = {
   exercise: NonNullable<
@@ -90,15 +93,10 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
   }, [debouncedUpdateExerciseSubmitEvent, updateExerciseForm.ref, submit]);
 
   const [showNotes, setShowNotes] = useState(Boolean(exercise.notes));
-
-  const menuOptions = [
-    {
-      name: "Add notes",
-      onClick: () => {
-        setShowNotes(true);
-      },
-    },
-  ];
+  const [notesValue, setNotesValue] = useState(
+    updateExerciseNotes.defaultValue ?? ""
+  );
+  const notesRef = useRef<HTMLElement>(null);
 
   const navigation = useNavigation();
   const isXs = useMediaQuery("(max-width: 600px)");
@@ -137,8 +135,70 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     }
   }, [exercise.id, navigation.formData]);
 
+  const [{ x }, api] = useSpring(() => ({ x: 0 }));
+  const bind = useDrag(({ down, movement: [mx], ...rest }) => {
+    // Allow dragging to the left (to delete) and only on small screens.
+    if (!isXs || mx > 0) return;
+
+    api.start({ x: down ? mx : 0, immediate: down });
+
+    // If user drags to the left (at least half screen) and releases the drag, remove the set.
+    if (Math.abs(mx) >= innerWidth / 2 && !down) {
+      api.start({
+        x: -innerWidth,
+        immediate: false,
+        onResolve: () => {
+          setShowNotes(false);
+
+          if (notesValue) {
+            const formData = new FormData();
+            formData.set(updateExerciseId.name, updateExerciseId.defaultValue!);
+            formData.set(
+              updateExerciseActionIntent.name,
+              updateExerciseActionIntent.defaultValue!
+            );
+            formData.set(updateExerciseNotes.name, "");
+            submit(formData, {
+              method: "post",
+              preventScrollReset: true,
+              replace: true,
+            });
+          }
+        },
+      });
+    }
+  });
+
+  const menuOptions = [
+    {
+      name: "Add notes",
+      onClick: () => {
+        if (showNotes) {
+          if (!notesRef.current) return;
+
+          // Focus the contenteditable notes at the end of the text.
+          const range = document.createRange();
+          range.selectNodeContents(notesRef.current);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+          notesRef.current.focus();
+        } else {
+          api.start({
+            x: 0,
+            immediate: true,
+            onResolve: () => {
+              setShowNotes(true);
+            },
+          });
+        }
+      },
+    },
+  ];
+
   return (
-    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pb-6 pt-4 sm:pb-10 ">
+    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
@@ -180,7 +240,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                           option.onClick();
                         }}
                         type="button"
-                        className="block w-full text-left text-gray-600 hover:text-orange-600"
+                        className="block w-full text-left text-zinc-600 hover:text-orange-600"
                       >
                         {option.name}
                       </button>
@@ -199,81 +259,89 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         </h3>
       </div>
 
-      <div className="mt-3">
-        <Form
-          preventScrollReset
-          replace
-          method="post"
-          className="px-4 sm:px-6 lg:px-8"
-          onChange={handleUpdateExerciseFormChange}
-          {...updateExerciseForm.props}
+      <Form
+        preventScrollReset
+        replace
+        method="post"
+        onChange={handleUpdateExerciseFormChange}
+        {...updateExerciseForm.props}
+      >
+        <input {...conform.input(updateExerciseId, { hidden: true })} />
+        <input
+          {...conform.input(updateExerciseActionIntent, { hidden: true })}
+        />
+
+        <Transition
+          show={showNotes}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="transition-opacity duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+          className="relative"
         >
-          <input {...conform.input(updateExerciseId, { hidden: true })} />
-          <input
-            {...conform.input(updateExerciseActionIntent, { hidden: true })}
-          />
+          <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
+            <TrashIcon className="h-5 w-5 text-white" />
+            <span className="sr-only">Remove</span>
+          </div>
 
-          <Transition
-            as={Fragment}
-            show={showNotes}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
+          <animated.div
+            {...bind()}
+            className="relative cursor-grab touch-pan-y bg-white px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
+            style={{ x }}
           >
-            <div>
-              <Textarea
-                autoSize
-                hideLabel
-                hideErrorMessage
-                config={updateExerciseNotes}
-                label="Notes"
-                placeholder="Notes"
-                className="mb-4"
-              />
-            </div>
-          </Transition>
-        </Form>
+            <Textarea
+              ref={notesRef}
+              autoSize
+              hideLabel
+              hideErrorMessage
+              config={updateExerciseNotes}
+              label="Notes"
+              onChange={setNotesValue}
+              placeholder="Notes"
+              className="mt-2"
+            />
+          </animated.div>
+        </Transition>
+      </Form>
 
-        <div role="table">
-          {sets.length > 0 ? (
-            <div role="rowgroup">
+      {sets.length > 0 ? (
+        <div role="table" className="mt-3">
+          <div role="rowgroup">
+            <div
+              role="row"
+              className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
+            >
               <div
-                role="row"
-                className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
               >
-                <div
-                  role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-                >
-                  Weight
-                </div>
-                <div
-                  role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-                >
-                  Rep range
-                </div>
-                <div
-                  role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-                >
-                  RIR
-                </div>
-                <div
-                  role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-                >
-                  Reps
-                </div>
-
-                <div role="columnheader" className="h-8 w-8" />
-                <div role="columnheader" className="hidden h-8 w-8 sm:block" />
+                Weight
               </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                Rep range
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                RIR
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                Reps
+              </div>
+
+              <div role="columnheader" className="h-8 w-8" />
+              <div role="columnheader" className="hidden h-8 w-8 sm:block" />
             </div>
-          ) : null}
+          </div>
 
           <div role="rowgroup" className="flex flex-col">
             {sets.map((set, index) => (
@@ -288,20 +356,46 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
             ))}
           </div>
         </div>
+      ) : null}
 
-        <Form
-          preventScrollReset
-          replace
-          method="post"
-          className={clsx("px-4 sm:px-6 lg:px-8", sets.length > 0 && "mt-4")}
-          {...addSetForm.props}
-        >
-          <input {...conform.input(addSetId, { hidden: true })} />
-          <input {...conform.input(addSetActionintent, { hidden: true })} />
-          <input {...conform.input(addSetSetId, { hidden: true })} />
+      <Form
+        preventScrollReset
+        replace
+        method="post"
+        className={clsx("px-4 sm:px-6 lg:px-8", sets.length > 0 && "mt-4")}
+        {...addSetForm.props}
+      >
+        <input {...conform.input(addSetId, { hidden: true })} />
+        <input {...conform.input(addSetActionintent, { hidden: true })} />
+        <input {...conform.input(addSetSetId, { hidden: true })} />
 
-          <SubmitButton isSubmitting={false} secondary text="Add set" />
-        </Form>
+        <SubmitButton isSubmitting={false} secondary text="Add set" />
+      </Form>
+
+      <div className="mt-6 bg-orange-50 px-4 py-4 sm:px-6 lg:px-8">
+        {exercise.previousRun ? (
+          <>
+            <span className="text-base font-normal text-zinc-900">
+              Peformance
+            </span>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-900"
+              fill="currentColor"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 12c0 2.206 1.794 4 4 4 1.761 0 3.242-1.151 3.775-2.734l2.224-1.291.001.025c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6c1.084 0 2.098.292 2.975.794l-2.21 1.283c-.248-.048-.503-.077-.765-.077-2.206 0-4 1.794-4 4zm4-2c-1.105 0-2 .896-2 2s.895 2 2 2 2-.896 2-2l-.002-.015 3.36-1.95c.976-.565 2.704-.336 3.711.159l4.931-2.863-3.158-1.569.169-3.632-4.945 2.87c-.07 1.121-.734 2.736-1.705 3.301l-3.383 1.964c-.29-.163-.621-.265-.978-.265zm7.995 1.911l.005.089c0 4.411-3.589 8-8 8s-8-3.589-8-8 3.589-8 8-8c1.475 0 2.853.408 4.041 1.107.334-.586.428-1.544.146-2.18-1.275-.589-2.69-.927-4.187-.927-5.523 0-10 4.477-10 10s4.477 10 10 10c5.233 0 9.521-4.021 9.957-9.142-.301-.483-1.066-1.061-1.962-.947z" />
+            </svg>
+            <p className="text-center text-sm font-normal text-zinc-900">
+              Your performance is being tracked for your next session.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

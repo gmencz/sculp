@@ -10,7 +10,7 @@ export function CurrentMesocycleStartsInTheFuture({
   data,
 }: CurrentMesocycleStartsInTheFutureProps) {
   return (
-    <div className="py-10">
+    <div className="flex min-h-screen flex-col items-center justify-center py-10 text-center">
       <Heading>{data.mesocycleName}</Heading>
       <Paragraph>Your mesocycle starts {data.formattedStartDate}.</Paragraph>
     </div>

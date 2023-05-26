@@ -2,12 +2,13 @@ import type { FieldConfig } from "@conform-to/react";
 import { useInputEvent } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
-import type { TextareaHTMLAttributes } from "react";
+import type { RefObject, TextareaHTMLAttributes } from "react";
+import { forwardRef } from "react";
 import { useState } from "react";
-import { useRef } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import ContentEditable from "react-contenteditable";
+import { useFallbackRef } from "~/utils";
 
 type TextareaProps = {
   config: FieldConfig;
@@ -16,22 +17,32 @@ type TextareaProps = {
   hideErrorMessage?: boolean;
   hideLabel?: boolean;
   autoSize?: boolean;
+  onChange?: (value: string) => void;
 };
 
-export function Textarea({
-  config,
-  helperText,
-  label,
-  hideLabel = false,
-  hideErrorMessage = false,
-  className,
-  autoSize = false,
-  onChange,
-  placeholder,
-  ...props
-}: TextareaProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export const Textarea = forwardRef<
+  HTMLElement | HTMLTextAreaElement,
+  TextareaProps & TextareaHTMLAttributes<HTMLTextAreaElement>
+>(function Textarea(
+  {
+    config,
+    helperText,
+    label,
+    hideLabel = false,
+    hideErrorMessage = false,
+    className,
+    autoSize = false,
+    onChange,
+    placeholder,
+    ...props
+  }: TextareaProps &
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange">,
+  forwardedRef
+) {
   const [value, setValue] = useState<string>(config.defaultValue ?? "");
-  const contentEditableRef = useRef<HTMLElement>(null);
+  const contentEditableRef = useFallbackRef(
+    forwardedRef as RefObject<HTMLElement>
+  );
   const [ref, control] = useInputEvent({
     onReset: () => setValue(config.defaultValue ?? ""),
   });
@@ -66,10 +77,13 @@ export function Textarea({
                 value ? "text-zinc-900" : "text-zinc-400",
                 className
               )}
-              innerRef={contentEditableRef}
+              innerRef={forwardedRef || contentEditableRef}
               html={value}
               placeholder={placeholder}
-              onChange={control.change}
+              onChange={(e) => {
+                control.change(e);
+                onChange?.(e.target.value);
+              }}
               onBlur={control.blur}
             />
           </>
@@ -83,8 +97,12 @@ export function Textarea({
               autoSize ? "resize-none" : null,
               className
             )}
+            ref={forwardedRef as React.ForwardedRef<HTMLTextAreaElement>}
             placeholder={placeholder}
             aria-label={hideLabel ? label : undefined}
+            onChange={(e) => {
+              onChange?.(e.target.value);
+            }}
             {...props}
             {...conform.textarea(config)}
           />
@@ -109,4 +127,4 @@ export function Textarea({
       ) : null}
     </div>
   );
-}
+});

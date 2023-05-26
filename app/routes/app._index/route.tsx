@@ -45,33 +45,7 @@ export type CurrentMesocycleStartedData = {
   type: "current_mesocycle_started";
   mesocycleName: string;
   today: {
-    trainingDay: {
-      label: string;
-
-      exercises: {
-        number: number;
-        id: string;
-        notes: string | null;
-        sets: {
-          number: number;
-          id: string;
-          weight: number;
-          rir: number;
-          repRangeLowerBound: number;
-          repRangeUpperBound: number;
-          completed: boolean;
-          repsCompleted: number | null;
-        }[];
-        exercise: {
-          name: string;
-          notes: string | null;
-          jointPain: JointPain | null;
-          muscleGroups: {
-            name: string;
-          }[];
-        };
-      }[];
-    } | null;
+    trainingDay: Awaited<ReturnType<typeof getTrainingDay>>;
     dayNumber: number;
     microcycleNumber: number;
   };
@@ -267,9 +241,24 @@ export const action = async ({ request }: ActionArgs) => {
       } = submission.value;
 
       if (wantsToRemove) {
-        await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.delete({
+        const deleted =
+          await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.delete({
+            where: {
+              id: setId,
+            },
+            select: {
+              exerciseId: true,
+            },
+          });
+
+        // Update the `number` value for the rest of sets in this exercise because
+        // one of them has been deleted and that value is no longer correct.
+        await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.updateMany({
           where: {
-            id: setId,
+            exerciseId: deleted.exerciseId,
+          },
+          data: {
+            number: { decrement: 1 },
           },
         });
 
