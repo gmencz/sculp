@@ -18,12 +18,19 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { Popover, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowPathRoundedSquareIcon,
+  ArrowTrendingDownIcon,
+  ArrowTrendingUpIcon,
+  EllipsisVerticalIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
 import { useDrag } from "@use-gesture/react";
+import clsx from "clsx";
 
 type TrainingDayExerciseProps = {
   exercise: NonNullable<
@@ -460,13 +467,71 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         <SubmitButton isSubmitting={false} secondary text="Add set" />
       </Form>
 
-      <div className="mt-6 bg-orange-50 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
         {exercise.previousRun ? (
-          <>
-            <span className="text-base font-normal text-zinc-900">
-              Peformance
-            </span>
-          </>
+          <ol className="flex flex-col items-center justify-center gap-4">
+            {exercise.sets.map((set) => (
+              <li
+                className="flex items-center gap-4"
+                key={`${set.id}-performance-change`}
+              >
+                <span
+                  className={clsx(
+                    "flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-2",
+                    performanceIncreasedInSets.find(
+                      ({ number }) => number === set.number
+                    )
+                      ? "ring-green-500"
+                      : performanceDeclinedInSets.find(
+                          ({ number }) => number === set.number
+                        )
+                      ? "ring-red-500"
+                      : "ring-zinc-300"
+                  )}
+                >
+                  S{set.number}
+                </span>
+
+                <span className={clsx("text-xs font-bold")}>
+                  {performanceIncreasedInSets.find(
+                    ({ number }) => number === set.number
+                  )
+                    ? "PERFORMANCE INCREASED"
+                    : performanceDeclinedInSets.find(
+                        ({ number }) => number === set.number
+                      )
+                    ? "PERFORMANCE DECLINED"
+                    : "PERFORMANCE MAINTAINED"}
+                </span>
+
+                <div
+                  className={clsx(
+                    performanceIncreasedInSets.find(
+                      ({ number }) => number === set.number
+                    )
+                      ? "text-green-500"
+                      : performanceDeclinedInSets.find(
+                          ({ number }) => number === set.number
+                        )
+                      ? "text-red-500"
+                      : "text-zinc-500"
+                  )}
+                >
+                  {performanceIncreasedInSets.find(
+                    ({ number }) => number === set.number
+                  ) ? (
+                    <ArrowTrendingUpIcon className="h-5 w-5" />
+                  ) : performanceDeclinedInSets.find(
+                      ({ number }) => number === set.number
+                    ) ? (
+                    <ArrowTrendingDownIcon className="h-5 w-5" />
+                  ) : (
+                    <ArrowPathRoundedSquareIcon className="h-5 w-5" />
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
         ) : (
           <div className="flex flex-col items-center justify-center gap-2">
             <svg
