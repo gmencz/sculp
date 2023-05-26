@@ -17,7 +17,7 @@ type TextareaProps = {
   hideErrorMessage?: boolean;
   hideLabel?: boolean;
   autoSize?: boolean;
-  onChange?: (value: string) => void;
+  onChangeValue?: (value: string) => void;
 };
 
 export const Textarea = forwardRef<
@@ -32,7 +32,7 @@ export const Textarea = forwardRef<
     hideErrorMessage = false,
     className,
     autoSize = false,
-    onChange,
+    onChangeValue,
     placeholder,
     ...props
   }: TextareaProps &
@@ -82,7 +82,7 @@ export const Textarea = forwardRef<
               placeholder={placeholder}
               onChange={(e) => {
                 control.change(e);
-                onChange?.(e.target.value);
+                onChangeValue?.(e.target.value);
               }}
               onBlur={control.blur}
             />
@@ -101,7 +101,7 @@ export const Textarea = forwardRef<
             placeholder={placeholder}
             aria-label={hideLabel ? label : undefined}
             onChange={(e) => {
-              onChange?.(e.target.value);
+              onChangeValue?.(e.target.value);
             }}
             {...props}
             {...conform.textarea(config)}

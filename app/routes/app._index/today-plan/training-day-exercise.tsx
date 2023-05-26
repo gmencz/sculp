@@ -298,7 +298,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
               hideErrorMessage
               config={updateExerciseNotes}
               label="Notes"
-              onChange={setNotesValue}
+              onChangeValue={setNotesValue}
               placeholder="Notes"
               className="mt-2"
             />
