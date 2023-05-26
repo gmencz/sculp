@@ -18,7 +18,6 @@ import {
 import { requireUser } from "~/session.server";
 import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
 import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in-the-future";
-import { TodayPlan } from "./today-plan";
 import { parse } from "@conform-to/zod";
 import {
   addSetSchema,
@@ -29,6 +28,7 @@ import {
 import { getRepRangeBounds, redirectBack } from "~/utils";
 import { prisma } from "~/db.server";
 import { configRoutes } from "~/config-routes";
+import { TodayPlan } from "./today-plan";
 
 export type CurrentMesocycleNotFoundData = {
   type: "current_mesocycle_not_found";

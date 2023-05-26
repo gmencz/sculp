@@ -1,0 +1,308 @@
+import type { FormEvent } from "react";
+import { Fragment } from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import type { CurrentMesocycleStartedData } from "../route";
+import { generateId, useDebounce, useMediaQuery } from "~/utils";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSubmit,
+} from "@remix-run/react";
+import type { AddSetSchema, UpdateExerciseSchema } from "../schema";
+import { addSetSchema } from "../schema";
+import { actionIntents, updateExerciseSchema } from "../schema";
+import { conform, useForm } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
+import { MuscleGroupBadge } from "~/components/muscle-group-badge";
+import { Popover, Transition } from "@headlessui/react";
+import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import { Textarea } from "~/components/textarea";
+import clsx from "clsx";
+import { SubmitButton } from "~/components/submit-button";
+import { TrainingDayExerciseSet } from "./training-day-exercise-set";
+
+type TrainingDayExerciseProps = {
+  exercise: NonNullable<
+    CurrentMesocycleStartedData["today"]["trainingDay"]
+  >["exercises"][number];
+};
+
+export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
+  const [updateExerciseSubmitEvent, setUpdateExerciseSubmitEvent] =
+    useState<FormEvent<HTMLFormElement>>();
+  const debouncedUpdateExerciseSubmitEvent = useDebounce(
+    updateExerciseSubmitEvent,
+    3000
+  );
+  const submit = useSubmit();
+  const lastSubmission = useActionData();
+  const [
+    updateExerciseForm,
+    {
+      id: updateExerciseId,
+      notes: updateExerciseNotes,
+      actionIntent: updateExerciseActionIntent,
+    },
+  ] = useForm<UpdateExerciseSchema>({
+    id: `exercise-${exercise.id}`,
+    lastSubmission,
+    defaultValue: {
+      id: exercise.id,
+      notes: exercise.notes ?? "",
+      actionIntent: actionIntents[2],
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema: updateExerciseSchema });
+    },
+  });
+
+  const [
+    addSetForm,
+    { id: addSetId, actionIntent: addSetActionintent, setId: addSetSetId },
+  ] = useForm<AddSetSchema>({
+    id: `add-set-${exercise.id}`,
+    lastSubmission,
+    defaultValue: {
+      id: exercise.id,
+      setId: generateId(),
+      actionIntent: actionIntents[3],
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema: addSetSchema });
+    },
+  });
+
+  const handleUpdateExerciseFormChange = (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    setUpdateExerciseSubmitEvent(event);
+  };
+
+  useEffect(() => {
+    if (debouncedUpdateExerciseSubmitEvent) {
+      submit(updateExerciseForm.ref.current, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    }
+  }, [debouncedUpdateExerciseSubmitEvent, updateExerciseForm.ref, submit]);
+
+  const [showNotes, setShowNotes] = useState(Boolean(exercise.notes));
+
+  const menuOptions = [
+    {
+      name: "Add notes",
+      onClick: () => {
+        setShowNotes(true);
+      },
+    },
+  ];
+
+  const navigation = useNavigation();
+  const isXs = useMediaQuery("(max-width: 600px)");
+  const [sets, setSets] = useState(
+    exercise.sets.map((s) => ({ ...s, isNew: false }))
+  );
+
+  // Optimistic UI to add a set.
+  useEffect(() => {
+    if (navigation.formData) {
+      const actionIntent = navigation.formData.get("actionIntent");
+      if (actionIntent === actionIntents[3]) {
+        const id = navigation.formData.get("id");
+        const setId = navigation.formData.get("setId");
+        if (id === exercise.id && typeof setId === "string") {
+          setSets((prevSets) => {
+            const lastSet = prevSets.at(-1);
+
+            return [
+              ...prevSets,
+              {
+                id: setId,
+                number: lastSet?.number ? lastSet.number + 1 : 1,
+                repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
+                repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
+                weight: lastSet?.weight || 0,
+                rir: lastSet?.rir || 0,
+                completed: false,
+                repsCompleted: 0,
+                isNew: true,
+              },
+            ];
+          });
+        }
+      }
+    }
+  }, [exercise.id, navigation.formData]);
+
+  return (
+    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pb-6 pt-4 sm:pb-10 ">
+      <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
+        <ul className="flex flex-wrap gap-2">
+          {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
+            <li key={muscleGroup.name}>
+              <MuscleGroupBadge index={index}>
+                {muscleGroup.name}
+              </MuscleGroupBadge>
+            </li>
+          ))}
+        </ul>
+
+        <div className="ml-auto flex items-center gap-4">
+          <Popover className="relative flex items-center">
+            <Popover.Button
+              type="button"
+              className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
+            >
+              <EllipsisVerticalIcon className="h-6 w-6" />
+              <span className="sr-only">Options</span>
+            </Popover.Button>
+
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
+                {({ close }) => (
+                  <div className="w-44 shrink rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
+                    {menuOptions.map((option) => (
+                      <button
+                        key={option.name}
+                        onClick={() => {
+                          close();
+                          option.onClick();
+                        }}
+                        type="button"
+                        className="block w-full text-left text-gray-600 hover:text-orange-600"
+                      >
+                        {option.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover.Panel>
+            </Transition>
+          </Popover>
+        </div>
+      </div>
+
+      <div className="mt-3 px-4 sm:px-6 lg:px-8">
+        <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+          {exercise.exercise.name}
+        </h3>
+      </div>
+
+      <div className="mt-3">
+        <Form
+          preventScrollReset
+          replace
+          method="post"
+          className="px-4 sm:px-6 lg:px-8"
+          onChange={handleUpdateExerciseFormChange}
+          {...updateExerciseForm.props}
+        >
+          <input {...conform.input(updateExerciseId, { hidden: true })} />
+          <input
+            {...conform.input(updateExerciseActionIntent, { hidden: true })}
+          />
+
+          <Transition
+            as={Fragment}
+            show={showNotes}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div>
+              <Textarea
+                autoSize
+                hideLabel
+                hideErrorMessage
+                config={updateExerciseNotes}
+                label="Notes"
+                placeholder="Notes"
+                className="mb-4"
+              />
+            </div>
+          </Transition>
+        </Form>
+
+        <div role="table">
+          {sets.length > 0 ? (
+            <div role="rowgroup">
+              <div
+                role="row"
+                className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
+              >
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Weight
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Rep range
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  RIR
+                </div>
+                <div
+                  role="columnheader"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                >
+                  Reps
+                </div>
+
+                <div role="columnheader" className="h-8 w-8" />
+                <div role="columnheader" className="hidden h-8 w-8 sm:block" />
+              </div>
+            </div>
+          ) : null}
+
+          <div role="rowgroup" className="flex flex-col">
+            {sets.map((set, index) => (
+              <TrainingDayExerciseSet
+                exerciseId={exercise.id}
+                setSets={setSets}
+                key={set.id}
+                isXs={isXs}
+                index={index}
+                set={set}
+              />
+            ))}
+          </div>
+        </div>
+
+        <Form
+          preventScrollReset
+          replace
+          method="post"
+          className={clsx("px-4 sm:px-6 lg:px-8", sets.length > 0 && "mt-4")}
+          {...addSetForm.props}
+        >
+          <input {...conform.input(addSetId, { hidden: true })} />
+          <input {...conform.input(addSetActionintent, { hidden: true })} />
+          <input {...conform.input(addSetSetId, { hidden: true })} />
+
+          <SubmitButton isSubmitting={false} secondary text="Add set" />
+        </Form>
+      </div>
+    </div>
+  );
+}

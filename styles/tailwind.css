@@ -37,3 +37,8 @@
   font-style: normal;
 }
 
+[contenteditable=true]:empty:before {
+  content: attr(placeholder);
+  display: block;
+  @apply text-zinc-400;
+}

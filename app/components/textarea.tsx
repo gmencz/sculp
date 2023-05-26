@@ -1,11 +1,13 @@
 import type { FieldConfig } from "@conform-to/react";
+import { useInputEvent } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
 import type { TextareaHTMLAttributes } from "react";
 import { useState } from "react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+import ContentEditable from "react-contenteditable";
 
 type TextareaProps = {
   config: FieldConfig;
@@ -25,26 +27,14 @@ export function Textarea({
   className,
   autoSize = false,
   onChange,
+  placeholder,
   ...props
 }: TextareaProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [value, setValue] = useState("");
-
-  useEffect(() => {
-    if (textAreaRef.current && autoSize) {
-      // We need to reset the height momentarily to get the correct scrollHeight for the textarea
-      textAreaRef.current.style.height = "0px";
-      const scrollHeight = textAreaRef.current.scrollHeight;
-
-      // We then set the height directly, outside of the render loop
-      // Trying to set this with state or a ref will product an incorrect value.
-      textAreaRef.current.style.height = scrollHeight + "px";
-    }
-  }, [autoSize, value]);
-
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(event.target.value);
-  };
+  const [value, setValue] = useState<string>(config.defaultValue ?? "");
+  const contentEditableRef = useRef<HTMLElement>(null);
+  const [ref, control] = useInputEvent({
+    onReset: () => setValue(config.defaultValue ?? ""),
+  });
 
   return (
     <div className="flex flex-col">
@@ -58,25 +48,47 @@ export function Textarea({
       )}
 
       <div className="relative rounded-md">
-        <textarea
-          ref={textAreaRef}
-          onChange={(event) => {
-            onChange?.(event);
-            if (autoSize) {
-              handleChange(event);
-            }
-          }}
-          className={clsx(
-            "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
-            config.error
-              ? "text-red-300 ring-red-500 focus:ring-red-600"
-              : "ring-zinc-300 focus:ring-orange-600",
-            className
-          )}
-          aria-label={hideLabel ? label : undefined}
-          {...props}
-          {...conform.textarea(config)}
-        />
+        {autoSize ? (
+          <>
+            <input
+              ref={ref}
+              {...conform.input(config, { hidden: true })}
+              onChange={(e) => setValue(e.target.value)}
+              onFocus={() => contentEditableRef.current?.focus()}
+            />
+
+            <ContentEditable
+              className={clsx(
+                "block w-full rounded-md border-0 px-3 py-1.5 text-sm shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600",
+                config.error
+                  ? "text-red-300 ring-red-500 focus:ring-red-600"
+                  : "ring-zinc-300 focus:ring-orange-600",
+                value ? "text-zinc-900" : "text-zinc-400",
+                className
+              )}
+              innerRef={contentEditableRef}
+              html={value}
+              placeholder={placeholder}
+              onChange={control.change}
+              onBlur={control.blur}
+            />
+          </>
+        ) : (
+          <textarea
+            className={clsx(
+              "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
+              config.error
+                ? "text-red-300 ring-red-500 focus:ring-red-600"
+                : "ring-zinc-300 focus:ring-orange-600",
+              autoSize ? "resize-none" : null,
+              className
+            )}
+            placeholder={placeholder}
+            aria-label={hideLabel ? label : undefined}
+            {...props}
+            {...conform.textarea(config)}
+          />
+        )}
 
         {config.error ? (
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
