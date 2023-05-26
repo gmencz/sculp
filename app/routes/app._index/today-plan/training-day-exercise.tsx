@@ -18,19 +18,13 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { Popover, Transition } from "@headlessui/react";
-import {
-  ArrowPathRoundedSquareIcon,
-  ArrowTrendingDownIcon,
-  ArrowTrendingUpIcon,
-  EllipsisVerticalIcon,
-  TrashIcon,
-} from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
 import { useDrag } from "@use-gesture/react";
-import clsx from "clsx";
+import { TrainingDayExerciseSetPerformance } from "./training-day-exercise-set-performance";
 
 type TrainingDayExerciseProps = {
   exercise: NonNullable<
@@ -216,81 +210,38 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         rir: 0,
         weight: 100,
       },
+      {
+        id: generateId(),
+        completed: true,
+        number: 2,
+        repRangeLowerBound: 5,
+        repRangeUpperBound: 8,
+        repsCompleted: 6,
+        rir: 0,
+        weight: 100,
+      },
+      {
+        id: generateId(),
+        completed: true,
+        number: 3,
+        repRangeLowerBound: 5,
+        repRangeUpperBound: 8,
+        repsCompleted: 4,
+        rir: 0,
+        weight: 100,
+      },
+      {
+        id: generateId(),
+        completed: true,
+        number: 4,
+        repRangeLowerBound: 5,
+        repRangeUpperBound: 8,
+        repsCompleted: 4,
+        rir: 0,
+        weight: 100,
+      },
     ],
   };
-
-  const performanceDeclinedInSets = exercise.previousRun.sets.filter(
-    (previousSet) => {
-      const currentSet = exercise.sets.find(
-        ({ number }) => number === previousSet.number
-      );
-
-      if (
-        !currentSet ||
-        !currentSet.repsCompleted ||
-        !previousSet.repsCompleted
-      ) {
-        return false;
-      }
-
-      // If weight is the same and completed less reps, performance declined.
-      if (
-        currentSet.weight === previousSet.weight &&
-        currentSet.repsCompleted < previousSet.repsCompleted
-      ) {
-        return true;
-      }
-
-      // If weight is the same, intensity is higher and completed same reps, performance declined.
-      if (
-        currentSet.weight === previousSet.weight &&
-        currentSet.rir < previousSet.rir &&
-        currentSet.repsCompleted === previousSet.repsCompleted
-      ) {
-        return true;
-      }
-
-      return false;
-    }
-  );
-
-  const performanceIncreasedInSets = exercise.previousRun.sets.filter(
-    (previousSet) => {
-      const currentSet = exercise.sets.find(
-        ({ number }) => number === previousSet.number
-      );
-
-      if (
-        !currentSet ||
-        !currentSet.repsCompleted ||
-        !previousSet.repsCompleted
-      ) {
-        return false;
-      }
-
-      // If weight is the same, intensity is the same or lower and completed more reps, performance increased.
-      if (
-        currentSet.weight === previousSet.weight &&
-        currentSet.rir >= previousSet.rir &&
-        currentSet.repsCompleted > previousSet.repsCompleted
-      ) {
-        return true;
-      }
-
-      // If weight is higher, intensity is the same or lower and completed the same or more reps, performance increased.
-      if (
-        currentSet.weight > previousSet.weight &&
-        currentSet.rir >= previousSet.rir &&
-        currentSet.repsCompleted >= previousSet.repsCompleted
-      ) {
-        return true;
-      }
-
-      return false;
-    }
-  );
-
-  // TODO: Show sets performances to user based on arrays above.
 
   return (
     <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
@@ -469,67 +420,13 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
 
       <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
         {exercise.previousRun ? (
-          <ol className="flex flex-col items-center justify-center gap-4">
-            {exercise.sets.map((set) => (
-              <li
-                className="flex items-center gap-4"
+          <ol className="flex flex-col gap-4">
+            {sets.map((set) => (
+              <TrainingDayExerciseSetPerformance
+                previousRunSets={exercise.previousRun?.sets || []}
+                set={set}
                 key={`${set.id}-performance-change`}
-              >
-                <span
-                  className={clsx(
-                    "flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-2",
-                    performanceIncreasedInSets.find(
-                      ({ number }) => number === set.number
-                    )
-                      ? "ring-green-500"
-                      : performanceDeclinedInSets.find(
-                          ({ number }) => number === set.number
-                        )
-                      ? "ring-red-500"
-                      : "ring-zinc-300"
-                  )}
-                >
-                  S{set.number}
-                </span>
-
-                <span className={clsx("text-xs font-bold")}>
-                  {performanceIncreasedInSets.find(
-                    ({ number }) => number === set.number
-                  )
-                    ? "PERFORMANCE INCREASED"
-                    : performanceDeclinedInSets.find(
-                        ({ number }) => number === set.number
-                      )
-                    ? "PERFORMANCE DECLINED"
-                    : "PERFORMANCE MAINTAINED"}
-                </span>
-
-                <div
-                  className={clsx(
-                    performanceIncreasedInSets.find(
-                      ({ number }) => number === set.number
-                    )
-                      ? "text-green-500"
-                      : performanceDeclinedInSets.find(
-                          ({ number }) => number === set.number
-                        )
-                      ? "text-red-500"
-                      : "text-zinc-500"
-                  )}
-                >
-                  {performanceIncreasedInSets.find(
-                    ({ number }) => number === set.number
-                  ) ? (
-                    <ArrowTrendingUpIcon className="h-5 w-5" />
-                  ) : performanceDeclinedInSets.find(
-                      ({ number }) => number === set.number
-                    ) ? (
-                    <ArrowTrendingDownIcon className="h-5 w-5" />
-                  ) : (
-                    <ArrowPathRoundedSquareIcon className="h-5 w-5" />
-                  )}
-                </div>
-              </li>
+              />
             ))}
           </ol>
         ) : (

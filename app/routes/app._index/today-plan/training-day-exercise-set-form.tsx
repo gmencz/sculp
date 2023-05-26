@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Input } from "~/components/input";
 import clsx from "clsx";
 import { CheckIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { getRepRangeBounds } from "~/utils";
 
 type TrainingDayExerciseSetFormProps = {
   set: Set;
@@ -108,6 +109,16 @@ export function TrainingDayExerciseSetForm({
 
           const wantsToComplete = navigation.formData.get("wantsToComplete");
           if (typeof wantsToComplete === "string") {
+            const repRange = navigation.formData.get("repRange") as string;
+            const weight = Number(navigation.formData.get("weight") as string);
+            const rir = Number(navigation.formData.get("rir") as string);
+            const repsCompleted = Number(
+              navigation.formData.get("repsCompleted") as string
+            );
+
+            const [repRangeLowerBound, repRangeUpperBound] =
+              getRepRangeBounds(repRange);
+
             setSets((prevSets) =>
               prevSets.map((s) => {
                 if (s.id !== set.id) {
@@ -117,6 +128,11 @@ export function TrainingDayExerciseSetForm({
                 return {
                   ...s,
                   completed: Boolean(wantsToComplete),
+                  repRangeLowerBound,
+                  repRangeUpperBound,
+                  weight,
+                  rir,
+                  repsCompleted,
                 };
               })
             );
