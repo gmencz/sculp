@@ -163,6 +163,7 @@ export function TrainingDayExerciseSetForm({
           onChange={(e) => handleValueChange(e, "weight")}
           min={0}
           max={10000}
+          readOnly={Boolean(values.completed)}
         />
       </div>
 
@@ -174,6 +175,7 @@ export function TrainingDayExerciseSetForm({
           label="Rep range"
           className="text-center"
           onChange={(e) => handleValueChange(e, "repRange")}
+          readOnly={Boolean(values.completed)}
         />
       </div>
 
@@ -187,6 +189,7 @@ export function TrainingDayExerciseSetForm({
           className="text-center"
           onChange={(e) => handleValueChange(e, "rir")}
           min={0}
+          readOnly={Boolean(values.completed)}
         />
       </div>
 
@@ -200,6 +203,7 @@ export function TrainingDayExerciseSetForm({
           className="text-center"
           onChange={(e) => handleValueChange(e, "repsCompleted")}
           min={0}
+          readOnly={Boolean(values.completed)}
         />
       </div>
 

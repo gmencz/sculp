@@ -21,7 +21,6 @@ import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
-import clsx from "clsx";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
 import { useDrag } from "@use-gesture/react";
@@ -197,6 +196,95 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     },
   ];
 
+  // TODO: Remove this, it's just for testing
+  exercise.previousRun = {
+    sets: [
+      {
+        id: generateId(),
+        completed: true,
+        number: 1,
+        repRangeLowerBound: 5,
+        repRangeUpperBound: 8,
+        repsCompleted: 5,
+        rir: 0,
+        weight: 100,
+      },
+    ],
+  };
+
+  const performanceDeclinedInSets = exercise.previousRun.sets.filter(
+    (previousSet) => {
+      const currentSet = exercise.sets.find(
+        ({ number }) => number === previousSet.number
+      );
+
+      if (
+        !currentSet ||
+        !currentSet.repsCompleted ||
+        !previousSet.repsCompleted
+      ) {
+        return false;
+      }
+
+      // If weight is the same and completed less reps, performance declined.
+      if (
+        currentSet.weight === previousSet.weight &&
+        currentSet.repsCompleted < previousSet.repsCompleted
+      ) {
+        return true;
+      }
+
+      // If weight is the same, intensity is higher and completed same reps, performance declined.
+      if (
+        currentSet.weight === previousSet.weight &&
+        currentSet.rir < previousSet.rir &&
+        currentSet.repsCompleted === previousSet.repsCompleted
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  );
+
+  const performanceIncreasedInSets = exercise.previousRun.sets.filter(
+    (previousSet) => {
+      const currentSet = exercise.sets.find(
+        ({ number }) => number === previousSet.number
+      );
+
+      if (
+        !currentSet ||
+        !currentSet.repsCompleted ||
+        !previousSet.repsCompleted
+      ) {
+        return false;
+      }
+
+      // If weight is the same, intensity is the same or lower and completed more reps, performance increased.
+      if (
+        currentSet.weight === previousSet.weight &&
+        currentSet.rir >= previousSet.rir &&
+        currentSet.repsCompleted > previousSet.repsCompleted
+      ) {
+        return true;
+      }
+
+      // If weight is higher, intensity is the same or lower and completed the same or more reps, performance increased.
+      if (
+        currentSet.weight > previousSet.weight &&
+        currentSet.rir >= previousSet.rir &&
+        currentSet.repsCompleted >= previousSet.repsCompleted
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  );
+
+  // TODO: Show sets performances to user based on arrays above.
+
   return (
     <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
@@ -362,7 +450,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         preventScrollReset
         replace
         method="post"
-        className={clsx("px-4 sm:px-6 lg:px-8", sets.length > 0 && "mt-4")}
+        className="mt-4 px-4 sm:px-6 lg:px-8"
         {...addSetForm.props}
       >
         <input {...conform.input(addSetId, { hidden: true })} />
@@ -391,7 +479,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
             >
               <path d="M6 12c0 2.206 1.794 4 4 4 1.761 0 3.242-1.151 3.775-2.734l2.224-1.291.001.025c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6c1.084 0 2.098.292 2.975.794l-2.21 1.283c-.248-.048-.503-.077-.765-.077-2.206 0-4 1.794-4 4zm4-2c-1.105 0-2 .896-2 2s.895 2 2 2 2-.896 2-2l-.002-.015 3.36-1.95c.976-.565 2.704-.336 3.711.159l4.931-2.863-3.158-1.569.169-3.632-4.945 2.87c-.07 1.121-.734 2.736-1.705 3.301l-3.383 1.964c-.29-.163-.621-.265-.978-.265zm7.995 1.911l.005.089c0 4.411-3.589 8-8 8s-8-3.589-8-8 3.589-8 8-8c1.475 0 2.853.408 4.041 1.107.334-.586.428-1.544.146-2.18-1.275-.589-2.69-.927-4.187-.927-5.523 0-10 4.477-10 10s4.477 10 10 10c5.233 0 9.521-4.021 9.957-9.142-.301-.483-1.066-1.061-1.962-.947z" />
             </svg>
-            <p className="text-center text-sm font-normal text-zinc-900">
+            <p className="text-center text-sm font-medium text-zinc-900">
               Your performance is being tracked for your next session.
             </p>
           </div>

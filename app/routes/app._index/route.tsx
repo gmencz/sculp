@@ -248,14 +248,17 @@ export const action = async ({ request }: ActionArgs) => {
             },
             select: {
               exerciseId: true,
+              number: true,
             },
           });
 
-        // Update the `number` value for the rest of sets in this exercise because
-        // one of them has been deleted and that value is no longer correct.
+        // Update the `number` value for the sets after the one we removed.
         await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.updateMany({
           where: {
-            exerciseId: deleted.exerciseId,
+            AND: [
+              { exerciseId: deleted.exerciseId },
+              { number: { gt: deleted.number } },
+            ],
           },
           data: {
             number: { decrement: 1 },
