@@ -110,7 +110,7 @@ export default function Exercises() {
   }, [successId]);
 
   return (
-    <div className="px-4 py-10 sm:px-6 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>Exercises</Heading>

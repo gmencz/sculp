@@ -137,14 +137,14 @@ export default function Mesocycle() {
   return (
     <Form
       method="post"
-      className="flex min-h-full flex-col px-4 py-10 sm:px-6 lg:px-8"
+      className="flex min-h-full flex-col px-4 py-6 sm:px-6 sm:py-10 lg:px-8"
       {...form.props}
     >
-      <div className="flex min-w-0 flex-col sm:flex-row">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row">
         <div>
           <Heading>{mesocycle.name}</Heading>
 
-          <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6">
+          <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
             <div className="mt-2 flex items-center text-sm text-zinc-500">
               <CalendarDaysIcon
                 className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
@@ -182,26 +182,17 @@ export default function Mesocycle() {
               <ErrorMessage>{lastSubmission?.error.form}</ErrorMessage>
             </div>
           ) : null}
-
-          {isCurrent ? (
-            <div className="mt-4">
-              <MuscleGroupBadge index={3}>
-                Currently ongoing. Any changes you make will not impact the
-                current mesocycle, but they will affect subsequent mesocycles.
-              </MuscleGroupBadge>
-            </div>
-          ) : null}
         </div>
 
-        <div className="ml-auto">
-          <SubmitButton text="Save changes" />
+        <div className="sm:ml-auto">
+          <SubmitButton className="whitespace-nowrap" text="Save changes" />
         </div>
       </div>
 
-      <ol className="mt-6 flex flex-1 gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
+      <ol className="training-days-container mt-6 gap-6 pb-8">
         {trainingDaysList.map((trainingDay, index) => (
           <li
-            className="min-w-full max-w-sm flex-1 rounded border border-zinc-200 bg-white xs:min-w-[26rem]"
+            className="rounded border border-zinc-200 bg-white"
             key={trainingDay.key}
           >
             <TrainingDayFieldset

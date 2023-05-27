@@ -61,7 +61,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full overflow-x-hidden scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
+      <body className="h-full">
         <Outlet />
 
         {!user ? (

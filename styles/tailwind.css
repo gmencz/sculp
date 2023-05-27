@@ -42,3 +42,46 @@
   display: block;
   @apply text-zinc-400;
 }
+
+.training-days-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+  grid-auto-columns: minmax(240px, 1fr);
+  grid-auto-flow: column;
+  overflow-x: auto;
+}
+
+@media (min-width: 350px) {
+  .training-days-container {
+    grid-template-columns: repeat(auto-fill, minmax(270px,1fr));
+    grid-auto-columns: minmax(270px, 1fr);
+  }
+}
+
+@media (min-width: 375px) {
+  .training-days-container {
+    grid-template-columns: repeat(auto-fill, minmax(295px,1fr));
+    grid-auto-columns: minmax(295px, 1fr);
+  }
+}
+
+@media (min-width: 400px) {
+  .training-days-container {
+    grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
+    grid-auto-columns: minmax(320px, 1fr);
+  }
+}
+
+@media (min-width: 450px) {
+  .training-days-container {
+    grid-template-columns: repeat(auto-fill, minmax(370px,1fr));
+    grid-auto-columns: minmax(370px, 1fr);
+  }
+}
+
+@media (min-width: 500px) {
+  .training-days-container {
+    grid-template-columns: repeat(auto-fill, minmax(420px,1fr));
+    grid-auto-columns: minmax(420px, 1fr);
+  }
+}

@@ -89,7 +89,7 @@ export default function NewMesocycleDesign() {
     <Form
       method="post"
       {...form.props}
-      className="flex min-h-full flex-col px-4 py-10 sm:px-6 lg:px-8"
+      className="flex min-h-full flex-col px-4 py-6 sm:px-6 sm:py-10 lg:px-8"
     >
       <div className="flex min-w-0 flex-col sm:flex-row">
         <div>
@@ -144,10 +144,10 @@ export default function NewMesocycleDesign() {
         </div>
       </div>
 
-      <ol className="mt-6 flex flex-1 gap-6 overflow-x-auto pb-8 scrollbar-thin scrollbar-track-zinc-100 scrollbar-thumb-zinc-900 scrollbar-thumb-rounded">
+      <ol className="training-days-container mt-6 gap-6 pb-8">
         {trainingDaysList.map((trainingDay, index) => (
           <li
-            className="min-w-full max-w-sm flex-1 rounded border border-zinc-200 bg-white xs:min-w-[26rem]"
+            className="rounded border border-zinc-200 bg-white"
             key={trainingDay.key}
           >
             <TrainingDayFieldset

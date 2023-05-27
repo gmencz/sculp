@@ -57,8 +57,8 @@ export function Calendar({ darkButton }: CalendarProps) {
             <div className="flex flex-col gap-1 border-b border-b-zinc-200 px-4 py-3 text-zinc-900">
               <p className="text-base font-semibold">Mesocycle calendar</p>
               <p className="text-sm text-zinc-600">
-                Greyed out days are rest days or days of a future microcycle the
-                app will plan for you.
+                Greyed out days represent either scheduled rest days or upcoming
+                microcycle days.
               </p>
             </div>
 
