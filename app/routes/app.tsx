@@ -1,7 +1,4 @@
-import { Dialog, Transition } from "@headlessui/react";
 import {
-  Bars3Icon,
-  BookOpenIcon,
   CalendarDaysIcon,
   FolderIcon,
   PlusCircleIcon,
@@ -179,7 +176,7 @@ function Layout({ children }: PropsWithChildren) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 z-50 w-full bg-white px-6 pb-1 pt-3 shadow-lg ring-1 ring-zinc-900/10 lg:hidden">
+      <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white px-6 pb-1 pt-3 shadow-lg lg:hidden">
         <nav className="mx-auto flex w-full max-w-sm flex-1 flex-col">
           <ul className="flex flex-1 items-center justify-between">
             {mobileNavigation.map((item) => (
@@ -204,6 +201,28 @@ function Layout({ children }: PropsWithChildren) {
             ))}
           </ul>
         </nav>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
+        <div className="flex items-center gap-4">
+          <img
+            className="h-8 w-auto"
+            src="/logo.png"
+            alt="The Hypertrophy Logbook"
+          />
+
+          <span className="text-base font-medium text-zinc-950">
+            Hypertrophy app
+          </span>
+        </div>
+
+        <a
+          href="/app/profile"
+          className="flex items-center text-sm font-semibold leading-6 text-zinc-900 hover:bg-zinc-800"
+        >
+          <UserCircleIcon className="h-8 w-8 rounded-full" />
+          <span className="sr-only">Your Profile</span>
+        </a>
       </div>
 
       <main className="min-h-full bg-zinc-50 pb-16 lg:pb-0 lg:pl-72">
