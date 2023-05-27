@@ -348,6 +348,7 @@ export async function getCurrentMesocycleDetailed(userId: string) {
             select: {
               id: true,
               number: true,
+              date: true,
             },
           },
         },
@@ -365,9 +366,10 @@ export async function getMesocyclesCount(userId: string) {
 }
 
 export async function getTrainingDay(id: string) {
-  return prisma.mesocycleRunMicrocycleTrainingDay.findUnique({
+  return prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
     where: { id },
     select: {
+      completed: true,
       label: true,
       exercises: {
         orderBy: {
@@ -493,12 +495,14 @@ export async function startMesocycle(
 
   const endDate = addDays(input.startDate, totalMesocycleDays);
 
+  const startDate = startOfDay(input.startDate);
+
   await prisma.mesocycleRun.create({
     data: {
       mesocycle: { connect: { id } },
       currentUser: { connect: { id: userId } },
       ranByUser: { connect: { id: userId } },
-      startDate: startOfDay(input.startDate),
+      startDate,
       endDate,
       microcycles: {
         // Create the 1st microcycle with the values from the mesocycle.
@@ -509,6 +513,7 @@ export async function startMesocycle(
               number: trainingDay.number,
               label: trainingDay.label,
               completed: false,
+              date: addDays(startDate, trainingDay.number - 1),
               exercises: {
                 create: trainingDay.exercises.map((exercise) => ({
                   number: exercise.number,

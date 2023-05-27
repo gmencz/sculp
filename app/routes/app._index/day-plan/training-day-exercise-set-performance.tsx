@@ -12,7 +12,7 @@ import type { Set } from "./training-day-exercise-set";
 type TrainingDayExerciseSetPerformanceProps = {
   previousRunSets: NonNullable<
     NonNullable<
-      CurrentMesocycleStartedData["today"]["trainingDay"]
+      CurrentMesocycleStartedData["day"]["trainingDay"]
     >["exercises"][number]["previousRun"]
   >["sets"];
   set: Set;
@@ -73,8 +73,15 @@ export function TrainingDayExerciseSetPerformance({
       return "increased";
     }
 
-    // TODO: Figure out how to make it declined when the weight is very different, etc.
-    // Look at lat pulldown for reference.
+    const setTotalVolume = set.weight * set.repsCompleted;
+    const previousRunSetTotalVolume =
+      previousRunSet.weight * previousRunSet.repsCompleted;
+
+    if (setTotalVolume > previousRunSetTotalVolume) {
+      return "increased";
+    } else if (setTotalVolume < previousRunSetTotalVolume) {
+      return "declined";
+    }
 
     return "maintained";
   };

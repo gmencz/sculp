@@ -1,12 +1,13 @@
-import type { JointPain } from "@prisma/client";
 import { useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import {
   addDays,
   differenceInDays,
+  eachDayOfInterval,
   format,
   isAfter,
+  isSameDay,
   isToday,
   startOfToday,
 } from "date-fns";
@@ -28,7 +29,7 @@ import {
 import { getRepRangeBounds, redirectBack } from "~/utils";
 import { prisma } from "~/db.server";
 import { configRoutes } from "~/config-routes";
-import { TodayPlan } from "./today-plan";
+import { DayPlan } from "./day-plan";
 
 export type CurrentMesocycleNotFoundData = {
   type: "current_mesocycle_not_found";
@@ -44,7 +45,14 @@ export type CurrentMesocycleStartsInTheFutureData = {
 export type CurrentMesocycleStartedData = {
   type: "current_mesocycle_started";
   mesocycleName: string;
-  today: {
+  microcycleLength: number;
+  readOnly: boolean;
+  calendarDays: {
+    date: string;
+    isPlannedTrainingDay: boolean;
+    isCurrent: boolean;
+  }[];
+  day: {
     trainingDay: Awaited<ReturnType<typeof getTrainingDay>>;
     dayNumber: number;
     microcycleNumber: number;
@@ -70,12 +78,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json(data);
   }
 
-  // The user starts the mesocycle some time in the future.
   const today = startOfToday();
-
-  // currentMesocycle.startDate = subDays(new Date(), 2);
-  currentMesocycle.startDate = today;
-
+  // The user starts the mesocycle some time in the future.
   if (isAfter(currentMesocycle.startDate, today)) {
     const daysDifference = differenceInDays(currentMesocycle.startDate, today);
     let formattedStartDate;
@@ -97,46 +101,17 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json(data);
   }
 
-  // The user starts the mesocycle today so this is day 1 of micro 1
-  if (isToday(currentMesocycle.startDate)) {
-    const trainingDay = currentMesocycle.microcycles[0].trainingDays.find(
-      (trainingDay) => trainingDay.number === 1
-    );
-
-    if (!trainingDay) {
-      data = {
-        type: "current_mesocycle_started",
-        mesocycleName: currentMesocycle.mesocycle.name,
-        today: {
-          trainingDay: null,
-          dayNumber: 1,
-          microcycleNumber: 1,
-        },
-      };
-
-      return json(data);
-    }
-
-    const trainingDayData = await getTrainingDay(trainingDay.id);
-
-    if (!trainingDayData) {
-      throw new Error("trainingDayData is null, this should never happen");
-    }
-
-    data = {
-      type: "current_mesocycle_started",
-      mesocycleName: currentMesocycle.mesocycle.name,
-      today: {
-        trainingDay: trainingDayData,
-        dayNumber: 1,
-        microcycleNumber: 1,
-      },
-    };
-
-    return json(data);
+  const url = new URL(request.url);
+  const dateParam = url.searchParams.get("date");
+  let date: Date;
+  if (dateParam) {
+    date = new Date(decodeURIComponent(dateParam));
+  } else {
+    date = today;
   }
 
-  // If we got here, it means the user's current mesocycle has started at least 1 day ago.
+  // Can only edit the training if it's today's training.
+  const readOnly = !isToday(date);
 
   const microcycleLength =
     currentMesocycle.mesocycle._count.trainingDays +
@@ -146,6 +121,31 @@ export const loader = async ({ request }: LoaderArgs) => {
   // later on inside each microcycle.
   const microcycleDays = Array(microcycleLength).fill(0);
 
+  const mesocycleDaysInterval = eachDayOfInterval({
+    start: currentMesocycle.startDate,
+    end: addDays(
+      currentMesocycle.startDate,
+      currentMesocycle.mesocycle.microcycles * microcycleLength - 1
+    ),
+  });
+
+  const calendarDays: CurrentMesocycleStartedData["calendarDays"] =
+    mesocycleDaysInterval.map((intervalDate) => {
+      const isPlannedTrainingDay = currentMesocycle.microcycles.some(
+        (microcycle) =>
+          microcycle.trainingDays.some((trainingDay) =>
+            isSameDay(trainingDay.date, intervalDate)
+          )
+      );
+
+      return {
+        date: intervalDate.toISOString(),
+        isCurrent: isSameDay(intervalDate, date),
+        isPlannedTrainingDay,
+      };
+    });
+
+  // Try and find the training day or rest day for the date param.
   let foundDay = null;
   for (
     let microcycleIndex = 0;
@@ -156,11 +156,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     const microcycle = currentMesocycle.microcycles[microcycleIndex];
     for (let dayNumber = 1; dayNumber < microcycleDays.length; dayNumber++) {
-      const isDayToday = isToday(
-        addDays(currentMesocycle.startDate, microcycleIndex + dayNumber)
+      const isDate = isSameDay(
+        date,
+        addDays(currentMesocycle.startDate, microcycleIndex + dayNumber - 1)
       );
 
-      if (isDayToday) {
+      if (isDate) {
         const trainingDay =
           microcycle.trainingDays.find(({ number }) => number === dayNumber) ||
           null;
@@ -188,7 +189,10 @@ export const loader = async ({ request }: LoaderArgs) => {
     data = {
       type: "current_mesocycle_started",
       mesocycleName: currentMesocycle.mesocycle.name,
-      today: {
+      microcycleLength,
+      calendarDays,
+      readOnly,
+      day: {
         dayNumber: foundDay.dayNumber,
         microcycleNumber: foundDay.microcycleNumber,
         trainingDay: trainingDayData,
@@ -201,7 +205,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   data = {
     type: "current_mesocycle_started",
     mesocycleName: currentMesocycle.mesocycle.name,
-    today: {
+    microcycleLength,
+    calendarDays,
+    readOnly,
+    day: {
       dayNumber: foundDay.dayNumber,
       microcycleNumber: foundDay.microcycleNumber,
       trainingDay: null,
@@ -355,7 +362,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 };
 
-export default function Today() {
+export default function Current() {
   const data = useLoaderData<typeof loader>();
 
   if (data.type === "current_mesocycle_not_found") {
@@ -366,5 +373,5 @@ export default function Today() {
     return <CurrentMesocycleStartsInTheFuture data={data} />;
   }
 
-  return <TodayPlan data={data} />;
+  return <DayPlan data={data} />;
 }

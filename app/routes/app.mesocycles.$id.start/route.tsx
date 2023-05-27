@@ -62,7 +62,7 @@ export default function StartMesocycle() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <div className="mb-2 flex items-end justify-between gap-2">
         <Heading>{mesocycle.name}</Heading>
         <Link
@@ -76,9 +76,7 @@ export default function StartMesocycle() {
       <Paragraph>
         Review your mesocycle to make sure everything looks good before starting
         your training. Keep in mind that the sets, weights and RIR (Reps In
-        Reserve) shown here are your starting point which means the app will
-        adjust those values weekly as needed throughout the mesocycle to make
-        sure you are progressing.
+        Reserve) shown here are your starting point.
       </Paragraph>
 
       <nav
@@ -256,7 +254,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
                         {set.number}
                         <dl className="font-normal xs:hidden">
                           <dt className="sr-only">Rep range</dt>
-                          <dd className="mt-1 truncate text-gray-700">
+                          <dd className="mt-1 truncate text-zinc-700">
                             {set.repRangeLowerBound}-{set.repRangeUpperBound}{" "}
                             reps
                           </dd>

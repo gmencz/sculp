@@ -75,7 +75,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
           )}
         </Disclosure.Button>
         <Disclosure.Panel className="mb-6" unmount={false}>
-          <ol className="mt-4 flex flex-col gap-8 xs:gap-4">
+          <ol className="mt-4 flex flex-col gap-4">
             {setsList.map((set, index) => (
               <li key={set.key}>
                 <SetFieldset

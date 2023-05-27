@@ -15,6 +15,8 @@ export const schema = z.object({
   }),
 });
 
+export type Schema = z.TypeOf<typeof schema>;
+
 export const addSetSchema = z.object({
   id: z
     .string({

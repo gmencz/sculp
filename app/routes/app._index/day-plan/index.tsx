@@ -2,12 +2,12 @@ import type { CurrentMesocycleStartedData } from "../route";
 import { RestDay } from "./rest-day";
 import { TrainingDay } from "./training-day";
 
-type TodayPlanProps = {
+type DayPlanProps = {
   data: CurrentMesocycleStartedData;
 };
 
-export function TodayPlan({ data }: TodayPlanProps) {
-  const { trainingDay, dayNumber, microcycleNumber } = data.today;
+export function DayPlan({ data }: DayPlanProps) {
+  const { trainingDay, dayNumber, microcycleNumber } = data.day;
 
   if (trainingDay) {
     return (

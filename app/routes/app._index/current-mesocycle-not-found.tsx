@@ -17,9 +17,7 @@ export function CurrentMesocycleNotFound({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-10 text-center">
       <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400" />
-      <h3 className="mt-2 text-sm font-semibold text-zinc-900">
-        Nothing today
-      </h3>
+      <h3 className="mt-2 text-sm font-semibold text-zinc-900">Nothing here</h3>
       <p className="mt-1 text-sm text-zinc-500">
         {data.mesocyclesCount > 0
           ? "Get started by starting one of your mesocycles."

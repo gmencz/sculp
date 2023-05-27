@@ -5,18 +5,22 @@ import {
   CalendarDaysIcon,
   FolderIcon,
   PlusCircleIcon,
-  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { NavLink, Outlet } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren, SVGAttributes } from "react";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { requireUser } from "~/session.server";
 
 const navigation = [
-  { name: "Today", href: "/app", icon: CalendarDaysIcon, end: true },
+  {
+    name: "Current",
+    href: "/app",
+    icon: CalendarDaysIcon,
+    end: true,
+  },
   {
     name: "Exercises",
     href: "/app/exercises",

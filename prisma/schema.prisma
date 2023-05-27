@@ -160,6 +160,7 @@ model MesocycleRunMicrocycleTrainingDay {
   exercises    MesocycleRunMicrocycleTrainingDayExercise[]
   microcycle   MesocycleRunMicrocycle?                     @relation(fields: [microcycleId], references: [id])
   microcycleId String?                                     @map("microcycle_id")
+  date         DateTime
 
   @@map("mesocycles_runs_microcycles_training_days")
 }
