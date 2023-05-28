@@ -11,6 +11,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useSearchParams,
@@ -18,7 +19,6 @@ import {
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
-import { JointPain } from "@prisma/client";
 import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
@@ -26,6 +26,8 @@ import { Paragraph } from "~/components/paragraph";
 import { useAfterPaintEffect } from "~/utils";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
+import { configRoutes } from "~/config-routes";
+import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -41,7 +43,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  const { name, jointPain, muscleGroups } = submission.value;
+  const { name, muscleGroups } = submission.value;
 
   const existingExercise = await findExerciseByNameUserId(name, user.id);
   if (existingExercise && name !== existingExercise.name) {
@@ -51,7 +53,6 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   return updateExercise(new URL(request.url), id, user.id, {
     name,
-    jointPain,
     muscleGroups,
   });
 };
@@ -74,7 +75,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   return json({
     exercise,
-    jointPainEnum: JointPain,
     muscleGroupsOptions: muscleGroups.map((m) => m.name),
   });
 };
@@ -82,12 +82,11 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export default function Exercise() {
   const [searchParams] = useSearchParams();
 
-  const { exercise, jointPainEnum, muscleGroupsOptions } =
-    useLoaderData<typeof loader>();
+  const { exercise, muscleGroupsOptions } = useLoaderData<typeof loader>();
 
   const lastSubmission = useActionData();
 
-  const [form, { name, jointPain, muscleGroups }] = useForm<Schema>({
+  const [form, { name, muscleGroups }] = useForm<Schema>({
     id: "edit-exercise",
     lastSubmission,
     onValidate({ formData }) {
@@ -95,7 +94,6 @@ export default function Exercise() {
     },
     defaultValue: {
       name: exercise.name,
-      jointPain: exercise.jointPain || jointPainEnum.NONE,
       muscleGroups: exercise.muscleGroups.map(
         (muscleGroup) => muscleGroup.name
       ),
@@ -122,11 +120,23 @@ export default function Exercise() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-      <Heading>Edit exercise</Heading>
-      <Paragraph>
-        On this page you can edit the exercise's name, how your joints feel when
-        performing it and the muscle groups worked.
-      </Paragraph>
+      <div className="mb-4 sm:hidden">
+        <Link
+          to={configRoutes.exercises.list}
+          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
+        >
+          <ArrowLongLeftIcon className="h-6 w-6" />
+          <span>Go back</span>
+        </Link>
+      </div>
+
+      <div>
+        <Heading>Edit exercise</Heading>
+        <Paragraph>
+          On this page you can edit the exercise's name and the muscle groups
+          worked.
+        </Paragraph>
+      </div>
 
       <Form
         method="post"
@@ -138,13 +148,6 @@ export default function Exercise() {
             config={name}
             label="How is this exercise called?"
             autoComplete="exercise-name"
-          />
-
-          <Select
-            config={jointPain}
-            options={Object.values(jointPainEnum)}
-            capitalizeOptions
-            label="How much joint pain do you have when performing this exercise?"
           />
 
           <Select

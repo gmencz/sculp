@@ -1,6 +1,7 @@
 import { useFieldList, useForm } from "@conform-to/react";
 import {
   Form,
+  Link,
   isRouteErrorResponse,
   useActionData,
   useLoaderData,
@@ -13,15 +14,15 @@ import { ErrorPage } from "~/components/error-page";
 import { requireUser } from "~/session.server";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
-import { CalendarDaysIcon, CalendarIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowLongLeftIcon,
+  CalendarDaysIcon,
+  CalendarIcon,
+} from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
-import {
-  getCurrentMesocycle,
-  getMesocycle,
-  updateMesocycle,
-} from "~/models/mesocycle.server";
+import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
@@ -29,7 +30,7 @@ import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { useAfterPaintEffect } from "~/utils";
 import { getExercisesForAutocomplete } from "~/models/exercise.server";
-import { MuscleGroupBadge } from "~/components/muscle-group-badge";
+import { configRoutes } from "~/config-routes";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -45,12 +46,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
-  const currentMesocycle = await getCurrentMesocycle(user.id);
-  const isCurrent = currentMesocycle?.mesocycle?.id === mesocycle.id;
-
   const exercises = await getExercisesForAutocomplete(user.id);
 
-  return json({ mesocycle, exercises, isCurrent });
+  return json({ mesocycle, exercises });
 };
 
 export function ErrorBoundary() {
@@ -88,7 +86,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 };
 
 export default function Mesocycle() {
-  const { mesocycle, isCurrent } = useLoaderData<typeof loader>();
+  const { mesocycle } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const lastSubmission = useActionData();
   const [form, { trainingDays }] = useForm<Schema>({
@@ -141,6 +139,14 @@ export default function Mesocycle() {
       {...form.props}
     >
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row">
+        <Link
+          to={configRoutes.mesocycles.list}
+          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600 sm:hidden"
+        >
+          <ArrowLongLeftIcon className="h-6 w-6" />
+          <span>Go back</span>
+        </Link>
+
         <div>
           <Heading>{mesocycle.name}</Heading>
 

@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { JointPain, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import {
   Form,
   Link,
@@ -115,8 +115,8 @@ export default function Exercises() {
         <div className="sm:flex-auto">
           <Heading>Exercises</Heading>
           <Paragraph>
-            A list of all your exercises including their name, muscle groups
-            worked and joint pain.
+            A list of all your exercises including their name and muscle groups
+            worked.
           </Paragraph>
 
           {deleteExercisesIdsConfig.error ? (
@@ -216,20 +216,12 @@ type ExerciseRowProps = {
   exercise: {
     id: string;
     name: string;
-    jointPain: JointPain | null;
     userId: string | null;
     muscleGroups: {
       id: string;
       name: string;
     }[];
   };
-};
-
-const jointPainText = {
-  [JointPain.NONE]: "None",
-  [JointPain.LOW]: "Low",
-  [JointPain.MODERATE]: "Moderate",
-  [JointPain.HIGH]: "High",
 };
 
 function ExerciseRow({
@@ -295,9 +287,6 @@ function ExerciseRow({
       </td>
       <td className="hidden px-3 py-4 text-sm text-zinc-500 lg:table-cell">
         {formattedMuscleGroups}
-      </td>
-      <td className="px-3 py-4 text-sm text-zinc-500">
-        {exercise.jointPain ? jointPainText[exercise.jointPain] : "Unknown"}
       </td>
 
       {/* Only show edit link if the exercise was created by the user */}

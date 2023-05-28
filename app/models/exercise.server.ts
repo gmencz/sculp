@@ -1,4 +1,3 @@
-import type { JointPain } from "@prisma/client";
 import { redirect } from "@remix-run/server-runtime";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
@@ -28,7 +27,6 @@ export async function deleteExercises(ids: string[], userId: string) {
 
 type CreateExerciseInput = {
   name: string;
-  jointPain: string;
   muscleGroups: string[];
 };
 
@@ -40,7 +38,6 @@ export async function createExercise(
     data: {
       name: input.name,
       userId,
-      jointPain: input.jointPain as JointPain,
       muscleGroups: {
         connect: input.muscleGroups.map((name) => ({ name })),
       },
@@ -53,7 +50,6 @@ export async function createExercise(
 
 type UpdateExerciseInput = {
   name: string;
-  jointPain: string;
   muscleGroups: string[];
 };
 
@@ -87,7 +83,6 @@ export async function updateExercise(
     },
     data: {
       name: { set: input.name },
-      jointPain: { set: input.jointPain as JointPain },
       muscleGroups: {
         disconnect: exercise.muscleGroups.map(({ id }) => ({ id })),
         connect: input.muscleGroups.map((name) => ({ name })),
@@ -109,7 +104,6 @@ export async function getExercise(id: string, userId: string) {
     select: {
       id: true,
       name: true,
-      jointPain: true,
       muscleGroups: {
         select: {
           id: true,
@@ -133,7 +127,6 @@ export async function getExercises(userId: string) {
     select: {
       id: true,
       name: true,
-      jointPain: true,
       userId: true,
       muscleGroups: {
         select: {

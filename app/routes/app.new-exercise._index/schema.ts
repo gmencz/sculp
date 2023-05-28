@@ -1,12 +1,4 @@
-import { JointPain } from "@prisma/client";
 import { z } from "zod";
-
-const jointPainValues = [
-  JointPain.NONE,
-  JointPain.LOW,
-  JointPain.MODERATE,
-  JointPain.HIGH,
-] as const;
 
 export const schema = z.object({
   name: z
@@ -16,11 +8,6 @@ export const schema = z.object({
     })
     .min(1, "The name is required.")
     .max(100, "The name must be at most 100 characters long."),
-
-  jointPain: z.enum(jointPainValues, {
-    invalid_type_error: "The joint pain is not valid.",
-    required_error: "The joint pain is required.",
-  }),
 
   muscleGroups: z
     .array(

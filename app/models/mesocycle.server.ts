@@ -401,7 +401,6 @@ export async function getTrainingDay(id: string) {
           exercise: {
             select: {
               name: true,
-              jointPain: true,
               notes: true,
               muscleGroups: {
                 select: {

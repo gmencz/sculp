@@ -41,17 +41,9 @@ model AccessRequest {
   @@map("access_requests")
 }
 
-enum JointPain {
-  NONE
-  LOW
-  MODERATE
-  HIGH
-}
-
 model Exercise {
   id                                             String                                      @id @default(cuid())
   name                                           String
-  jointPain                                      JointPain?                                  @default(NONE) @map("joint_pain")
   user                                           User?                                       @relation(fields: [userId], references: [id])
   userId                                         String?                                     @map("user_id")
   notes                                          String? // Notes about the exercise like a link to a youtube video, notes about the execution of the exercise etc.

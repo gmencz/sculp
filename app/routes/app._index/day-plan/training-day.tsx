@@ -72,7 +72,7 @@ export function TrainingDay({
 
   return (
     <>
-      <div className="sticky top-0 z-40 bg-zinc-900 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+      <div className="bg-zinc-900 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <div className="mx-auto w-full max-w-2xl">
           <div className="flex items-center justify-between">
             {readOnly ? (

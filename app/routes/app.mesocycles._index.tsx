@@ -93,6 +93,12 @@ export default function Mesocycles() {
                   {mesocycle.microcycles}{" "}
                   {mesocycle.microcycles === 1 ? "microcycle" : "microcycles"}
                 </span>
+                {currentMesocycle?.mesocycle &&
+                mesocycle.id === currentMesocycle.mesocycle.id ? (
+                  <span className="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-orange-600/20">
+                    Current
+                  </span>
+                ) : null}
               </div>
               <div className="mt-4 flex flex-col gap-3">
                 <div className="flex items-center text-sm text-zinc-500">

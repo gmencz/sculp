@@ -8,7 +8,6 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
-import { JointPain } from "@prisma/client";
 import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
@@ -27,7 +26,7 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  const { name, jointPain, muscleGroups } = submission.value;
+  const { name, muscleGroups } = submission.value;
 
   const existingExercise = await findExerciseByNameUserId(name, user.id);
   if (existingExercise) {
@@ -35,7 +34,7 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  return createExercise(user.id, { name, jointPain, muscleGroups });
+  return createExercise(user.id, { name, muscleGroups });
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -43,22 +42,20 @@ export const loader = async ({ request }: LoaderArgs) => {
   const muscleGroups = await getMuscleGroups();
 
   return json({
-    jointPainEnum: JointPain,
     muscleGroupsOptions: muscleGroups.map((m) => m.name),
   });
 };
 
 export default function Exercise() {
-  const { jointPainEnum, muscleGroupsOptions } = useLoaderData<typeof loader>();
+  const { muscleGroupsOptions } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData();
-  const [form, { name, jointPain, muscleGroups }] = useForm<Schema>({
+  const [form, { name, muscleGroups }] = useForm<Schema>({
     id: "new-exercise",
     lastSubmission,
     onValidate({ formData }) {
       return parse(formData, { schema });
     },
     defaultValue: {
-      jointPain: jointPainEnum.NONE,
       muscleGroups: [],
     },
   });
@@ -84,13 +81,6 @@ export default function Exercise() {
             label="How is this exercise called?"
             autoComplete="exercise-name"
             placeholder="Chest Press, Lateral Raise..."
-          />
-
-          <Select
-            config={jointPain}
-            options={Object.values(jointPainEnum)}
-            capitalizeOptions
-            label="How much joint pain do you have when performing this exercise?"
           />
 
           <Select

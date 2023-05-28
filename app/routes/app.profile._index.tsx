@@ -1,5 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowLeftOnRectangleIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/20/solid";
 import { Form, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
@@ -66,7 +69,17 @@ export default function Profile() {
           </dl>
         </div>
 
-        <div className="border-t border-zinc-200 pt-6">
+        <div className="flex items-center gap-4 border-t border-zinc-200 pt-6">
+          <a
+            href="/sign-out"
+            className="inline-flex gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          >
+            <ArrowLeftOnRectangleIcon
+              className="-ml-0.5 h-5 w-5"
+              aria-hidden="true"
+            />
+            Sign out
+          </a>
           <button
             type="button"
             onClick={() => setOpen(true)}

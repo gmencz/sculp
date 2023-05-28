@@ -207,9 +207,7 @@ function Layout({ children }: PropsWithChildren) {
             alt="The Hypertrophy Logbook"
           />
 
-          <span className="text-base font-medium text-zinc-950">
-            Sculp Beta
-          </span>
+          <span className="text-base font-bold text-zinc-950">Sculp Beta</span>
         </div>
 
         <a
