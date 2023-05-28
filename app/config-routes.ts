@@ -6,7 +6,6 @@ export const configRoutes = {
   auth: {
     signIn: `/?modal=sign_in`,
     requestAccess: `/?modal=request_access`,
-    forgotPassword: "/?modal=forgot_password",
   },
 
   mesocycles: {

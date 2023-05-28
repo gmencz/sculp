@@ -11,7 +11,6 @@ import { signInSchema } from "~/routes/sign-in";
 import { useModal } from "~/utils";
 import { Input } from "./input";
 import { SubmitButton } from "./submit-button";
-import { configRoutes } from "~/config-routes";
 
 export function SignInModal() {
   const { show, closeModal } = useModal("sign_in");
@@ -110,15 +109,7 @@ function SignInForm({ fetcher }: SignInFormProps) {
     >
       <div className="flex flex-col gap-6">
         <Input label="Email" config={email} type="email" />
-        <Input
-          label="Password"
-          config={password}
-          type="password"
-          linkAbove={{
-            text: "Forgot password?",
-            to: configRoutes.auth.forgotPassword,
-          }}
-        />
+        <Input label="Password" config={password} type="password" />
       </div>
 
       <div className="mt-6">

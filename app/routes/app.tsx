@@ -199,24 +199,24 @@ function Layout({ children }: PropsWithChildren) {
         </nav>
       </div>
 
-      <div className="flex items-center justify-between border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
-        <div className="flex items-center gap-4">
-          <img
-            className="h-8 w-auto"
-            src="/logo.png"
-            alt="The Hypertrophy Logbook"
-          />
+      <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img className="h-8 w-auto" src="/logo.png" alt="" />
 
-          <span className="text-base font-bold text-zinc-950">Sculp Beta</span>
+            <span className="text-base font-bold text-zinc-950">
+              Sculp Beta
+            </span>
+          </div>
+
+          <a
+            href="/app/profile"
+            className="flex items-center text-sm font-semibold leading-6 text-zinc-900 hover:bg-zinc-800"
+          >
+            <UserCircleIcon className="h-8 w-8 rounded-full" />
+            <span className="sr-only">Your Profile</span>
+          </a>
         </div>
-
-        <a
-          href="/app/profile"
-          className="flex items-center text-sm font-semibold leading-6 text-zinc-900 hover:bg-zinc-800"
-        >
-          <UserCircleIcon className="h-8 w-8 rounded-full" />
-          <span className="sr-only">Your Profile</span>
-        </a>
       </div>
 
       <main className="min-h-full bg-zinc-50 pb-16 lg:pb-0 lg:pl-72">

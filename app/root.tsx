@@ -25,7 +25,6 @@ import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
-import { ForgotPasswordModal } from "./components/forgot-password-modal";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -68,7 +67,6 @@ export default function App() {
           <>
             <RequestAccessModal />
             <SignInModal />
-            <ForgotPasswordModal />
           </>
         ) : null}
 

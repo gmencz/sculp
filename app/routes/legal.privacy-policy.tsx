@@ -77,7 +77,7 @@ export default function PrivacyPolicy() {
             <p>
               <strong>Company</strong> (referred to as either &quot;the
               Company&quot;, &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot;
-              in this Agreement) refers to The Hypertrophy Logbook.
+              in this Agreement) refers to Sculp App.
             </p>
           </li>
           <li>
@@ -130,15 +130,14 @@ export default function PrivacyPolicy() {
           </li>
           <li>
             <p>
-              <strong>Website</strong> refers to The Hypertrophy Logbook,
-              accessible from{" "}
+              <strong>Website</strong> refers to Sculp App, accessible from{" "}
               <a
                 className="text-orange-400 underline"
-                href="https://hypertrophylogbook.com"
+                href="https://sculpapp.com"
                 rel="noreferrer"
                 target="_blank"
               >
-                https://hypertrophylogbook.com
+                https://sculpapp.com
               </a>
             </p>
           </li>
@@ -576,9 +575,9 @@ export default function PrivacyPolicy() {
             By email:{" "}
             <a
               className="text-orange-400 underline"
-              href="mailto:info@hypertrophylogbook.com"
+              href="mailto:info@sculpapp.com"
             >
-              info@hypertrophylogbook.com
+              info@sculpapp.com
             </a>
           </li>
         </ul>

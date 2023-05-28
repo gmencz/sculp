@@ -24,15 +24,17 @@ export default function Index() {
       <div className="mx-auto flex h-full max-w-7xl flex-col px-6 py-10">
         <div className="mx-auto my-auto w-full max-w-2xl flex-shrink-0 pt-10">
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
-            Currently in private beta
+            Currently in beta
           </span>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-950 sm:text-6xl">
-            Smart hypertrophy app
+            Supercharge your hypertrophy training
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
-            Want to build muscle like a pro? Our evidence-based app provides
-            personalized recommendations and data-driven insights to help you
-            achieve your hypertrophy goals.
+            Unleash the muscle-building potential within you using our
+            groundbreaking app. Design customized mesocycles, keep a close eye
+            on your gains, and allow our biofeedback system to intelligently
+            optimize your training. Say goodbye to plateaus and hello to
+            extraordinary results.
           </p>
           <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             {user ? (
@@ -48,7 +50,7 @@ export default function Index() {
                   to={configRoutes.auth.requestAccess}
                   className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
                 >
-                  Request access
+                  Create account
                 </Link>
                 <Link
                   to={configRoutes.auth.signIn}
