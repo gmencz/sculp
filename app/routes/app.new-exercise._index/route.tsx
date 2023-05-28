@@ -66,7 +66,7 @@ export default function Exercise() {
   const muscleGroupsList = useFieldList(form.ref, muscleGroups);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <Heading>New exercise</Heading>
       <Paragraph>
         On this page you can create a new exercise which you will be able to add

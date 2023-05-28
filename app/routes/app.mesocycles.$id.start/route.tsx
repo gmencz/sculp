@@ -62,7 +62,7 @@ export default function StartMesocycle() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <div className="mb-2 flex items-end justify-between gap-2">
         <Heading>{mesocycle.name}</Heading>
         <Link

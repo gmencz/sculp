@@ -65,3 +65,17 @@ export async function verifyLogin(
 
   return userWithoutPassword;
 }
+
+export async function getUserDetails(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function deleteUser(userId: string) {
+  return prisma.user.delete({ where: { id: userId }, select: { id: true } });
+}
