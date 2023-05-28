@@ -121,7 +121,7 @@ export function TrainingDay({
         {readOnly ? null : (
           <Form
             method="post"
-            className="mt-6 px-4 pb-6 sm:px-6 sm:pb-10 lg:px-8"
+            className="mt-6 px-4 pb-12 sm:px-6 lg:px-8"
             {...form.props}
           >
             <div className="mx-auto w-full max-w-2xl">

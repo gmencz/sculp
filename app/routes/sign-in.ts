@@ -46,7 +46,6 @@ export async function action({ request }: ActionArgs) {
 
   return createUserSession({
     request,
-    remember: true,
     userId: user.id,
     redirectTo: "/app",
   });

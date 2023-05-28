@@ -29,7 +29,7 @@ import { ForgotPasswordModal } from "./components/forgot-password-modal";
 
 export const meta: V2_MetaFunction = () => [
   {
-    title: "The Hypertrophy Logbook",
+    title: "Sculp",
     charset: "utf-8",
   },
   {
@@ -38,7 +38,7 @@ export const meta: V2_MetaFunction = () => [
   },
   {
     name: "description",
-    content: "Smart hypertrophy logbook for maximum muscle growth.",
+    content: "Smart hypertrophy app for maximum muscle growth.",
   },
 ];
 

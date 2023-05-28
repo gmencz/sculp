@@ -79,6 +79,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   }
 
   const today = startOfToday();
+
   // The user starts the mesocycle some time in the future.
   if (isAfter(currentMesocycle.startDate, today)) {
     const daysDifference = differenceInDays(currentMesocycle.startDate, today);

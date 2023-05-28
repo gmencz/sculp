@@ -1,3 +1,3 @@
-# The Hypertrophy Logbook
+# Sculp
 
-Smart hypertrophy logbook for maximum muscle growth 💪
+Smart hypertrophy app for maximum muscle growth 💪
