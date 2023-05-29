@@ -4,8 +4,10 @@ export const configRoutes = {
   appRoot: "/app",
 
   auth: {
-    signIn: `/?modal=sign_in`,
-    requestAccess: `/?modal=request_access`,
+    signIn: `/auth/sign-in`,
+    getStarted: `/auth/get-started`,
+    forgotPassword: `/auth/forgot-password`,
+    stripeCheckout: `/auth/stripe-checkout?session_id={CHECKOUT_SESSION_ID}`,
   },
 
   mesocycles: {

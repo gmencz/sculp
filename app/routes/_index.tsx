@@ -47,10 +47,10 @@ export default function Index() {
             ) : (
               <>
                 <Link
-                  to={configRoutes.auth.requestAccess}
+                  to={configRoutes.auth.getStarted}
                   className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
                 >
-                  Create account
+                  Get started
                 </Link>
                 <Link
                   to={configRoutes.auth.signIn}

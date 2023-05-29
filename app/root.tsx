@@ -19,8 +19,6 @@ import {
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
 import { getUser } from "~/session.server";
 import { useOptionalUser } from "./utils";
-import { RequestAccessModal } from "./components/request-access-modal";
-import { SignInModal } from "./components/sign-in-modal";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
@@ -62,13 +60,6 @@ export default function App() {
       </head>
       <body className="h-full">
         <Outlet />
-
-        {!user ? (
-          <>
-            <RequestAccessModal />
-            <SignInModal />
-          </>
-        ) : null}
 
         <ScrollRestoration />
         <Scripts />

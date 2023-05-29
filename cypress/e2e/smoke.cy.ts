@@ -7,7 +7,7 @@ describe("smoke tests", () => {
     // todo
   });
 
-  it("should allow you to request access", () => {
+  it("should allow you to create an account", () => {
     // todo
   });
 });

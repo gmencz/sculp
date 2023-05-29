@@ -50,7 +50,7 @@ export async function requireUserId(
   const userId = await getUserId(request);
   if (!userId) {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/?${searchParams}&modal=sign-in`);
+    throw redirect(`/auth/sign-in?${searchParams}`);
   }
   return userId;
 }

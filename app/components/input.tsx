@@ -15,10 +15,6 @@ type InputProps = DetailedHTMLProps<
   helperText?: string;
   hideErrorMessage?: boolean;
   hideLabel?: boolean;
-  linkAbove?: {
-    to: string;
-    text: string;
-  };
 };
 
 export function Input({
@@ -29,32 +25,19 @@ export function Input({
   type,
   hideLabel,
   className,
-  linkAbove,
   ...props
 }: InputProps) {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between">
-        {hideLabel ? null : (
-          <label
-            htmlFor={config.id}
-            className="mb-1 block text-sm font-medium leading-6 text-zinc-900"
-          >
-            {label}
-          </label>
+      <label
+        htmlFor={config.id}
+        className={clsx(
+          "mb-1 block text-sm font-medium leading-6 text-zinc-900",
+          hideLabel && "sr-only"
         )}
-
-        {linkAbove ? (
-          <div className="mb-1 text-sm">
-            <Link
-              to={linkAbove.to}
-              className="font-semibold text-orange-600 hover:text-orange-500"
-            >
-              {linkAbove.text}
-            </Link>
-          </div>
-        ) : null}
-      </div>
+      >
+        {label}
+      </label>
 
       <div className="relative rounded-md">
         <input
@@ -65,13 +48,12 @@ export function Input({
               : "ring-zinc-300 focus:ring-orange-600",
             className
           )}
-          aria-label={hideLabel ? label : undefined}
           {...conform.input(config, { type: type || "text" })}
           {...props}
         />
 
         {config.error ? (
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center pr-3">
             <ExclamationCircleIcon
               className="h-5 w-5 text-red-500"
               aria-hidden="true"

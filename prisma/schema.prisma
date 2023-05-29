@@ -17,6 +17,8 @@ model User {
   mesocycles          Mesocycle[]    @relation("ExistingMesocycles")
   mesocyclesRuns      MesocycleRun[] @relation("MesocyclesRuns")
   currentMesocycleRun MesocycleRun?
+  subscription        Subscription?
+  stripeCustomerId    String?        @unique @map("stripe_customer_id")
 
   @@map("users")
 }
@@ -30,15 +32,19 @@ model Password {
   @@map("passwords")
 }
 
-model AccessRequest {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  approved       Boolean  @default(false)
-  currentLogbook String?  @map("current_logbook") // What the user is currently using as their logbook (Notes on their phone, some app like Strong, etc...)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+model Subscription {
+  id                 String  @id @unique // Managed by Stripe - (Subscription ID)
+  user               User    @relation(fields: [userId], references: [id])
+  userId             String  @unique
+  status             String
+  currentPeriodStart Int     @map("current_period_start")
+  currentPeriodEnd   Int     @map("current_period_end")
+  cancelAtPeriodEnd  Boolean @default(false) @map("cancel_at_period_end")
 
-  @@map("access_requests")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("subscriptions")
 }
 
 model Exercise {

@@ -211,7 +211,7 @@ function Layout({ children }: PropsWithChildren) {
 
           <a
             href="/app/profile"
-            className="flex items-center text-sm font-semibold leading-6 text-zinc-900 hover:bg-zinc-800"
+            className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900"
           >
             <UserCircleIcon className="h-8 w-8 rounded-full" />
             <span className="sr-only">Your Profile</span>

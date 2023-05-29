@@ -1,5 +1,6 @@
 import type { Password, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import type Stripe from "stripe";
 
 import { prisma } from "~/db.server";
 
@@ -10,7 +11,9 @@ export async function getUserById(id: User["id"]) {
 }
 
 export async function getUserByEmail(email: User["email"]) {
-  return prisma.user.findUnique({ where: { email } });
+  return prisma.user.findUnique({
+    where: { email },
+  });
 }
 
 export async function createUser(email: User["email"], password: string) {
@@ -78,4 +81,32 @@ export async function getUserDetails(userId: string) {
 
 export async function deleteUser(userId: string) {
   return prisma.user.delete({ where: { id: userId }, select: { id: true } });
+}
+
+export async function getUserByCustomerId(customerId: string) {
+  return prisma.user.findUnique({
+    where: { stripeCustomerId: customerId },
+    select: { id: true },
+  });
+}
+
+export async function createUserSubscription(
+  userId: string,
+  subscription: Stripe.Subscription
+) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      stripeCustomerId: { set: subscription.customer.toString() },
+      subscription: {
+        create: {
+          id: subscription.id,
+          status: subscription.status,
+          currentPeriodStart: subscription.current_period_start,
+          currentPeriodEnd: subscription.current_period_end,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        },
+      },
+    },
+  });
 }
