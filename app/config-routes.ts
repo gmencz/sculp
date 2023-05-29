@@ -7,7 +7,7 @@ export const configRoutes = {
     signIn: `/auth/sign-in`,
     getStarted: `/auth/get-started`,
     forgotPassword: `/auth/forgot-password`,
-    stripeCheckout: `/auth/stripe-checkout?session_id={CHECKOUT_SESSION_ID}`,
+    checkout: `/auth/checkout?session_id={CHECKOUT_SESSION_ID}`,
   },
 
   mesocycles: {

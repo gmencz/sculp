@@ -5,19 +5,24 @@ import { generateId } from "~/utils";
 
 export async function createStripeCheckoutSession(
   userId: string,
-  userEmail: string
+  userEmail: string,
+  cancelUrl: string,
+  customerId?: string
 ) {
+  // If a user has a customer id, it means that they've already been part of the free trial
+  // so they are not eligible for it again.
+  const isEligibleForFreeTrial = !customerId;
+
   const session = await stripe.checkout.sessions.create({
+    customer: customerId,
     billing_address_collection: "auto",
     line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
     customer_email: userEmail,
     mode: "subscription",
-    success_url: `${env.HOST_URL}${configRoutes.auth.stripeCheckout}`,
-    cancel_url: `${env.HOST_URL}${
-      configRoutes.auth.getStarted
-    }?canceled_id=${generateId()}`,
+    success_url: `${env.HOST_URL}${configRoutes.auth.checkout}`,
+    cancel_url: `${env.HOST_URL}${cancelUrl}`,
     subscription_data: {
-      trial_period_days: 30,
+      trial_period_days: isEligibleForFreeTrial ? 30 : undefined,
       metadata: {
         userId,
       },

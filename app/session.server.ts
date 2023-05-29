@@ -67,19 +67,13 @@ export async function requireUser(request: Request) {
 export async function createUserSession({
   request,
   userId,
-  redirectTo,
 }: {
   request: Request;
   userId: string;
-  redirectTo: string;
 }) {
   const session = await getSession(request);
   session.set(USER_SESSION_KEY, userId);
-  return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
-    },
-  });
+  return session;
 }
 
 export async function logout(request: Request) {

@@ -48,6 +48,7 @@ export async function verifyLogin(
     where: { email },
     include: {
       password: true,
+      subscription: true,
     },
   });
 
@@ -86,25 +87,11 @@ export async function deleteUser(userId: string) {
 export async function getUserByCustomerId(customerId: string) {
   return prisma.user.findUnique({
     where: { stripeCustomerId: customerId },
-    select: { id: true },
-  });
-}
-
-export async function createUserSubscription(
-  userId: string,
-  subscription: Stripe.Subscription
-) {
-  return prisma.user.update({
-    where: { id: userId },
-    data: {
-      stripeCustomerId: { set: subscription.customer.toString() },
+    select: {
+      id: true,
       subscription: {
-        create: {
-          id: subscription.id,
-          status: subscription.status,
-          currentPeriodStart: subscription.current_period_start,
-          currentPeriodEnd: subscription.current_period_end,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        select: {
+          status: true,
         },
       },
     },

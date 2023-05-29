@@ -15,7 +15,7 @@ import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/config-routes";
 import { createUser } from "~/models/user.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
-import { useAfterPaintEffect } from "~/utils";
+import { generateId, useAfterPaintEffect } from "~/utils";
 
 const schema = z
   .object({
@@ -59,7 +59,8 @@ export const action = async ({ request }: ActionArgs) => {
     const newUser = await createUser(email, password);
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
-      newUser.email
+      newUser.email,
+      configRoutes.auth.getStarted + `?canceled_id=${generateId()}`
     );
     return redirect(sessionUrl, { status: 303 });
   } catch (e) {
@@ -94,7 +95,7 @@ export default function GetStarted() {
           <ErrorToast
             t={t}
             title="Free trial canceled"
-            description="Your free trial registration has been canceled. If you have any questions or need assistance, please feel free to contact our support team."
+            description="Your free trial registration has been canceled."
           />
         ),
         { duration: 5000, position: "top-center", id: canceledId }

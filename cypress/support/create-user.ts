@@ -4,7 +4,7 @@
 // and it will log out the cookie value you can use to interact with the server
 // as that new user.
 
-import { installGlobals } from "@remix-run/node";
+import { installGlobals, redirect } from "@remix-run/node";
 import { parse } from "cookie";
 
 import { createUser } from "~/models/user.server";
@@ -22,11 +22,15 @@ async function createAndLogin(email: string) {
 
   const user = await createUser(email, "myreallystrongpassword");
 
-  const response = await createUserSession({
+  const userSession = await createUserSession({
     request: new Request("test://test"),
     userId: user.id,
-    remember: false,
-    redirectTo: "/",
+  });
+
+  const response = redirect("/", {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(userSession),
+    },
   });
 
   const cookieValue = response.headers.get("Set-Cookie");

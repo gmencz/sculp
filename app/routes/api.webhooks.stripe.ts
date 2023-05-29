@@ -1,8 +1,12 @@
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type Stripe from "stripe";
-import { prisma } from "~/db.server";
-import { createUserSubscription } from "~/models/user.server";
+import {
+  createSubscription,
+  deleteSubscriptionById,
+  updateSubscriptionByUserId,
+} from "~/models/subscription.server";
+import { getUserByCustomerId } from "~/models/user.server";
 import { stripe } from "~/services/stripe/config.server";
 import { env } from "~/utils/env";
 
@@ -34,21 +38,13 @@ export async function action({ request }: ActionArgs) {
 
   try {
     switch (event.type) {
-      // case "customer.subscription.trial_will_end":
-      //   subscription = event.data.object;
-      //   status = subscription.status;
-      //   console.log(`Subscription status is ${status}.`);
-      //   // Then define and call a method to handle the subscription trial ending.
-      //   // handleSubscriptionTrialEnding(subscription);
-      //   break;
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
 
-      // case "customer.subscription.deleted":
-      //   subscription = event.data.object;
-      //   status = subscription.status;
-      //   console.log(`Subscription status is ${status}.`);
-      //   // Then define and call a method to handle the subscription deleted.
-      //   // handleSubscriptionDeleted(subscriptionDeleted);
-      //   break;
+        await deleteSubscriptionById(subscription.id);
+
+        return json({}, { status: 200 });
+      }
 
       case "customer.subscription.created": {
         const subscription = event.data.object as Stripe.Subscription;
@@ -57,18 +53,29 @@ export async function action({ request }: ActionArgs) {
           throw new Error("Missing userId in metadata.");
         }
 
-        await createUserSubscription(userId, subscription);
+        await createSubscription(userId, subscription);
 
         return json({}, { status: 200 });
       }
 
-      // case "customer.subscription.updated":
-      //   subscription = event.data.object;
-      //   status = subscription.status;
-      //   console.log(`Subscription status is ${status}.`);
-      //   // Then define and call a method to handle the subscription update.
-      //   // handleSubscriptionUpdated(subscription);
-      //   break;
+      case "customer.subscription.trial_will_end":
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        const user = await getUserByCustomerId(
+          subscription.customer.toString()
+        );
+
+        if (!user) {
+          throw new Error(
+            `User with customer id ${subscription.customer} not found.`
+          );
+        }
+
+        await updateSubscriptionByUserId(user.id, subscription);
+
+        return json({}, { status: 200 });
+      }
     }
   } catch (err: unknown) {
     console.error(err);

@@ -1,17 +1,20 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { ErrorMessage } from "~/components/error-message";
+import { ErrorToast } from "~/components/error-toast";
 import { Input } from "~/components/input";
 import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/config-routes";
 import { verifyLogin } from "~/models/user.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
-import { createUserSession } from "~/session.server";
+import { createUserSession, sessionStorage } from "~/session.server";
+import { generateId, useAfterPaintEffect } from "~/utils";
 
 const schema = z.object({
   email: z
@@ -53,15 +56,26 @@ export async function action({ request }: ActionArgs) {
   }
 
   // If the user hasn't set up their subscription yet, redirect them to the stripe checkout page.
-  if (!user.stripeCustomerId) {
-    const sessionUrl = await createStripeCheckoutSession(user.id, user.email);
+  if (!user.subscription) {
+    const sessionUrl = await createStripeCheckoutSession(
+      user.id,
+      user.email,
+      configRoutes.auth.signIn + `?canceled_id=${generateId()}`,
+      user.stripeCustomerId ?? undefined
+    );
+
     return redirect(sessionUrl, { status: 303 });
   }
 
-  return createUserSession({
+  const userSession = await createUserSession({
     request,
     userId: user.id,
-    redirectTo: "/app",
+  });
+
+  return redirect(configRoutes.appRoot, {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(userSession),
+    },
   });
 }
 
@@ -74,6 +88,23 @@ export default function SignIn() {
       return parse(formData, { schema });
     },
   });
+
+  const [searchParams] = useSearchParams();
+  const canceledId = searchParams.get("canceled_id");
+  useAfterPaintEffect(() => {
+    if (canceledId) {
+      toast.custom(
+        (t) => (
+          <ErrorToast
+            t={t}
+            title="Free trial canceled"
+            description="Your free trial registration has been canceled."
+          />
+        ),
+        { duration: 5000, position: "top-center", id: canceledId }
+      );
+    }
+  }, [canceledId]);
 
   return (
     <div className="flex min-h-full flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
