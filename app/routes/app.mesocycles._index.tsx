@@ -26,7 +26,7 @@ export default function Mesocycles() {
 
   if (!mesocycles.length) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-4 py-6 text-center sm:px-6 lg:px-8 lg:py-10">
+      <div className="flex flex-col items-center justify-center px-4 py-32 text-center sm:px-6 lg:px-8 lg:py-10">
         <svg
           className="mx-auto h-12 w-12 text-zinc-400"
           fill="none"

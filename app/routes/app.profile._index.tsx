@@ -10,16 +10,21 @@ import { format } from "date-fns";
 import { Fragment, useRef, useState } from "react";
 import { deleteUser, getUserDetails } from "~/models/user.server";
 import { logout, requireUserId } from "~/session.server";
+import { env } from "~/utils/env";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const user = await getUserDetails(userId);
 
-  if (!user) {
+  if (!user || !user.subscription) {
     throw await logout(request);
   }
 
-  return json({ user });
+  const customerPortalLink =
+    env.STRIPE_CUSTOMER_PORTAL_LINK +
+    `?prefilled_email=${encodeURIComponent(user.email)}`;
+
+  return json({ user, customerPortalLink });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -33,7 +38,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function Profile() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, customerPortalLink } = useLoaderData<typeof loader>();
   const [open, setOpen] = useState(false);
   const cancelButtonRef = useRef(null);
 
@@ -46,7 +51,7 @@ export default function Profile() {
               Profile
             </h3>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
-              Your profile's details and account.
+              Your profile's details and subscription.
             </p>
           </div>
           <div className="mt-6 border-t border-zinc-200">
@@ -61,10 +66,43 @@ export default function Profile() {
               </div>
               <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
                 <dt className="text-sm font-medium leading-6 text-zinc-900">
+                  Subscription
+                </dt>
+                <dd className="mt-1 flex text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                  <div className="flex-grow">
+                    <p>
+                      <span className="font-medium">Status:</span>{" "}
+                      {user.subscription!.status}
+                    </p>
+                    <p>
+                      <span className="font-medium">
+                        {user.subscription!.status === "trialing"
+                          ? "Trial ends:"
+                          : "Current period ends:"}
+                      </span>{" "}
+                      {format(
+                        new Date(user.subscription!.currentPeriodEnd! * 1000),
+                        "MMMM' 'd' 'yyyy"
+                      )}
+                    </p>
+                  </div>
+
+                  <span className="ml-4 flex-shrink-0">
+                    <a
+                      href={customerPortalLink}
+                      className="rounded-md font-medium text-orange-600 hover:text-orange-500"
+                    >
+                      Manage
+                    </a>
+                  </span>
+                </dd>
+              </div>
+              <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="text-sm font-medium leading-6 text-zinc-900">
                   Joined
                 </dt>
                 <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                  {format(new Date(user.createdAt), "EEEE', 'MMMM' 'd' 'yyyy")}
+                  {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
                 </dd>
               </div>
             </dl>
@@ -73,7 +111,7 @@ export default function Profile() {
           <div className="flex items-center gap-4 border-t border-zinc-200 pt-6">
             <a
               href="/sign-out"
-              className="inline-flex gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              className="inline-flex gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
             >
               <ArrowLeftOnRectangleIcon
                 className="-ml-0.5 h-5 w-5"
@@ -95,7 +133,7 @@ export default function Profile() {
       <Transition.Root show={open} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-[60]"
           initialFocus={cancelButtonRef}
           onClose={setOpen}
         >
@@ -108,7 +146,7 @@ export default function Profile() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <div className="fixed inset-0 bg-zinc-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
           <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -133,12 +171,12 @@ export default function Profile() {
                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <Dialog.Title
                         as="h3"
-                        className="text-base font-semibold leading-6 text-gray-900"
+                        className="text-base font-semibold leading-6 text-zinc-900"
                       >
                         Delete account
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-zinc-500">
                           Are you sure you want to delete your account? All of
                           your data will be permanently removed from our servers
                           forever. This action cannot be undone.
@@ -158,7 +196,7 @@ export default function Profile() {
                     </Form>
                     <button
                       type="button"
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 sm:mt-0 sm:w-auto"
                       onClick={() => setOpen(false)}
                       ref={cancelButtonRef}
                     >

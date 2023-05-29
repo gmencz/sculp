@@ -6,6 +6,7 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string(),
   STRIPE_PRICE_ID: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
+  STRIPE_CUSTOMER_PORTAL_LINK: z.string(),
   HOST_URL: z.string(),
 });
 

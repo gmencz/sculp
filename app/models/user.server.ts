@@ -76,6 +76,12 @@ export async function getUserDetails(userId: string) {
     select: {
       email: true,
       createdAt: true,
+      subscription: {
+        select: {
+          status: true,
+          currentPeriodEnd: true,
+        },
+      },
     },
   });
 }

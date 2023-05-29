@@ -102,9 +102,9 @@ export default function NewMesocycle() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
       <Heading>Plan a new mesocycle</Heading>
-      <Paragraph>
+      <Paragraph className="mt-1">
         A mesocycle is a structured training plan designed to help you achieve
         maximum muscle growth. Here you can build your own to fit your
         preferences and needs.
@@ -128,7 +128,7 @@ export default function NewMesocycle() {
             config={durationInMicrocycles}
             options={durationInMicrocyclesArray}
             label="How many microcycles?"
-            helperText="This will determine how long your mesocycle will be, for example if you choose 4 microcycles and you train 4 days per microcycle and rest 3 days, the microcycle will last 28 days (4 weeks). This cannot be changed later."
+            helperText="This cannot be changed later."
           />
 
           <Select
@@ -160,7 +160,7 @@ export default function NewMesocycle() {
               );
             }}
             label="On which days of the microcycle will you train?"
-            helperText="For example if you want to train on Monday, Tuesday, Thursday and Friday, you would select 1, 2, 4 and 5. Please select a realistic number of days that you can commit to. More isn't better, better is better. This cannot be changed later."
+            helperText="Please select a realistic number of days that you can commit to. This cannot be changed later."
           />
 
           <Select
@@ -178,7 +178,7 @@ export default function NewMesocycle() {
                   : "Please select rest days",
             }}
             label="On which days of the microcycle will you rest?"
-            helperText="For example if you want to train on Monday, Tuesday, Thursday and Friday and rest on Wednesday, Saturday and Sunday, you would select 3, 6 and 7. Please select a realistic number of days that you can commit to. More isn't better, better is better. This cannot be changed later."
+            helperText="This cannot be changed later."
           />
 
           <Input

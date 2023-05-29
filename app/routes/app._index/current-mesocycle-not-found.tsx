@@ -15,7 +15,7 @@ export function CurrentMesocycleNotFound({
   data,
 }: CurrentMesocycleNotFoundProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-6 text-center lg:py-10">
+    <div className="flex flex-col items-center justify-center py-32 text-center lg:py-10">
       <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400" />
       <h3 className="mt-2 text-sm font-semibold text-zinc-900">Nothing here</h3>
       <p className="mt-1 text-sm text-zinc-500">
