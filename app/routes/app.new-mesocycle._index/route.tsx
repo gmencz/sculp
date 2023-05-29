@@ -1,6 +1,6 @@
 import { list, requestIntent, useFieldList, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
@@ -17,6 +17,8 @@ import type { Schema } from "./schema";
 import { durationInMicrocyclesArray } from "./schema";
 import { schema, trainingDaysPerMicrocycleArray } from "./schema";
 import { useState } from "react";
+import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
+import { configRoutes } from "~/config-routes";
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
@@ -103,13 +105,22 @@ export default function NewMesocycle() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
+      <div className="mb-4 sm:hidden">
+        <Link
+          to={configRoutes.mesocycles.list}
+          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
+        >
+          <ArrowLongLeftIcon className="h-6 w-6" />
+          <span>Go back</span>
+        </Link>
+      </div>
+
       <Heading>Plan a new mesocycle</Heading>
       <Paragraph className="mt-1">
         A mesocycle is a structured training plan designed to help you achieve
         maximum muscle growth. Here you can build your own to fit your
         preferences and needs.
       </Paragraph>
-
       <Form
         method="post"
         className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
