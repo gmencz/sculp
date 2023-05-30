@@ -3,11 +3,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
-import {
-  CalendarDaysIcon,
-  CheckIcon,
-  ChevronUpDownIcon,
-} from "@heroicons/react/20/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
@@ -94,20 +90,11 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function NewMesocycleDesign() {
   const { mesocycle, preset } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData();
-  const [firstError, setFirstError] = useState<string>();
+  const lastSubmission = useActionData<typeof action>();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "save-mesocycle",
     lastSubmission,
-    onValidate({ formData }) {
-      const result = parse(formData, { schema });
-      const errorKeys = Object.keys(result.error);
-      if (errorKeys.length) {
-        setFirstError(errorKeys[0]);
-      }
-
-      return result;
-    },
+    noValidate: true,
     defaultValue: {
       trainingDays: preset
         ? preset.trainingDays.map((trainingDay) => ({
@@ -155,19 +142,22 @@ export default function NewMesocycleDesign() {
 
   // Find the tab where the first error happened and focus it.
   useEffect(() => {
-    if (firstError) {
-      // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
-      // so we are getting the number inside the square brackets which will be the tab index.
-      const errorTabIndex = Number(
-        firstError.slice(firstError.indexOf("]") - 1)[0]
-      );
+    if (lastSubmission?.error) {
+      const errorKeys = Object.keys(lastSubmission.error);
+      if (errorKeys.length) {
+        // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
+        // so we are getting the number inside the square brackets which will be the tab index.
+        const errorTabIndex = Number(
+          errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
+        );
 
-      setSelectedTabIndex(errorTabIndex);
+        setSelectedTabIndex(errorTabIndex);
+      }
     }
-  }, [firstError]);
+  }, [lastSubmission?.error]);
 
   useAfterPaintEffect(() => {
-    if (firstError) {
+    if (lastSubmission?.error) {
       toast.custom(
         (t) => (
           <ErrorToast
@@ -179,7 +169,7 @@ export default function NewMesocycleDesign() {
         { duration: 5000, position: "top-center" }
       );
     }
-  }, [firstError]);
+  }, [lastSubmission?.error]);
 
   return (
     <Form

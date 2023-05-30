@@ -94,20 +94,11 @@ export const action = async ({ request, params }: ActionArgs) => {
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  const lastSubmission = useActionData();
-  const [firstError, setFirstError] = useState<string>();
+  const lastSubmission = useActionData<typeof action>();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
     lastSubmission,
-    onValidate({ formData }) {
-      const result = parse(formData, { schema });
-      const errorKeys = Object.keys(result.error);
-      if (errorKeys.length) {
-        setFirstError(errorKeys[0]);
-      }
-
-      return result;
-    },
+    noValidate: true,
     defaultValue: {
       trainingDays: mesocycle.trainingDays.map((trainingDay) => ({
         id: trainingDay.id,
@@ -165,19 +156,22 @@ export default function Mesocycle() {
 
   // Find the tab where the first error happened and focus it.
   useEffect(() => {
-    if (firstError) {
-      // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
-      // so we are getting the number inside the square brackets which will be the tab index.
-      const errorTabIndex = Number(
-        firstError.slice(firstError.indexOf("]") - 1)[0]
-      );
+    if (lastSubmission?.error) {
+      const errorKeys = Object.keys(lastSubmission.error);
+      if (errorKeys.length) {
+        // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
+        // so we are getting the number inside the square brackets which will be the tab index.
+        const errorTabIndex = Number(
+          errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
+        );
 
-      setSelectedTabIndex(errorTabIndex);
+        setSelectedTabIndex(errorTabIndex);
+      }
     }
-  }, [firstError]);
+  }, [lastSubmission?.error]);
 
   useAfterPaintEffect(() => {
-    if (firstError) {
+    if (lastSubmission?.error) {
       toast.custom(
         (t) => (
           <ErrorToast
@@ -189,7 +183,7 @@ export default function Mesocycle() {
         { duration: 5000, position: "top-center" }
       );
     }
-  }, [firstError]);
+  }, [lastSubmission?.error]);
 
   return (
     <Form
