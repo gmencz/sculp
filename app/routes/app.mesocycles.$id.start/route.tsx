@@ -129,7 +129,7 @@ type TrainingDayProps = {
         id: string;
         repRangeLowerBound: number;
         repRangeUpperBound: number;
-        weight: number;
+        weight: number | null;
         rir: number;
       }[];
     }[];

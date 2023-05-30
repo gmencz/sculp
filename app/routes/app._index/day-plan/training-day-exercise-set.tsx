@@ -9,7 +9,7 @@ export type Set = {
   isNew: boolean;
   number: number;
   id: string;
-  weight: number;
+  weight: number | null;
   rir: number;
   repRangeLowerBound: number;
   repRangeUpperBound: number;

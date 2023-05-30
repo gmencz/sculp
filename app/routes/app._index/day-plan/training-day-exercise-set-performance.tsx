@@ -32,8 +32,10 @@ export function TrainingDayExerciseSetPerformance({
     if (
       !previousRunSet ||
       !previousRunSet.repsCompleted ||
+      !previousRunSet.weight ||
       !set.repsCompleted ||
-      !set.completed
+      !set.completed ||
+      !set.weight
     ) {
       return "unknown";
     }
