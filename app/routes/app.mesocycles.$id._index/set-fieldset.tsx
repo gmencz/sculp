@@ -2,7 +2,6 @@ import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import { list } from "@conform-to/react";
 import { useFieldset } from "@conform-to/react";
-import { useEffect } from "react";
 import { useRef } from "react";
 import { Input } from "~/components/input";
 import { TrashIcon } from "@heroicons/react/20/solid";
@@ -16,7 +15,6 @@ type SetFieldsetProps = {
     Schema["trainingDays"][number]["exercises"][number]["sets"][number]
   >;
   setNumber: number;
-  openPanel: () => void;
   otherErrors: boolean;
 };
 
@@ -24,17 +22,10 @@ export function SetFieldset({
   setsConfig,
   config,
   setNumber,
-  openPanel,
   otherErrors,
 }: SetFieldsetProps) {
   const ref = useRef<HTMLFieldSetElement>(null);
   const { rir, weight, repRange, id } = useFieldset(ref, config);
-
-  useEffect(() => {
-    if (rir.error || weight.error || repRange.error || otherErrors) {
-      openPanel();
-    }
-  }, [openPanel, otherErrors, repRange.error, rir.error, weight.error]);
 
   return (
     <fieldset ref={ref} className="flex items-end gap-4">

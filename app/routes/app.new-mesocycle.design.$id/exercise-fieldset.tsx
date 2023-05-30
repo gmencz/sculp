@@ -12,7 +12,6 @@ import {
 } from "@heroicons/react/20/solid";
 import { SetFieldset } from "./set-fieldset";
 import { Textarea } from "~/components/textarea";
-import { useDisclosure } from "~/utils";
 import { ExercisesAutocomplete } from "~/components/exercises-autocomplete";
 import { useLoaderData } from "@remix-run/react";
 import type { Schema } from "./schema";
@@ -30,15 +29,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
   const { id, dayNumber, notes, sets } = useFieldset(ref, props.config);
   const setsList = useFieldList(props.formRef, sets);
   const disclosureButtonRef = useRef<HTMLButtonElement>(null);
-  const { openPanel } = useDisclosure(disclosureButtonRef);
-  const { exercises, preset } = useLoaderData<typeof loader>();
-  const fromPreset = Boolean(
-    preset?.trainingDays.some((trainingDay) =>
-      trainingDay.exercises.some(
-        (exercise) => exercise.exerciseId === id.defaultValue
-      )
-    )
-  );
+  const { exercises } = useLoaderData<typeof loader>();
 
   return (
     <fieldset className="relative" ref={ref}>
@@ -59,7 +50,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
         fieldConfig={id}
       />
 
-      <Disclosure defaultOpen={!fromPreset}>
+      <Disclosure defaultOpen>
         <Disclosure.Button
           ref={disclosureButtonRef}
           className="mb-3 mt-4 flex w-full items-center justify-center rounded bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -91,10 +82,8 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
             {setsList.map((set, index) => (
               <li key={set.key}>
                 <SetFieldset
-                  openPanel={openPanel}
                   setsConfig={sets}
                   config={set}
-                  otherErrors={Boolean(notes.error)}
                   setNumber={index + 1}
                 />
               </li>

@@ -110,18 +110,6 @@ export function useSearchParamRef(param: string) {
   return ref;
 }
 
-export function useDisclosure(buttonRef: RefObject<HTMLButtonElement>) {
-  const openPanel = useCallback(() => {
-    if (!buttonRef.current) return;
-
-    if (buttonRef.current?.dataset.headlessuiState !== "open") {
-      buttonRef.current?.click();
-    }
-  }, [buttonRef]);
-
-  return { openPanel };
-}
-
 export function getRepRangeBounds(repRange: string) {
   // The rep range will have the format:
   // "x-y" or for example "5-8" so we need to extract the bounds.

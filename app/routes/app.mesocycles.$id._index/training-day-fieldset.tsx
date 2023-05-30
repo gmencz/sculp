@@ -18,7 +18,7 @@ type TrainingDayFieldsetProps = {
 
 export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
   const ref = useRef<HTMLFieldSetElement>(null);
-  const { id, label, exercises } = useFieldset(ref, props.config);
+  const { id, label, dayNumber, exercises } = useFieldset(ref, props.config);
   const exercisesList = useFieldList(props.formRef, exercises);
 
   return (
@@ -30,6 +30,7 @@ export function TrainingDayFieldset(props: TrainingDayFieldsetProps) {
       </div>
 
       <div className="px-4 py-5 sm:px-6">
+        <input {...conform.input(dayNumber, { hidden: true })} />
         <input {...conform.input(id, { hidden: true })} />
 
         <Input label="Label" config={label} placeholder="Push A, Upper A..." />

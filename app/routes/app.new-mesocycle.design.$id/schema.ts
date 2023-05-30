@@ -30,9 +30,7 @@ export const schema = z.object({
                     .number({
                       invalid_type_error: "The weight is not valid.",
                     })
-                    .min(1, `The weight must be greater than 0.`)
-                    .max(10000, `The weight can't be greater than 10000.`)
-                    .optional(),
+                    .max(10000, `The weight can't be greater than 10000.`),
 
                   repRange: z
                     .string({
@@ -68,7 +66,7 @@ export const schema = z.object({
                 required_error: "The day number is required.",
               })
               .min(1, `The day number must be at least 1.`)
-              .max(10, `The day number can't be greater than 6.`),
+              .max(10, `The day number can't be greater than 10.`),
           }),
           {
             required_error: "You must add at least 1 exercise.",
@@ -76,7 +74,7 @@ export const schema = z.object({
         )
         .min(1, "You must add at least 1 exercise.")
         .max(
-          8,
+          7,
           "You can't add more than 7 exercises on a given day, this is to prevent junk volume."
         ),
 
@@ -86,7 +84,7 @@ export const schema = z.object({
           required_error: "The day number is required.",
         })
         .min(1, `The day number must be at least 1.`)
-        .max(10, `The day number can't be greater than 6.`),
+        .max(10, `The day number can't be greater than 10.`),
     })
   ),
 });

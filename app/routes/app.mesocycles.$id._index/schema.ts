@@ -20,6 +20,14 @@ export const schema = z.object({
         .min(1, "The label is required.")
         .max(50, "The label must be at most 50 characters long."),
 
+      dayNumber: z.coerce
+        .number({
+          invalid_type_error: "The day number is not valid.",
+          required_error: "The day number is required.",
+        })
+        .min(1, `The day number must be at least 1.`)
+        .max(10, `The day number can't be greater than 10.`),
+
       exercises: z
         .array(
           z.object({
@@ -53,7 +61,6 @@ export const schema = z.object({
                       invalid_type_error: "The weight is not valid.",
                       required_error: "The weight is required.",
                     })
-                    .min(1, `The weight must be greater than 0.`)
                     .max(10000, `The weight can't be greater than 10000.`),
 
                   repRange: z

@@ -88,7 +88,7 @@ model Mesocycle {
   name         String
   microcycles  Int
   restDays     Int[]                  @map("rest_days")
-  goal         String?
+  goal         String
   createdAt    DateTime               @default(now()) @map("created_at")
   updatedAt    DateTime               @updatedAt @map("updated_at")
   trainingDays MesocycleTrainingDay[]

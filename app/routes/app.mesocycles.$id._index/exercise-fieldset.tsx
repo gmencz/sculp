@@ -12,7 +12,6 @@ import {
 } from "@heroicons/react/20/solid";
 import { SetFieldset } from "./set-fieldset";
 import { Textarea } from "~/components/textarea";
-import { useDisclosure } from "~/utils";
 import { ExercisesAutocomplete } from "~/components/exercises-autocomplete";
 import { useLoaderData } from "@remix-run/react";
 import type { Schema } from "./schema";
@@ -33,12 +32,19 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
   );
   const setsList = useFieldList(props.formRef, sets);
   const disclosureButtonRef = useRef<HTMLButtonElement>(null);
-  const { openPanel } = useDisclosure(disclosureButtonRef);
   const { exercises } = useLoaderData<typeof loader>();
 
   return (
-    <fieldset ref={ref}>
+    <fieldset className="relative" ref={ref}>
       <input {...conform.input(id, { hidden: true })} />
+
+      <button
+        className="absolute -top-1 right-0 flex items-center justify-center rounded-md border-0 bg-red-50 p-1 text-sm font-medium text-red-700 ring-1 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
+        {...list.remove(props.exercisesConfig.name, { index: props.index })}
+      >
+        <TrashIcon className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">Delete exercise</span>
+      </button>
 
       <ExercisesAutocomplete
         exercises={exercises}
@@ -79,7 +85,6 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
             {setsList.map((set, index) => (
               <li key={set.key}>
                 <SetFieldset
-                  openPanel={openPanel}
                   setsConfig={sets}
                   config={set}
                   otherErrors={Boolean(notes.error)}
@@ -121,14 +126,6 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
           </div>
         </Disclosure.Panel>
       </Disclosure>
-
-      <button
-        className="flex w-full items-center justify-center rounded-md border-0 bg-red-50 px-4 py-1.5 text-sm font-medium text-red-700 ring-1 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
-        {...list.remove(props.exercisesConfig.name, { index: props.index })}
-      >
-        <TrashIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
-        Delete exercise
-      </button>
     </fieldset>
   );
 }

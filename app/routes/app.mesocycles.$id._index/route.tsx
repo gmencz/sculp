@@ -1,3 +1,4 @@
+import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import {
   Form,
@@ -16,8 +17,8 @@ import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
 import {
   ArrowLongLeftIcon,
-  CalendarDaysIcon,
-  CalendarIcon,
+  CheckIcon,
+  ChevronUpDownIcon,
 } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
@@ -31,6 +32,11 @@ import { SuccessToast } from "~/components/success-toast";
 import { useAfterPaintEffect } from "~/utils";
 import { getExercisesForAutocomplete } from "~/models/exercise.server";
 import { configRoutes } from "~/config-routes";
+import { MesocycleOverview } from "~/components/mesocycle-overview";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { ErrorToast } from "~/components/error-toast";
+import { Listbox, Tab, Transition } from "@headlessui/react";
+import clsx from "clsx";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -89,17 +95,24 @@ export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const lastSubmission = useActionData();
+  const [firstError, setFirstError] = useState<string>();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
     lastSubmission,
-    noValidate: true,
     onValidate({ formData }) {
-      return parse(formData, { schema });
+      const result = parse(formData, { schema });
+      const errorKeys = Object.keys(result.error);
+      if (errorKeys.length) {
+        setFirstError(errorKeys[0]);
+      }
+
+      return result;
     },
     defaultValue: {
       trainingDays: mesocycle.trainingDays.map((trainingDay) => ({
         id: trainingDay.id,
         label: trainingDay.label,
+        dayNumber: trainingDay.number.toString(),
         exercises: trainingDay.exercises.map((exercise) => ({
           id: exercise.id,
           searchedExerciseId: exercise.exercise.id,
@@ -127,10 +140,56 @@ export default function Mesocycle() {
             description="Your changes have been saved."
           />
         ),
-        { duration: 3000, position: "bottom-center", id: successId }
+        { duration: 3000, position: "top-center", id: successId }
       );
     }
   }, [successId]);
+
+  const allDays = useMemo(
+    () =>
+      [...trainingDaysList, ...mesocycle.restDays].sort((dayA, dayB) => {
+        let numberA =
+          typeof dayA === "number"
+            ? dayA
+            : Number(dayA.defaultValue?.dayNumber);
+        let numberB =
+          typeof dayB === "number"
+            ? dayB
+            : Number(dayB.defaultValue?.dayNumber);
+        return numberA - numberB;
+      }),
+    [mesocycle.restDays, trainingDaysList]
+  );
+
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
+  // Find the tab where the first error happened and focus it.
+  useEffect(() => {
+    if (firstError) {
+      // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
+      // so we are getting the number inside the square brackets which will be the tab index.
+      const errorTabIndex = Number(
+        firstError.slice(firstError.indexOf("]") - 1)[0]
+      );
+
+      setSelectedTabIndex(errorTabIndex);
+    }
+  }, [firstError]);
+
+  useAfterPaintEffect(() => {
+    if (firstError) {
+      toast.custom(
+        (t) => (
+          <ErrorToast
+            t={t}
+            title="Error"
+            description="There was a problem with your form submission. Please review the days to make sure there are no errors."
+          />
+        ),
+        { duration: 5000, position: "top-center" }
+      );
+    }
+  }, [firstError]);
 
   return (
     <Form
@@ -138,77 +197,239 @@ export default function Mesocycle() {
       className="flex min-h-full flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
       {...form.props}
     >
-      <div className="flex min-w-0 flex-col gap-4 sm:flex-row">
-        <Link
-          to={configRoutes.mesocycles.list}
-          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600 sm:hidden"
-        >
-          <ArrowLongLeftIcon className="h-6 w-6" />
-          <span>Go back</span>
-        </Link>
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:gap-0">
+          <Link
+            to={configRoutes.mesocycles.list}
+            className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600 sm:hidden"
+          >
+            <ArrowLongLeftIcon className="h-6 w-6" />
+            <span>Go back</span>
+          </Link>
 
-        <div>
-          <Heading>{mesocycle.name}</Heading>
+          <div>
+            <Heading>{mesocycle.name}</Heading>
 
-          <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
-            <div className="mt-2 flex items-center text-sm text-zinc-500">
-              <CalendarDaysIcon
-                className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
-                aria-hidden="true"
-              />
-              {mesocycle.microcycles}{" "}
-              {mesocycle.microcycles === 1 ? "microcycle" : "microcycles"}
-            </div>
-            <div className="mt-2 flex items-center text-sm text-zinc-500">
-              <CalendarIcon
-                className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
-                aria-hidden="true"
-              />
-              {mesocycle.trainingDays.length} training{" "}
-              {mesocycle.trainingDays.length === 1 ? "day" : "days"} per
-              microcycle
-            </div>
-            <div className="mt-2 flex items-center text-sm text-zinc-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
-                fill="currentColor"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <path d="M6 12c0 2.206 1.794 4 4 4 1.761 0 3.242-1.151 3.775-2.734l2.224-1.291.001.025c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6c1.084 0 2.098.292 2.975.794l-2.21 1.283c-.248-.048-.503-.077-.765-.077-2.206 0-4 1.794-4 4zm4-2c-1.105 0-2 .896-2 2s.895 2 2 2 2-.896 2-2l-.002-.015 3.36-1.95c.976-.565 2.704-.336 3.711.159l4.931-2.863-3.158-1.569.169-3.632-4.945 2.87c-.07 1.121-.734 2.736-1.705 3.301l-3.383 1.964c-.29-.163-.621-.265-.978-.265zm7.995 1.911l.005.089c0 4.411-3.589 8-8 8s-8-3.589-8-8 3.589-8 8-8c1.475 0 2.853.408 4.041 1.107.334-.586.428-1.544.146-2.18-1.275-.589-2.69-.927-4.187-.927-5.523 0-10 4.477-10 10s4.477 10 10 10c5.233 0 9.521-4.021 9.957-9.142-.301-.483-1.066-1.061-1.962-.947z" />
-              </svg>
-              {mesocycle.goal}
-            </div>
+            <MesocycleOverview
+              goal={mesocycle.goal}
+              microcycles={mesocycle.microcycles}
+              restDays={mesocycle.restDays.length}
+              trainingDays={mesocycle.trainingDays.length}
+            />
+
+            {lastSubmission?.error.form ? (
+              <div className="mt-5">
+                <ErrorMessage>{lastSubmission?.error.form}</ErrorMessage>
+              </div>
+            ) : null}
           </div>
 
-          {lastSubmission?.error.form ? (
-            <div className="mt-5">
-              <ErrorMessage>{lastSubmission?.error.form}</ErrorMessage>
-            </div>
-          ) : null}
+          <div className="mt-4 sm:ml-auto sm:mt-0">
+            <SubmitButton className="whitespace-nowrap" text="Save changes" />
+          </div>
         </div>
 
-        <div className="mt-4 sm:ml-auto sm:mt-0">
-          <SubmitButton className="whitespace-nowrap" text="Save changes" />
+        {/* Days tabs */}
+        <div className="mt-4">
+          <div className="block sm:hidden">
+            <SmTabsSelect
+              allDays={allDays}
+              selectedTabIndex={selectedTabIndex}
+              setSelectedTabIndex={setSelectedTabIndex}
+            />
+          </div>
+
+          <Tab.Group
+            selectedIndex={selectedTabIndex}
+            onChange={setSelectedTabIndex}
+          >
+            <Tab.List className="hidden gap-8 border-b border-zinc-200 sm:flex">
+              {allDays.map((day) =>
+                typeof day === "number" ? (
+                  <Tab
+                    key={`desktop-tab-${day}`}
+                    className={({ selected }) =>
+                      clsx(
+                        selected
+                          ? "border-orange-500 text-orange-600"
+                          : "border-transparent text-zinc-500 hover:border-zinc-200 hover:text-zinc-700",
+
+                        "flex whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                      )
+                    }
+                  >
+                    <span className="hidden lg:inline">Day {day}</span>
+                    <span className="lg:hidden">D{day}</span>
+                  </Tab>
+                ) : (
+                  <Tab
+                    key={`desktop-tab-${day.defaultValue?.dayNumber}`}
+                    className={({ selected }) =>
+                      clsx(
+                        selected
+                          ? "border-orange-500 text-orange-600"
+                          : "border-transparent text-zinc-500 hover:border-zinc-200 hover:text-zinc-700",
+
+                        "flex whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                      )
+                    }
+                  >
+                    <span className="hidden lg:inline">
+                      Day {day.defaultValue?.dayNumber}
+                    </span>
+                    <span className="lg:hidden">
+                      D{day.defaultValue?.dayNumber}
+                    </span>
+                  </Tab>
+                )
+              )}
+            </Tab.List>
+
+            <Tab.Panels className="mt-4 pb-8 lg:pb-0">
+              {allDays.map((day) =>
+                typeof day === "number" ? (
+                  <Tab.Panel
+                    key={`desktop-tab-panel-n${day}`}
+                    className="rounded border border-zinc-200 bg-white"
+                  >
+                    <div className="px-4 py-5 sm:px-6">
+                      <p className="text-base font-semibold leading-6 text-zinc-900">
+                        Day {day} - Rest
+                      </p>
+                    </div>
+                  </Tab.Panel>
+                ) : (
+                  <Tab.Panel
+                    unmount={false}
+                    key={`desktop-tab-panel-${day.key}`}
+                    className="rounded border border-zinc-200 bg-white"
+                  >
+                    <TrainingDayFieldset
+                      formRef={form.ref}
+                      dayNumber={Number(day.defaultValue?.dayNumber)}
+                      config={day}
+                    />
+                  </Tab.Panel>
+                )
+              )}
+            </Tab.Panels>
+          </Tab.Group>
         </div>
       </div>
-
-      <ol className="training-days-container mt-6 gap-6 pb-8">
-        {trainingDaysList.map((trainingDay, index) => (
-          <li
-            className="rounded border border-zinc-200 bg-white"
-            key={trainingDay.key}
-          >
-            <TrainingDayFieldset
-              formRef={form.ref}
-              dayNumber={index + 1}
-              config={trainingDay}
-            />
-          </li>
-        ))}
-      </ol>
     </Form>
+  );
+}
+
+type SmTabsSelectProps = {
+  selectedTabIndex: number;
+  setSelectedTabIndex: React.Dispatch<React.SetStateAction<number>>;
+  allDays: (
+    | number
+    | ({
+        key: string;
+      } & FieldConfig<{
+        id: string;
+        label: string;
+        exercises: {
+          id: string | null;
+          sets: {
+            id: string | null;
+            weight: number;
+            rir: number;
+            repRange: string;
+          }[];
+          searchedExerciseId: string;
+          notes?: string | undefined;
+        }[];
+        dayNumber: number;
+      }>)
+  )[];
+};
+
+function SmTabsSelect({
+  selectedTabIndex,
+  setSelectedTabIndex,
+  allDays,
+}: SmTabsSelectProps) {
+  const selectedDay = allDays[selectedTabIndex];
+
+  return (
+    <Listbox value={selectedTabIndex} onChange={setSelectedTabIndex}>
+      {({ open }) => (
+        <>
+          <Listbox.Label className="block text-sm font-medium leading-6 text-zinc-900">
+            Viewing day
+          </Listbox.Label>
+          <div className="relative mt-2">
+            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-orange-600 sm:text-sm sm:leading-6">
+              <span className="block truncate">
+                {typeof selectedDay === "number"
+                  ? selectedDay
+                  : selectedDay.defaultValue?.dayNumber}
+              </span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon
+                  className="h-5 w-5 text-zinc-400"
+                  aria-hidden="true"
+                />
+              </span>
+            </Listbox.Button>
+
+            <Transition
+              show={open}
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                {allDays.map((day, index) => (
+                  <Listbox.Option
+                    key={
+                      typeof day === "number"
+                        ? day.toString()
+                        : day.defaultValue?.dayNumber
+                    }
+                    className={({ active }) =>
+                      clsx(
+                        active ? "bg-orange-600 text-white" : "text-zinc-900",
+                        "relative cursor-default select-none py-2 pl-3 pr-9"
+                      )
+                    }
+                    value={index}
+                  >
+                    {({ selected, active }) => (
+                      <>
+                        <span
+                          className={clsx(
+                            selected ? "font-semibold" : "font-normal",
+                            "block truncate"
+                          )}
+                        >
+                          {typeof day === "number"
+                            ? day.toString()
+                            : day.defaultValue?.dayNumber}
+                        </span>
+
+                        {selected ? (
+                          <span
+                            className={clsx(
+                              active ? "text-white" : "text-orange-600",
+                              "absolute inset-y-0 right-0 flex items-center pr-4"
+                            )}
+                          >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                        ) : null}
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </>
+      )}
+    </Listbox>
   );
 }
