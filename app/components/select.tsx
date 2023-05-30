@@ -20,6 +20,7 @@ type SelectProps = {
   disabled?: boolean;
   capitalizeOptions?: boolean;
   onChange?: (value: any) => void;
+  controlledValue?: string | number;
   multipleOptions?: {
     formRef: RefObject<HTMLFormElement>;
     min: number;
@@ -39,12 +40,20 @@ function SelectSingleOption({
   options,
   onChange,
   disabled,
+  controlledValue,
 }: Omit<SelectProps, "multipleOptions">) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [value, setValue] = useState(config.defaultValue ?? "");
+
   const [ref, control] = useInputEvent({
     onReset: () => setValue(config.defaultValue ?? ""),
   });
+
+  useEffect(() => {
+    if (controlledValue) {
+      control.change({ target: { value: controlledValue.toString() } });
+    }
+  }, [control, controlledValue]);
 
   return (
     <div>

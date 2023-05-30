@@ -29,10 +29,10 @@ export const schema = z.object({
                   weight: z.coerce
                     .number({
                       invalid_type_error: "The weight is not valid.",
-                      required_error: "The weight is required.",
                     })
                     .min(1, `The weight must be greater than 0.`)
-                    .max(10000, `The weight can't be greater than 10000.`),
+                    .max(10000, `The weight can't be greater than 10000.`)
+                    .optional(),
 
                   repRange: z
                     .string({

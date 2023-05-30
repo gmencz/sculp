@@ -13,6 +13,10 @@ export const schema = z.object({
     .min(1, "The name is required.")
     .max(1024, "The name must be at most 1024 characters long."),
 
+  presetName: z
+    .string({ invalid_type_error: "The preset name is not valid." })
+    .optional(),
+
   durationInMicrocycles: z.coerce
     .number({
       invalid_type_error: "The selected microcycles are not valid.",

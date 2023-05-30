@@ -1,5 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { pushPullLegs3on1off, pushPullLegs6on1off } from "./mesocycle-presets";
+import {
+  adductors,
+  back,
+  biceps,
+  calves,
+  chest,
+  glutes,
+  hamstrings,
+  quads,
+  shoulders,
+  triceps,
+} from "./exercises";
 
 const prisma = new PrismaClient();
 
@@ -28,12 +41,10 @@ async function seed() {
     data: {
       name: "Chest",
       exercises: {
-        create: [
-          { userId: user.id, name: "Decline Chest Press Machine" },
-          { userId: user.id, name: "Incline Chest Press Machine" },
-          { userId: user.id, name: "Chest Fly Machine" },
-          { userId: user.id, name: "Cable Fly" },
-        ],
+        create: Object.values(chest).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -42,12 +53,10 @@ async function seed() {
     data: {
       name: "Shoulders",
       exercises: {
-        create: [
-          { userId: user.id, name: "Shoulder Press Machine" },
-          { userId: user.id, name: "Smith Machine Shoulder Press" },
-          { userId: user.id, name: "Lateral Raise Machine" },
-          { userId: user.id, name: "Cable Lateral Raise" },
-        ],
+        create: Object.values(shoulders).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -56,11 +65,10 @@ async function seed() {
     data: {
       name: "Triceps",
       exercises: {
-        create: [
-          { userId: user.id, name: "Cable Triceps Pushdown" },
-          { userId: user.id, name: "Cable Triceps Overhead Extension" },
-          { userId: user.id, name: "Reverse Fly Machine" },
-        ],
+        create: Object.values(triceps).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -69,11 +77,10 @@ async function seed() {
     data: {
       name: "Back",
       exercises: {
-        create: [
-          { userId: user.id, name: "Lat Pulldown" },
-          { userId: user.id, name: "Seated Cable Row" },
-          { userId: user.id, name: "T Bar Row" },
-        ],
+        create: Object.values(back).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -82,10 +89,10 @@ async function seed() {
     data: {
       name: "Biceps",
       exercises: {
-        create: [
-          { userId: user.id, name: "Cable Curl" },
-          { userId: user.id, name: "Dumbbell Hammer Curl" },
-        ],
+        create: Object.values(biceps).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -94,10 +101,10 @@ async function seed() {
     data: {
       name: "Quads",
       exercises: {
-        create: [
-          { userId: user.id, name: "Leg Extensions" },
-          { userId: user.id, name: "Hack Squat" },
-        ],
+        create: Object.values(quads).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -106,7 +113,10 @@ async function seed() {
     data: {
       name: "Calves",
       exercises: {
-        create: [{ userId: user.id, name: "Calf Raise" }],
+        create: Object.values(calves).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -115,7 +125,22 @@ async function seed() {
     data: {
       name: "Hamstrings",
       exercises: {
-        create: [{ userId: user.id, name: "SLDL" }],
+        create: Object.values(hamstrings).map((name) => ({
+          userId: user.id,
+          name,
+        })),
+      },
+    },
+  });
+
+  await prisma.muscleGroup.create({
+    data: {
+      name: "Adductors",
+      exercises: {
+        create: Object.values(adductors).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
@@ -124,10 +149,54 @@ async function seed() {
     data: {
       name: "Glutes",
       exercises: {
-        create: [{ userId: user.id, name: "Hip Thrust" }],
+        create: Object.values(glutes).map((name) => ({
+          userId: user.id,
+          name,
+        })),
       },
     },
   });
+
+  const presetMesocycleTemplates = [pushPullLegs3on1off, pushPullLegs6on1off];
+  await Promise.all(
+    presetMesocycleTemplates.map(async (template) => {
+      return prisma.mesocyclePreset.create({
+        data: {
+          name: template.name,
+          microcycles: template.microcycles,
+          restDays: { set: template.restDays },
+          trainingDays: {
+            create: template.trainingDays.map((trainingDay) => ({
+              label: trainingDay.label,
+              number: trainingDay.number,
+              exercises: {
+                create: trainingDay.exercises.map((exercise, index) => ({
+                  number: index + 1,
+                  notes: exercise.notes,
+                  exercise: {
+                    connect: {
+                      name_userId: {
+                        name: exercise.name,
+                        userId: user.id,
+                      },
+                    },
+                  },
+                  sets: {
+                    create: exercise.sets.map((set, index) => ({
+                      number: index + 1,
+                      rir: set.rir,
+                      repRangeLowerBound: set.repRangeLowerBound,
+                      repRangeUpperBound: set.repRangeUpperBound,
+                    })),
+                  },
+                })),
+              },
+            })),
+          },
+        },
+      });
+    })
+  );
 
   console.log(`Database has been seeded. 🌱`);
 }

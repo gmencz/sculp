@@ -11,8 +11,9 @@ export type DraftMesocycle = {
   name: string;
   goal: string;
   durationInMicrocycles: number;
-  trainingDaysPerMicrocycle: number[];
   restDaysPerMicrocycle: number[];
+  trainingDaysPerMicrocycle: number[];
+  presetName?: string;
 };
 
 const getDraftMesocycleSessionKey = (id: string) => `draft-mesocycle-${id}`;
@@ -60,7 +61,7 @@ type CreateMesocycleInput = {
     exercises: {
       id: string;
       sets: {
-        weight: number;
+        weight?: number;
         rir: number;
         repRange: string;
       }[];
@@ -573,4 +574,57 @@ export async function stopMesocycle(userId: string, id: string) {
   });
 
   return redirect(configRoutes.mesocycles.list);
+}
+
+export function getMesocyclesPresets() {
+  return prisma.mesocyclePreset.findMany({
+    select: {
+      name: true,
+      microcycles: true,
+      restDays: true,
+      trainingDays: {
+        select: {
+          number: true,
+        },
+      },
+    },
+  });
+}
+
+export function getMesocyclePresetByName(name: string) {
+  return prisma.mesocyclePreset.findUnique({
+    where: { name },
+    select: {
+      trainingDays: {
+        orderBy: {
+          number: "asc",
+        },
+        select: {
+          number: true,
+          label: true,
+          exercises: {
+            orderBy: {
+              number: "asc",
+            },
+            select: {
+              number: true,
+              exerciseId: true,
+              notes: true,
+              sets: {
+                orderBy: {
+                  number: "asc",
+                },
+                select: {
+                  rir: true,
+                  weight: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 }

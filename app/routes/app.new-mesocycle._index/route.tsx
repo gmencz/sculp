@@ -1,28 +1,30 @@
-import { list, requestIntent, useFieldList, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
-import { Input } from "~/components/input";
-import { Select } from "~/components/select";
-import { SubmitButton } from "~/components/submit-button";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import {
   createDraftMesocycle,
   findMesocycleByNameUserId,
+  getMesocyclePresetByName,
+  getMesocyclesPresets,
 } from "~/models/mesocycle.server";
-import type { Schema } from "./schema";
-import { durationInMicrocyclesArray } from "./schema";
-import { schema, trainingDaysPerMicrocycleArray } from "./schema";
-import { useState } from "react";
+import { schema } from "./schema";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 import { configRoutes } from "~/config-routes";
+import { Tab } from "@headlessui/react";
+import { CustomMesocycle } from "./custom";
+import { PresetMesocycle } from "./preset";
+import clsx from "clsx";
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
-  return null;
+
+  const mesocyclesPresets = await getMesocyclesPresets();
+
+  return json({ mesocyclesPresets });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -40,6 +42,7 @@ export const action = async ({ request }: ActionArgs) => {
     goal,
     name,
     trainingDaysPerMicrocycle,
+    presetName,
   } = submission.value;
 
   const existingMesocycle = await findMesocycleByNameUserId(name, user.id);
@@ -47,6 +50,27 @@ export const action = async ({ request }: ActionArgs) => {
   if (existingMesocycle) {
     submission.error["name"] = "A mesocycle with that name already exists.";
     return json(submission, { status: 400 });
+  }
+
+  // Use preset.
+  if (presetName) {
+    const preset = await getMesocyclePresetByName(presetName);
+    if (!preset) {
+      throw new Error(
+        `Preset not found with name ${presetName}. This shouldn't happen`
+      );
+    }
+
+    return createDraftMesocycle(request, {
+      durationInMicrocycles,
+      goal,
+      name,
+      trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort(
+        (a, b) => a - b
+      ),
+      restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
+      presetName,
+    });
   }
 
   const invalidRestDays = restDaysPerMicrocycle.some((restDay) =>
@@ -63,145 +87,73 @@ export const action = async ({ request }: ActionArgs) => {
     durationInMicrocycles,
     goal,
     name,
-    trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort((a, b) => a - b),
     restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
+    trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort((a, b) => a - b),
   });
 };
 
+const tabs = ["Preset", "Custom"];
+
 export default function NewMesocycle() {
-  const lastSubmission = useActionData();
-  const [restDaysOptions, setRestDaysOptions] = useState<number[]>([]);
-  const [
-    form,
-    {
-      name,
-      durationInMicrocycles,
-      goal,
-      trainingDaysPerMicrocycle,
-      restDaysPerMicrocycle,
-    },
-  ] = useForm<Schema>({
-    id: "new-mesocycle",
-    lastSubmission,
-    defaultValue: {
-      durationInMicrocycles: "Select microcycles",
-      trainingDaysPerMicrocycle: [],
-      restDaysPerMicrocycle: [],
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema });
-    },
-  });
-
-  const trainingDaysPerMicrocycleList = useFieldList(
-    form.ref,
-    trainingDaysPerMicrocycle
-  );
-
-  const restDaysPerMicrocycleList = useFieldList(
-    form.ref,
-    restDaysPerMicrocycle
-  );
-
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
-      <div className="mb-4 sm:hidden">
-        <Link
-          to={configRoutes.mesocycles.list}
-          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
-        >
-          <ArrowLongLeftIcon className="h-6 w-6" />
-          <span>Go back</span>
-        </Link>
-      </div>
-
-      <Heading>Plan a new mesocycle</Heading>
-      <Paragraph className="mt-1">
-        A mesocycle is a structured training plan designed to help you achieve
-        maximum muscle growth. Here you can build your own to fit your
-        preferences and needs.
-      </Paragraph>
-      <Form
-        method="post"
-        className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
-        {...form.props}
-      >
-        <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
-          <Input
-            config={name}
-            label="How do you want to name the mesocycle?"
-            placeholder="My New Mesocycle"
-            helperText="This cannot be changed later."
-            autoComplete="mesocycle-name"
-          />
-
-          <Select
-            config={durationInMicrocycles}
-            options={durationInMicrocyclesArray}
-            label="How many microcycles?"
-            helperText="This cannot be changed later."
-          />
-
-          <Select
-            config={trainingDaysPerMicrocycle}
-            options={trainingDaysPerMicrocycleArray}
-            multipleOptions={{
-              formRef: form.ref,
-              list: trainingDaysPerMicrocycleList,
-              min: 1,
-              max: 7,
-              emptyOption: "Please select training days",
-            }}
-            onChange={(selectedDays: number[]) => {
-              restDaysPerMicrocycleList.forEach(({ defaultValue }, index) => {
-                if (selectedDays.includes(Number(defaultValue))) {
-                  requestIntent(
-                    form.ref.current!,
-                    list.remove(restDaysPerMicrocycle.name, {
-                      index: index === 0 ? 0 : index,
-                    })
-                  );
-                }
-              });
-
-              setRestDaysOptions(
-                trainingDaysPerMicrocycleArray.filter(
-                  (day) => !selectedDays.includes(day)
-                )
-              );
-            }}
-            label="On which days of the microcycle will you train?"
-            helperText="Please select a realistic number of days that you can commit to. This cannot be changed later."
-          />
-
-          <Select
-            config={restDaysPerMicrocycle}
-            options={restDaysOptions}
-            disabled={restDaysOptions.length === 0}
-            multipleOptions={{
-              formRef: form.ref,
-              list: restDaysPerMicrocycleList,
-              min: 1,
-              max: 7,
-              emptyOption:
-                restDaysOptions.length === 0
-                  ? "Please select training days first"
-                  : "Please select rest days",
-            }}
-            label="On which days of the microcycle will you rest?"
-            helperText="This cannot be changed later."
-          />
-
-          <Input
-            config={goal}
-            label="What is the main goal of the mesocycle?"
-            placeholder="Overall hypertrophy, bringing up legs..."
-            helperText="This cannot be changed later."
-          />
-
-          <SubmitButton text="Save and continue" />
+    <div className="px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="mb-4 sm:hidden">
+          <Link
+            to={configRoutes.mesocycles.list}
+            className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
+          >
+            <ArrowLongLeftIcon className="h-6 w-6" />
+            <span>Go back</span>
+          </Link>
         </div>
-      </Form>
+
+        <Heading>Plan a new mesocycle</Heading>
+        <Paragraph className="mt-1">
+          A mesocycle is a structured training plan designed to help you achieve
+          maximum muscle growth. Use a preset designed by a hypertrophy expert
+          or design your own.
+        </Paragraph>
+
+        <div className="mt-4">
+          <Tab.Group>
+            <Tab.List className="flex">
+              {tabs.map((tab, index) => (
+                <Tab
+                  key={tab}
+                  className={({ selected }) =>
+                    clsx(
+                      selected
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-white text-zinc-500 hover:text-zinc-700",
+
+                      index === 0
+                        ? "rounded-bl rounded-tl"
+                        : index === tabs.length - 1
+                        ? "rounded-br rounded-tr"
+                        : null,
+
+                      "flex-1 px-3 py-2 text-sm font-medium"
+                    )
+                  }
+                >
+                  {tab}
+                </Tab>
+              ))}
+            </Tab.List>
+
+            <Tab.Panels className="mt-4">
+              <Tab.Panel>
+                <PresetMesocycle />
+              </Tab.Panel>
+
+              <Tab.Panel>
+                <CustomMesocycle />
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
+        </div>
+      </div>
     </div>
   );
 }

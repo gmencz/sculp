@@ -71,6 +71,18 @@ model MuscleGroup {
   @@map("muscle_groups")
 }
 
+model MesocyclePreset {
+  id           String                 @id @default(cuid())
+  name         String                 @unique
+  microcycles  Int
+  restDays     Int[]                  @map("rest_days")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  trainingDays MesocycleTrainingDay[]
+
+  @@map("mesocycles_presets")
+}
+
 model Mesocycle {
   id           String                 @id @default(cuid())
   name         String
@@ -89,12 +101,14 @@ model Mesocycle {
 }
 
 model MesocycleTrainingDay {
-  id          String                         @id @default(cuid())
-  mesocycle   Mesocycle?                     @relation(fields: [mesocycleId], references: [id])
-  mesocycleId String?                        @map("mesocycle_id")
-  label       String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
-  number      Int // The number of the day.
-  exercises   MesocycleTrainingDayExercise[]
+  id                String                         @id @default(cuid())
+  mesocycle         Mesocycle?                     @relation(fields: [mesocycleId], references: [id])
+  mesocycleId       String?                        @map("mesocycle_id")
+  label             String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
+  number            Int // The number of the day.
+  exercises         MesocycleTrainingDayExercise[]
+  mesocyclePreset   MesocyclePreset?               @relation(fields: [mesocyclePresetId], references: [id])
+  mesocyclePresetId String?
 
   @@map("mesocycles_training_days")
 }
@@ -115,7 +129,7 @@ model MesocycleTrainingDayExercise {
 model MesocycleTrainingDayExerciseSet {
   id                             String                        @id @default(cuid())
   number                         Int // The set number, like set 1 or set 2
-  weight                         Float
+  weight                         Float?
   rir                            Int // Reps in reserve
   repRangeLowerBound             Int                           @map("rep_range_lower_bound") // If rep range is 5-8 reps then this would be 5 
   repRangeUpperBound             Int                           @map("rep_range_upper_bound") // If rep range is 5-8 reps then this would be 8
@@ -184,7 +198,7 @@ model MesocycleRunMicrocycleTrainingDayExerciseSet {
   completed          Boolean                                    @default(false) // Whether the user completed this set.
   repsCompleted      Int?                                       @map("reps_completed") // The quality reps the user managed to complete.
   number             Int
-  weight             Float
+  weight             Float?
   rir                Int
   repRangeLowerBound Int                                        @map("rep_range_lower_bound")
   repRangeUpperBound Int                                        @map("rep_range_upper_bound")

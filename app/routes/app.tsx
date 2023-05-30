@@ -183,7 +183,7 @@ function Layout({ children }: PropsWithChildren) {
                   className={({ isActive }) =>
                     clsx(
                       isActive ? "text-zinc-900" : "text-zinc-400",
-                      "group flex flex-col items-center justify-center gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                      "group flex flex-col items-center justify-center rounded-md p-2 text-sm font-semibold leading-6"
                     )
                   }
                 >

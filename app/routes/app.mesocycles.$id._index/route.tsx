@@ -107,7 +107,7 @@ export default function Mesocycle() {
           sets: exercise.sets.map((set) => ({
             id: set.id,
             repRange: `${set.repRangeLowerBound}-${set.repRangeUpperBound}`,
-            weight: set.weight.toString(),
+            weight: set.weight?.toString(),
             rir: set.rir.toString(),
           })),
         })),
@@ -190,7 +190,7 @@ export default function Mesocycle() {
           ) : null}
         </div>
 
-        <div className="sm:ml-auto">
+        <div className="mt-4 sm:ml-auto sm:mt-0">
           <SubmitButton className="whitespace-nowrap" text="Save changes" />
         </div>
       </div>

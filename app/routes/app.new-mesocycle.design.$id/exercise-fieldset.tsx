@@ -31,11 +31,26 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
   const setsList = useFieldList(props.formRef, sets);
   const disclosureButtonRef = useRef<HTMLButtonElement>(null);
   const { openPanel } = useDisclosure(disclosureButtonRef);
-  const { exercises } = useLoaderData<typeof loader>();
+  const { exercises, preset } = useLoaderData<typeof loader>();
+  const fromPreset = Boolean(
+    preset?.trainingDays.some((trainingDay) =>
+      trainingDay.exercises.some(
+        (exercise) => exercise.exerciseId === id.defaultValue
+      )
+    )
+  );
 
   return (
-    <fieldset ref={ref}>
+    <fieldset className="relative" ref={ref}>
       <input {...conform.input(dayNumber, { hidden: true })} />
+
+      <button
+        className="absolute -top-1 right-0 flex items-center justify-center rounded-md border-0 bg-red-50 p-1 text-sm font-medium text-red-700 ring-1 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
+        {...list.remove(props.exercisesConfig.name, { index: props.index })}
+      >
+        <TrashIcon className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">Delete exercise</span>
+      </button>
 
       <ExercisesAutocomplete
         exercises={exercises}
@@ -44,7 +59,7 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
         fieldConfig={id}
       />
 
-      <Disclosure defaultOpen>
+      <Disclosure defaultOpen={!fromPreset}>
         <Disclosure.Button
           ref={disclosureButtonRef}
           className="mb-3 mt-4 flex w-full items-center justify-center rounded bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -118,14 +133,6 @@ export function ExerciseFieldset(props: ExerciseFieldsetProps) {
           </div>
         </Disclosure.Panel>
       </Disclosure>
-
-      <button
-        className="flex w-full items-center justify-center rounded-md border-0 bg-red-50 px-4 py-1.5 text-sm font-medium text-red-700 ring-1 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600"
-        {...list.remove(props.exercisesConfig.name, { index: props.index })}
-      >
-        <TrashIcon className="-ml-0.5 mr-2 h-5 w-5" aria-hidden="true" />
-        Delete exercise
-      </button>
     </fieldset>
   );
 }
