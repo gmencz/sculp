@@ -154,7 +154,7 @@ export default function NewMesocycleDesign() {
           <div>
             <Heading>{mesocycle.name}</Heading>
 
-            <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
+            <div className="mt-1 flex flex-col gap-1">
               <div className="mt-2 flex items-center text-sm text-zinc-500">
                 <CalendarDaysIcon
                   className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-400"
