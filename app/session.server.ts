@@ -3,6 +3,8 @@ import invariant from "tiny-invariant";
 
 import type { User } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
+import { createStripeCheckoutSession } from "./services/stripe/api/create-checkout";
+import { configRoutes } from "./config-routes";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -55,11 +57,29 @@ export async function requireUserId(
   return userId;
 }
 
-export async function requireUser(request: Request) {
+export async function requireUser(
+  request: Request,
+  options?: { ignoreSubscription: boolean }
+) {
   const userId = await requireUserId(request);
-
   const user = await getUserById(userId);
-  if (user) return user;
+
+  if (user) {
+    if (options?.ignoreSubscription) {
+      return user;
+    }
+
+    // Check if the user has a valid subscription, if they don't redirect them to the error page.
+    const successStatuses = ["trialing", "active"];
+    if (
+      !user.subscription ||
+      !successStatuses.includes(user.subscription?.status)
+    ) {
+      throw redirect(configRoutes.auth.unsuccessfulSubscription);
+    }
+
+    return user;
+  }
 
   throw await logout(request);
 }

@@ -4,6 +4,8 @@ export const configRoutes = {
   appRoot: "/app",
 
   auth: {
+    unsuccessfulSubscription: `/auth/subscription-error`,
+    signOut: `/auth/sign-out`,
     signIn: `/auth/sign-in`,
     getStarted: `/auth/get-started`,
     forgotPassword: `/auth/forgot-password`,

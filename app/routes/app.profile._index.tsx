@@ -8,6 +8,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { format } from "date-fns";
 import { Fragment, useRef, useState } from "react";
+import { configRoutes } from "~/config-routes";
 import { deleteUser, getUserDetails } from "~/models/user.server";
 import { logout, requireUserId } from "~/session.server";
 import { env } from "~/utils/env";
@@ -110,7 +111,7 @@ export default function Profile() {
 
           <div className="flex items-center gap-4 border-t border-zinc-200 pt-6">
             <a
-              href="/sign-out"
+              href={configRoutes.auth.signOut}
               className="inline-flex gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
             >
               <ArrowLeftOnRectangleIcon

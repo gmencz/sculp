@@ -1,13 +1,20 @@
 import type { Password, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import type Stripe from "stripe";
 
 import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
 export async function getUserById(id: User["id"]) {
-  return prisma.user.findUnique({ where: { id }, select: { id: true } });
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      stripeCustomerId: true,
+      subscription: { select: { status: true } },
+    },
+  });
 }
 
 export async function getUserByEmail(email: User["email"]) {
