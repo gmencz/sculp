@@ -43,12 +43,19 @@ export const loader = async ({ request }: LoaderArgs) => {
     formData.set("query", query);
     const submission = parse(formData, { schema: searchSchema });
     if (!submission.value || submission.intent !== "submit") {
-      return json({ exercises: [], submission }, { status: 400 });
+      return json(
+        { exercises: [], noResults: false, submission },
+        { status: 400 }
+      );
     }
   }
 
   const exercises = await getExercises(user.id, query);
-  return json({ exercises, submission: null });
+  return json({
+    exercises,
+    noResults: exercises.length === 0 && Boolean(query),
+    submission: null,
+  });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -83,7 +90,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function Exercises() {
-  const { exercises, submission } = useLoaderData<typeof loader>();
+  const { exercises, submission, noResults } = useLoaderData<typeof loader>();
   const allExercisesIds = useMemo(
     () => exercises.filter((e) => Boolean(e.userId)).map((e) => e.id),
     [exercises]
@@ -131,7 +138,7 @@ export default function Exercises() {
   const [searchForm, { query: queryConfig }] = useForm<SearchSchema>({
     id: "search-exercises",
     defaultValue: {
-      query: "",
+      query: searchParams.get("query") ?? "",
     },
     shouldValidate: "onInput",
     lastSubmission: submission ?? undefined,
@@ -150,7 +157,7 @@ export default function Exercises() {
   const submit = useSubmit();
   const [query, setQuery] = useState(queryConfig.defaultValue!);
   const lastQueryRef = useRef(query);
-  const debouncedQuery = useDebounce(query, 500);
+  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     if (debouncedQuery !== lastQueryRef.current) {
@@ -265,6 +272,12 @@ export default function Exercises() {
               </table>
             </div>
           </Form>
+        ) : noResults ? (
+          <>
+            <Paragraph className="mt-4">
+              We couldn't find any exercises that match your search.
+            </Paragraph>
+          </>
         ) : null}
       </>
     </AppPageLayout>
