@@ -372,6 +372,7 @@ export async function getTrainingDay(id: string) {
     select: {
       completed: true,
       label: true,
+      date: true,
       exercises: {
         orderBy: {
           number: "asc",
@@ -497,6 +498,9 @@ export async function startMesocycle(
 
   const startDate = startOfDay(input.startDate);
 
+  const microcycleLength =
+    mesocycle._count.trainingDays + mesocycle.restDays.length;
+
   await prisma.mesocycleRun.create({
     data: {
       mesocycle: { connect: { id } },
@@ -505,35 +509,40 @@ export async function startMesocycle(
       startDate,
       endDate,
       microcycles: {
-        // Create the 1st microcycle with the values from the mesocycle.
-        create: {
-          restDays: mesocycle.restDays,
-          trainingDays: {
-            create: mesocycle.trainingDays.map((trainingDay) => ({
-              number: trainingDay.number,
-              label: trainingDay.label,
-              completed: false,
-              date: addDays(startDate, trainingDay.number - 1),
-              exercises: {
-                create: trainingDay.exercises.map((exercise) => ({
-                  number: exercise.number,
-                  notes: exercise.notes,
-                  exercise: { connect: { id: exercise.exercise.id } },
-                  sets: {
-                    create: exercise.sets.map((set) => ({
-                      number: set.number,
-                      repRangeLowerBound: set.repRangeLowerBound,
-                      repRangeUpperBound: set.repRangeUpperBound,
-                      rir: set.rir,
-                      weight: set.weight,
-                      completed: false,
-                    })),
-                  },
-                })),
-              },
-            })),
-          },
-        },
+        // Create the microcycles with the values from the mesocycle.
+        create: Array.from({ length: mesocycle.microcycles }, (_, i) => i).map(
+          (microcycleIndex) => ({
+            restDays: mesocycle.restDays,
+            trainingDays: {
+              create: mesocycle.trainingDays.map((trainingDay) => ({
+                number: trainingDay.number,
+                label: trainingDay.label,
+                completed: false,
+                date: addDays(
+                  startDate,
+                  microcycleIndex * microcycleLength + trainingDay.number - 1
+                ),
+                exercises: {
+                  create: trainingDay.exercises.map((exercise) => ({
+                    number: exercise.number,
+                    notes: exercise.notes,
+                    exercise: { connect: { id: exercise.exercise.id } },
+                    sets: {
+                      create: exercise.sets.map((set) => ({
+                        number: set.number,
+                        repRangeLowerBound: set.repRangeLowerBound,
+                        repRangeUpperBound: set.repRangeUpperBound,
+                        rir: set.rir,
+                        weight: set.weight,
+                        completed: false,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          })
+        ),
       },
     },
   });

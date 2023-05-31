@@ -57,8 +57,7 @@ export function Calendar({ darkButton }: CalendarProps) {
             <div className="flex flex-col gap-1 border-b border-b-zinc-200 px-4 py-3 text-zinc-900">
               <p className="text-base font-semibold">Mesocycle calendar</p>
               <p className="text-sm text-zinc-600">
-                Greyed out days represent either scheduled rest days or upcoming
-                microcycle days.
+                Greyed out days represent scheduled rest days.
               </p>
             </div>
 
@@ -77,7 +76,7 @@ export function Calendar({ darkButton }: CalendarProps) {
               style={{
                 gridTemplateColumns: `repeat(${microcycleLength}, minmax(0, 1fr))`,
               }}
-              className="isolate m-2 grid gap-px rounded-lg bg-zinc-200 text-sm shadow ring-1 ring-zinc-200"
+              className="isolate m-2 grid flex-1 gap-px rounded-lg bg-zinc-200 text-sm shadow ring-1 ring-zinc-200"
             >
               {calendarDays.map((day, dayIdx) =>
                 day.isPlannedTrainingDay ? (

@@ -7,6 +7,7 @@ import {
   eachDayOfInterval,
   format,
   isAfter,
+  isBefore,
   isSameDay,
   isToday,
   startOfToday,
@@ -111,9 +112,6 @@ export const loader = async ({ request }: LoaderArgs) => {
     date = today;
   }
 
-  // Can only edit the training if it's today's training.
-  const readOnly = !isToday(date);
-
   const microcycleLength =
     currentMesocycle.mesocycle._count.trainingDays +
     currentMesocycle.mesocycle.restDays.length;
@@ -159,7 +157,10 @@ export const loader = async ({ request }: LoaderArgs) => {
     for (let dayNumber = 1; dayNumber < microcycleDays.length; dayNumber++) {
       const isDate = isSameDay(
         date,
-        addDays(currentMesocycle.startDate, microcycleIndex + dayNumber - 1)
+        addDays(
+          currentMesocycle.startDate,
+          microcycleIndex * microcycleLength + dayNumber - 1
+        )
       );
 
       if (isDate) {
@@ -187,12 +188,17 @@ export const loader = async ({ request }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
+    // Can only edit the training if it's today's training or an uncompleted past training day.
+    const canEdit =
+      isToday(date) ||
+      (!trainingDayData.completed && isBefore(trainingDayData.date, today));
+
     data = {
       type: "current_mesocycle_started",
       mesocycleName: currentMesocycle.mesocycle.name,
       microcycleLength,
       calendarDays,
-      readOnly,
+      readOnly: !canEdit,
       day: {
         dayNumber: foundDay.dayNumber,
         microcycleNumber: foundDay.microcycleNumber,
@@ -208,7 +214,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     mesocycleName: currentMesocycle.mesocycle.name,
     microcycleLength,
     calendarDays,
-    readOnly,
+    readOnly: true,
     day: {
       dayNumber: foundDay.dayNumber,
       microcycleNumber: foundDay.microcycleNumber,

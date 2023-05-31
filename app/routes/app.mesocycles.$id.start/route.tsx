@@ -62,48 +62,58 @@ export default function StartMesocycle() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-      <div className="mb-2 flex items-end justify-between gap-2">
-        <Heading>{mesocycle.name}</Heading>
-        <Link
-          to={configRoutes.mesocycles.view(mesocycle.id)}
-          className="inline-flex justify-center gap-3 rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <PencilSquareIcon className="h-5 w-5 text-white" aria-hidden="true" />
-          Make changes
-        </Link>
-      </div>
-      <Paragraph>
-        Review your mesocycle to make sure everything looks good before starting
-        your training. Keep in mind that the sets, weights and RIR (Reps In
-        Reserve) shown here are your starting point.
-      </Paragraph>
+    <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <Heading>{mesocycle.name}</Heading>
+            <Paragraph>
+              Review your mesocycle to make sure everything looks good before
+              starting your training. Keep in mind that the sets, weights and
+              RIR (Reps In Reserve) shown here are your starting point.
+            </Paragraph>
+          </div>
 
-      <nav
-        className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl"
-        aria-label="Directory"
-      >
-        {mesocycle.trainingDays.map((trainingDay, index) => (
-          <TrainingDay
-            key={trainingDay.id}
-            trainingDay={trainingDay}
-            index={index}
-          />
-        ))}
-      </nav>
-
-      <Form method="post" className="mt-8" {...form.props}>
-        <Input
-          config={startDate}
-          label="When do you want to start the mesocycle?"
-          helperText="This is the date your first microcycle will commence."
-          type="date"
-        />
-
-        <div className="mt-6">
-          <SubmitButton text="Start mesocycle" />
+          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <Link
+              to={configRoutes.mesocycles.view(mesocycle.id)}
+              className="inline-flex justify-center gap-3 rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <PencilSquareIcon
+                className="h-5 w-5 text-white"
+                aria-hidden="true"
+              />
+              Make changes
+            </Link>
+          </div>
         </div>
-      </Form>
+
+        <nav
+          className="mt-6 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl"
+          aria-label="Directory"
+        >
+          {mesocycle.trainingDays.map((trainingDay, index) => (
+            <TrainingDay
+              key={trainingDay.id}
+              trainingDay={trainingDay}
+              index={index}
+            />
+          ))}
+        </nav>
+
+        <Form method="post" className="mt-8" {...form.props}>
+          <Input
+            config={startDate}
+            label="When do you want to start the mesocycle?"
+            helperText="This is the date your first microcycle will commence."
+            type="date"
+          />
+
+          <div className="mt-6">
+            <SubmitButton text="Start mesocycle" />
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }

@@ -16,9 +16,12 @@ import { Calendar } from "../calendar";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { TrainingDayExerciseReadOnly } from "./training-day-exercise-read-only";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 
 type TrainingDayProps = {
-  trainingDay: NonNullable<CurrentMesocycleStartedData["day"]["trainingDay"]>;
+  trainingDay: SerializeFrom<
+    NonNullable<CurrentMesocycleStartedData["day"]["trainingDay"]>
+  >;
   mesocycleName: string;
   microcycleNumber: number;
   dayNumber: number;
