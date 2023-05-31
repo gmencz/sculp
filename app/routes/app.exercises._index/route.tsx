@@ -7,6 +7,7 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
@@ -16,22 +17,38 @@ import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
 import { deleteExercises, getExercises } from "~/models/exercise.server";
 import { requireUser } from "~/session.server";
-import type { Schema } from "./schema";
+import type { Schema, SearchSchema } from "./schema";
+import { searchSchema } from "./schema";
 import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
 import type { Dispatch, SetStateAction } from "react";
+import { useEffect } from "react";
+import { Fragment } from "react";
 import { useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { ErrorMessage } from "~/components/error-message";
-import { generateId, useAfterPaintEffect } from "~/utils";
+import { generateId, useAfterPaintEffect, useDebounce } from "~/utils";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { AppPageLayout } from "~/components/app-page-layout";
+import { Input } from "~/components/input";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
-  const exercises = await getExercises(user.id);
-  return json({ exercises });
+  const url = new URL(request.url);
+  const query = url.searchParams.get("query");
+
+  if (query) {
+    const formData = new FormData();
+    formData.set("query", query);
+    const submission = parse(formData, { schema: searchSchema });
+    if (!submission.value || submission.intent !== "submit") {
+      return json({ exercises: [], submission }, { status: 400 });
+    }
+  }
+
+  const exercises = await getExercises(user.id, query);
+  return json({ exercises, submission: null });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -66,7 +83,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function Exercises() {
-  const { exercises } = useLoaderData<typeof loader>();
+  const { exercises, submission } = useLoaderData<typeof loader>();
   const allExercisesIds = useMemo(
     () => exercises.filter((e) => Boolean(e.userId)).map((e) => e.id),
     [exercises]
@@ -110,15 +127,49 @@ export default function Exercises() {
     }
   }, [successId]);
 
+  const [isValidQuery, setIsValidQuery] = useState(true);
+  const [searchForm, { query: queryConfig }] = useForm<SearchSchema>({
+    id: "search-exercises",
+    defaultValue: {
+      query: "",
+    },
+    shouldValidate: "onInput",
+    lastSubmission: submission ?? undefined,
+    onValidate({ formData }) {
+      const result = parse(formData, { schema: searchSchema });
+      if (Object.keys(result.error).length) {
+        setIsValidQuery(false);
+      } else {
+        setIsValidQuery(true);
+      }
+
+      return result;
+    },
+  });
+
+  const submit = useSubmit();
+  const [query, setQuery] = useState(queryConfig.defaultValue!);
+  const lastQueryRef = useRef(query);
+  const debouncedQuery = useDebounce(query, 500);
+
+  useEffect(() => {
+    if (debouncedQuery !== lastQueryRef.current) {
+      lastQueryRef.current = debouncedQuery;
+      if (isValidQuery) {
+        submit(searchForm.ref.current);
+      }
+    }
+  }, [debouncedQuery, isValidQuery, searchForm.ref, submit]);
+
   return (
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>Exercises</Heading>
+
           <Paragraph className="mt-1">
-            {exercises.length > 0
-              ? "A list of all your exercises including their name and muscle groups worked."
-              : "You don't have any exercises yet."}
+            A list of your exercises including their name and muscle groups
+            worked.
           </Paragraph>
 
           {deleteExercisesIdsConfig.error ? (
@@ -135,72 +186,87 @@ export default function Exercises() {
         </div>
       </div>
 
-      {exercises.length > 0 ? (
-        <Form className="-mx-4 mt-6 sm:-mx-0" method="delete" {...form.props}>
-          <div className="relative">
-            <div
-              className={clsx(
-                "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
-                selectedExercisesIds.length > 0 ? "flex" : "hidden"
-              )}
-            >
-              <button
-                disabled={isSubmitting}
-                type="submit"
-                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-              >
-                Delete selected
-              </button>
-            </div>
-
-            <table className="min-w-full divide-y divide-zinc-300">
-              <thead>
-                <tr>
-                  <th scope="col" className="relative px-6 sm:w-12">
-                    <input
-                      id="toggle-all"
-                      type="checkbox"
-                      className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
-                      ref={checkbox}
-                      checked={checked}
-                      onChange={toggleAll}
-                    />
-                  </th>
-
-                  <th
-                    scope="col"
-                    className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
-                  >
-                    Name
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
-                  >
-                    Muscles
-                  </th>
-                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                    <span className="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200 bg-zinc-50">
-                {exercises.map((exercise, index) => (
-                  <ExerciseRow
-                    index={index}
-                    formId={form.id!}
-                    configName={deleteExercisesIdsConfig.name}
-                    key={exercise.id}
-                    exercise={exercise}
-                    selected={selectedExercisesIds}
-                    setSelected={setSelectedExercisesIds}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <>
+        <Form className="mt-4" method="get" {...searchForm.props}>
+          <Input
+            config={queryConfig}
+            label="Quick search"
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
+          />
         </Form>
-      ) : null}
+
+        {exercises.length > 0 ? (
+          <Form className="-mx-4 mt-4 sm:-mx-0" method="delete" {...form.props}>
+            <div className="relative">
+              <div
+                className={clsx(
+                  "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
+                  selectedExercisesIds.length > 0 ? "flex" : "hidden"
+                )}
+              >
+                <button
+                  disabled={isSubmitting}
+                  type="submit"
+                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                >
+                  Delete selected
+                </button>
+              </div>
+
+              <table className="min-w-full divide-y divide-zinc-300">
+                <thead>
+                  <tr>
+                    <th scope="col" className="relative px-6 sm:w-12">
+                      <input
+                        id="toggle-all"
+                        type="checkbox"
+                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
+                        ref={checkbox}
+                        checked={checked}
+                        onChange={toggleAll}
+                      />
+                    </th>
+
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                    >
+                      Name
+                    </th>
+                    <th
+                      scope="col"
+                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
+                    >
+                      Muscles
+                    </th>
+                    <th
+                      scope="col"
+                      className="relative py-3.5 pl-3 pr-4 sm:pr-0"
+                    >
+                      <span className="sr-only">Edit</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-200 bg-zinc-50">
+                  {exercises.map((exercise, index) => (
+                    <ExerciseRow
+                      index={index}
+                      formId={form.id!}
+                      configName={deleteExercisesIdsConfig.name}
+                      key={exercise.id}
+                      exercise={exercise}
+                      selected={selectedExercisesIds}
+                      setSelected={setSelectedExercisesIds}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Form>
+        ) : null}
+      </>
     </AppPageLayout>
   );
 }

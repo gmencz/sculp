@@ -117,13 +117,23 @@ export async function getExercise(id: string, userId: string) {
   });
 }
 
-export async function getExercises(userId: string) {
-  // Find the exercises that were created by the current user and the exercises that are public
-  // which are available to everyone as predefined exercises.
+export async function getExercises(userId: string, query?: string | null) {
   return prisma.exercise.findMany({
-    where: {
-      OR: [{ userId: null }, { userId }],
-    },
+    where: query
+      ? {
+          AND: [
+            { userId },
+            {
+              OR: [
+                { name: { search: `${query}:*` } },
+                { muscleGroups: { some: { name: { search: `${query}:*` } } } },
+              ],
+            },
+          ],
+        }
+      : {
+          userId,
+        },
     select: {
       id: true,
       name: true,
