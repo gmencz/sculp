@@ -122,7 +122,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 number: lastSet?.number ? lastSet.number + 1 : 1,
                 repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
                 repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
-                weight: lastSet?.weight || 0,
+                weight: lastSet?.weight || null,
                 rir: lastSet?.rir || 0,
                 completed: false,
                 repsCompleted: 0,
@@ -418,8 +418,8 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         <SubmitButton isSubmitting={false} secondary text="Add set" />
       </Form>
 
-      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-        {exercise.previousRun ? (
+      {exercise.previousRun ? (
+        <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
           <ol className="flex flex-col gap-4">
             {sets.map((set) => (
               <TrainingDayExerciseSetPerformance
@@ -429,24 +429,8 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
               />
             ))}
           </ol>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="mr-1.5 h-5 w-5 flex-shrink-0 text-zinc-900"
-              fill="currentColor"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 12c0 2.206 1.794 4 4 4 1.761 0 3.242-1.151 3.775-2.734l2.224-1.291.001.025c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6c1.084 0 2.098.292 2.975.794l-2.21 1.283c-.248-.048-.503-.077-.765-.077-2.206 0-4 1.794-4 4zm4-2c-1.105 0-2 .896-2 2s.895 2 2 2 2-.896 2-2l-.002-.015 3.36-1.95c.976-.565 2.704-.336 3.711.159l4.931-2.863-3.158-1.569.169-3.632-4.945 2.87c-.07 1.121-.734 2.736-1.705 3.301l-3.383 1.964c-.29-.163-.621-.265-.978-.265zm7.995 1.911l.005.089c0 4.411-3.589 8-8 8s-8-3.589-8-8 3.589-8 8-8c1.475 0 2.853.408 4.041 1.107.334-.586.428-1.544.146-2.18-1.275-.589-2.69-.927-4.187-.927-5.523 0-10 4.477-10 10s4.477 10 10 10c5.233 0 9.521-4.021 9.957-9.142-.301-.483-1.066-1.061-1.962-.947z" />
-            </svg>
-            <p className="text-center text-sm font-medium text-zinc-900">
-              Your performance is being tracked for your next training session.
-            </p>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

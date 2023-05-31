@@ -93,6 +93,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
+  console.log(mesocycle.trainingDays);
   const [searchParams] = useSearchParams();
   const lastSubmission = useActionData<typeof action>();
   const [form, { trainingDays }] = useForm<Schema>({

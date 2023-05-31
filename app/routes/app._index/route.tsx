@@ -349,7 +349,7 @@ export const action = async ({ request }: ActionArgs) => {
           number: lastSet?.number ? lastSet.number + 1 : 1,
           repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
           repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
-          weight: lastSet?.weight || 0,
+          weight: lastSet?.weight,
           rir: lastSet?.rir || 0,
           completed: false,
           repsCompleted: 0,

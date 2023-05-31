@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { validateRepRange } from "~/utils";
+import { asNullableField } from "~/utils/zod";
 
 export const schema = z.object({
   trainingDays: z.array(
@@ -56,12 +57,14 @@ export const schema = z.object({
                     .min(0, `The RIR can't be lower than 0.`)
                     .max(100, `The RIR can't be higher than 100.`),
 
-                  weight: z.coerce
-                    .number({
-                      invalid_type_error: "The weight is not valid.",
-                      required_error: "The weight is required.",
-                    })
-                    .max(10000, `The weight can't be greater than 10000.`),
+                  weight: asNullableField(
+                    z.coerce
+                      .number({
+                        invalid_type_error: "The weight is not valid.",
+                        required_error: "The weight is required.",
+                      })
+                      .max(10000, `The weight can't be greater than 10000.`)
+                  ),
 
                   repRange: z
                     .string({

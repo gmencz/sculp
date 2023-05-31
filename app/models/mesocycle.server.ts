@@ -61,7 +61,7 @@ type CreateMesocycleInput = {
     exercises: {
       id: string;
       sets: {
-        weight?: number;
+        weight: number | null;
         rir: number;
         repRange: string;
       }[];
@@ -152,7 +152,7 @@ type UpdateMesocycleInput = {
       sets: {
         id: string | null;
         rir: number;
-        weight: number;
+        weight: number | null;
         repRange: string;
       }[];
       searchedExerciseId: string;

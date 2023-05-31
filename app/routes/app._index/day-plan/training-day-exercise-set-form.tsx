@@ -55,11 +55,7 @@ export function TrainingDayExerciseSetForm({
           : set.repsCompleted.toString()
         : undefined,
       rir: set.rir.toString(),
-      weight: set.weight
-        ? set.weight === 0
-          ? undefined
-          : set.weight.toString()
-        : undefined,
+      weight: set.weight?.toString(),
       actionIntent: actionIntents[0],
     },
     onValidate({ formData }) {
@@ -86,7 +82,10 @@ export function TrainingDayExerciseSetForm({
   };
 
   const canCompleteSet = Boolean(
-    values.repRange && values.repsCompleted && values.rir && values.weight
+    values.repRange &&
+      values.repsCompleted &&
+      values.rir &&
+      !Number.isNaN(Number(values.weight))
   );
 
   const navigation = useNavigation();
