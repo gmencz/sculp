@@ -110,8 +110,6 @@ export default function Exercises() {
       },
     });
 
-  console.log({ selectedExercisesIds });
-
   const isSubmitting = useNavigation().state === "submitting";
 
   function toggleAll() {

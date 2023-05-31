@@ -119,7 +119,11 @@ export async function getExercise(id: string, userId: string) {
 
 export async function getExercises(userId: string, query?: string | null) {
   if (query) {
-    query = query.split(/\s+/).join(" & ");
+    query = query
+      .split(/\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(" | ");
   }
 
   return prisma.exercise.findMany({

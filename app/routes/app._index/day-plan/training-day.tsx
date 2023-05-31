@@ -109,10 +109,7 @@ export function TrainingDay({
           {trainingDay.exercises.map((exercise) => (
             <li key={exercise.id}>
               {readOnly ? (
-                <TrainingDayExerciseReadOnly
-                  completedDay={trainingDay.completed}
-                  exercise={exercise}
-                />
+                <TrainingDayExerciseReadOnly exercise={exercise} />
               ) : (
                 <TrainingDayExercise exercise={exercise} />
               )}

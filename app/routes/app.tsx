@@ -173,8 +173,13 @@ function Layout({ children }: PropsWithChildren) {
       </div>
 
       <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white px-6 pb-1 pt-3 shadow-lg lg:hidden">
-        <nav className="mx-auto flex w-full max-w-sm flex-1 flex-col">
-          <ul className="flex flex-1 items-center justify-between">
+        <nav className="mx-auto w-full max-w-sm">
+          <ul
+            style={{
+              gridTemplateColumns: `repeat(${mobileNavigation.length}, 1fr)`,
+            }}
+            className="grid place-items-center gap-1 xs:gap-2 sm:gap-4"
+          >
             {mobileNavigation.map((item) => (
               <li key={item.name}>
                 <NavLink
