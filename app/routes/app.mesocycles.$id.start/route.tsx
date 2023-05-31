@@ -192,9 +192,10 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
 
             <div>
               <ChevronUpIcon
-                className={`${
-                  open ? "rotate-180 transform" : ""
-                } h-5 w-5 text-orange-500`}
+                className={clsx(
+                  "h-5 w-5 transform text-orange-500",
+                  open ? "rotate-180" : "rotate-90"
+                )}
               />
             </div>
           </Disclosure.Button>
