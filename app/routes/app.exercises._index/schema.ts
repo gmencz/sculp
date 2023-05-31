@@ -24,7 +24,7 @@ export const searchSchema = z.object({
       (query) => {
         if (query === "") return true;
         if (query.length > 100) return false;
-        return /^[a-z0-9]+$/i.test(query);
+        return /^[a-z0-9\s]+$/i.test(query);
       },
       { message: "The query is not valid." }
     ),

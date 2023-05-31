@@ -118,6 +118,10 @@ export async function getExercise(id: string, userId: string) {
 }
 
 export async function getExercises(userId: string, query?: string | null) {
+  if (query) {
+    query = query.split(/\s+/).join(" & ");
+  }
+
   return prisma.exercise.findMany({
     where: query
       ? {
@@ -125,8 +129,10 @@ export async function getExercises(userId: string, query?: string | null) {
             { userId },
             {
               OR: [
-                { name: { search: `${query}:*` } },
-                { muscleGroups: { some: { name: { search: `${query}:*` } } } },
+                { name: { search: query } },
+                {
+                  muscleGroups: { some: { name: { search: query } } },
+                },
               ],
             },
           ],

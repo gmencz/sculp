@@ -110,6 +110,8 @@ export default function Exercises() {
       },
     });
 
+  console.log({ selectedExercisesIds });
+
   const isSubmitting = useNavigation().state === "submitting";
 
   function toggleAll() {
@@ -167,6 +169,11 @@ export default function Exercises() {
       }
     }
   }, [debouncedQuery, isValidQuery, searchForm.ref, submit]);
+
+  // Unselect exercises when exercises change.
+  useEffect(() => {
+    setSelectedExercisesIds([]);
+  }, [exercises]);
 
   return (
     <AppPageLayout>
