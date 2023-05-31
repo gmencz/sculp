@@ -26,6 +26,7 @@ import { ErrorMessage } from "~/components/error-message";
 import { generateId, useAfterPaintEffect } from "~/utils";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
+import { AppPageLayout } from "~/components/app-page-layout";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -110,102 +111,97 @@ export default function Exercises() {
   }, [successId]);
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="sm:flex sm:items-center">
-          <div className="sm:flex-auto">
-            <Heading>Exercises</Heading>
-            <Paragraph className="mt-1">
-              {exercises.length > 0
-                ? "A list of all your exercises including their name and muscle groups worked."
-                : "You don't have any exercises yet."}
-            </Paragraph>
+    <AppPageLayout>
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <Heading>Exercises</Heading>
+          <Paragraph className="mt-1">
+            {exercises.length > 0
+              ? "A list of all your exercises including their name and muscle groups worked."
+              : "You don't have any exercises yet."}
+          </Paragraph>
 
-            {deleteExercisesIdsConfig.error ? (
-              <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
-            ) : null}
-          </div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <Link
-              to={configRoutes.exercises.new}
-              className="block rounded-md bg-orange-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
-            >
-              New exercise
-            </Link>
-          </div>
+          {deleteExercisesIdsConfig.error ? (
+            <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
+          ) : null}
         </div>
-
-        {exercises.length > 0 ? (
-          <Form className="-mx-4 mt-6 sm:-mx-0" method="delete" {...form.props}>
-            <div className="relative">
-              <div
-                className={clsx(
-                  "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
-                  selectedExercisesIds.length > 0 ? "flex" : "hidden"
-                )}
-              >
-                <button
-                  disabled={isSubmitting}
-                  type="submit"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Delete selected
-                </button>
-              </div>
-
-              <table className="min-w-full divide-y divide-zinc-300">
-                <thead>
-                  <tr>
-                    <th scope="col" className="relative px-6 sm:w-12">
-                      <input
-                        id="toggle-all"
-                        type="checkbox"
-                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
-                        ref={checkbox}
-                        checked={checked}
-                        onChange={toggleAll}
-                      />
-                    </th>
-
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
-                    >
-                      Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
-                    >
-                      Muscles
-                    </th>
-                    <th
-                      scope="col"
-                      className="relative py-3.5 pl-3 pr-4 sm:pr-0"
-                    >
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-200 bg-zinc-50">
-                  {exercises.map((exercise, index) => (
-                    <ExerciseRow
-                      index={index}
-                      formId={form.id!}
-                      configName={deleteExercisesIdsConfig.name}
-                      key={exercise.id}
-                      exercise={exercise}
-                      selected={selectedExercisesIds}
-                      setSelected={setSelectedExercisesIds}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Form>
-        ) : null}
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <Link
+            to={configRoutes.exercises.new}
+            className="block rounded-md bg-orange-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+          >
+            New exercise
+          </Link>
+        </div>
       </div>
-    </div>
+
+      {exercises.length > 0 ? (
+        <Form className="-mx-4 mt-6 sm:-mx-0" method="delete" {...form.props}>
+          <div className="relative">
+            <div
+              className={clsx(
+                "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
+                selectedExercisesIds.length > 0 ? "flex" : "hidden"
+              )}
+            >
+              <button
+                disabled={isSubmitting}
+                type="submit"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Delete selected
+              </button>
+            </div>
+
+            <table className="min-w-full divide-y divide-zinc-300">
+              <thead>
+                <tr>
+                  <th scope="col" className="relative px-6 sm:w-12">
+                    <input
+                      id="toggle-all"
+                      type="checkbox"
+                      className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
+                      ref={checkbox}
+                      checked={checked}
+                      onChange={toggleAll}
+                    />
+                  </th>
+
+                  <th
+                    scope="col"
+                    className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
+                  >
+                    Muscles
+                  </th>
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                    <span className="sr-only">Edit</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-200 bg-zinc-50">
+                {exercises.map((exercise, index) => (
+                  <ExerciseRow
+                    index={index}
+                    formId={form.id!}
+                    configName={deleteExercisesIdsConfig.name}
+                    key={exercise.id}
+                    exercise={exercise}
+                    selected={selectedExercisesIds}
+                    setSelected={setSelectedExercisesIds}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Form>
+      ) : null}
+    </AppPageLayout>
   );
 }
 

@@ -2,6 +2,7 @@ import { Form, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { AppPageLayout } from "~/components/app-page-layout";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
@@ -54,7 +55,7 @@ export default function StopMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <AppPageLayout>
       <Heading>Stop mesocycle</Heading>
       <Paragraph>
         Are you sure you want to stop the current mesocycle{" "}
@@ -65,6 +66,6 @@ export default function StopMesocycle() {
       <Form method="post" className="mt-4 inline-flex">
         <SubmitButton text="Yes, stop mesocycle" />
       </Form>
-    </div>
+    </AppPageLayout>
   );
 }

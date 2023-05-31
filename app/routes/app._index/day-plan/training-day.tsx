@@ -17,6 +17,7 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { TrainingDayExerciseReadOnly } from "./training-day-exercise-read-only";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { AppPageLayout } from "~/components/app-page-layout";
 
 type TrainingDayProps = {
   trainingDay: SerializeFrom<
@@ -75,35 +76,33 @@ export function TrainingDay({
 
   return (
     <>
-      <div className="bg-zinc-900 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mx-auto w-full max-w-2xl">
-          <div className="flex items-center justify-between">
-            {readOnly ? (
-              <h2 className="mb-1 font-medium text-zinc-200">
-                {mesocycleName} - M{microcycleNumber} D{dayNumber}
-              </h2>
-            ) : (
-              <h2 className="mb-1 font-medium text-zinc-200">
-                {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
-              </h2>
-            )}
+      <AppPageLayout className="bg-zinc-900">
+        <div className="flex items-center justify-between">
+          {readOnly ? (
+            <h2 className="mb-1 font-medium text-zinc-200">
+              {mesocycleName} - M{microcycleNumber} D{dayNumber}
+            </h2>
+          ) : (
+            <h2 className="mb-1 font-medium text-zinc-200">
+              {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
+            </h2>
+          )}
 
-            <Calendar />
-          </div>
-
-          <Heading white>{trainingDay.label}</Heading>
-
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {muscleGroups.map((muscleGroup, index) => (
-              <li key={muscleGroup}>
-                <MuscleGroupBadge white index={index}>
-                  {muscleGroup}
-                </MuscleGroupBadge>
-              </li>
-            ))}
-          </ul>
+          <Calendar />
         </div>
-      </div>
+
+        <Heading white>{trainingDay.label}</Heading>
+
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {muscleGroups.map((muscleGroup, index) => (
+            <li key={muscleGroup}>
+              <MuscleGroupBadge white index={index}>
+                {muscleGroup}
+              </MuscleGroupBadge>
+            </li>
+          ))}
+        </ul>
+      </AppPageLayout>
 
       <div className="bg-zinc-50 sm:mt-6">
         <ol className="flex flex-col gap-6">
@@ -133,7 +132,7 @@ export function TrainingDay({
               <SubmitButton
                 isSubmitting={isSubmitting}
                 disabled={!canFinishSession}
-                text="Finish session"
+                text="Complete session"
               />
             </div>
           </Form>

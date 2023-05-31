@@ -28,6 +28,7 @@ import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/config-routes";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
+import { AppPageLayout } from "~/components/app-page-layout";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -119,7 +120,7 @@ export default function Exercise() {
   }, [successId]);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <AppPageLayout>
       <div className="mb-4 sm:hidden">
         <Link
           to={configRoutes.exercises.list}
@@ -166,6 +167,6 @@ export default function Exercise() {
           <SubmitButton text="Save changes" />
         </div>
       </Form>
-    </div>
+    </AppPageLayout>
   );
 }

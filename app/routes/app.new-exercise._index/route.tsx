@@ -16,6 +16,7 @@ import {
   createExercise,
   findExerciseByNameUserId,
 } from "~/models/exercise.server";
+import { AppPageLayout } from "~/components/app-page-layout";
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
@@ -63,7 +64,7 @@ export default function Exercise() {
   const muscleGroupsList = useFieldList(form.ref, muscleGroups);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <AppPageLayout>
       <Heading>New exercise</Heading>
       <Paragraph>
         On this page you can create a new exercise which you will be able to add
@@ -99,6 +100,6 @@ export default function Exercise() {
           <SubmitButton text="Save and continue" />
         </div>
       </Form>
-    </div>
+    </AppPageLayout>
   );
 }
