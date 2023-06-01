@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { pushPullLegs3on1off, pushPullLegs6on1off } from "./mesocycle-presets";
+import {
+  pushPullLegs3on1off,
+  pushPullLegs6on1off,
+} from "./seed/mesocycle-presets";
 import {
   adductors,
   back,
@@ -12,7 +15,7 @@ import {
   quads,
   shoulders,
   triceps,
-} from "./exercises";
+} from "./seed/exercises";
 
 const prisma = new PrismaClient();
 
