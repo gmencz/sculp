@@ -15,14 +15,12 @@ type SetFieldsetProps = {
     Schema["trainingDays"][number]["exercises"][number]["sets"][number]
   >;
   setNumber: number;
-  otherErrors: boolean;
 };
 
 export function SetFieldset({
   setsConfig,
   config,
   setNumber,
-  otherErrors,
 }: SetFieldsetProps) {
   const ref = useRef<HTMLFieldSetElement>(null);
   const { rir, weight, repRange, id } = useFieldset(ref, config);

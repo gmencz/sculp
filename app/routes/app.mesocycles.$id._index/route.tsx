@@ -93,13 +93,14 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
-  console.log(mesocycle.trainingDays);
   const [searchParams] = useSearchParams();
   const lastSubmission = useActionData<typeof action>();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
     lastSubmission,
-    noValidate: true,
+    onValidate({ formData }) {
+      return parse(formData, { schema });
+    },
     defaultValue: {
       trainingDays: mesocycle.trainingDays.map((trainingDay) => ({
         id: trainingDay.id,
@@ -192,16 +193,12 @@ export default function Mesocycle() {
       className="flex min-h-full flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
       {...form.props}
     >
+      <div className="mb-4 sm:hidden">
+        <BackLink to={configRoutes.mesocycles.list}>Go back</BackLink>
+      </div>
+
       <div className="mx-auto w-full max-w-2xl">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:gap-0">
-          <Link
-            to={configRoutes.mesocycles.list}
-            className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600 sm:hidden"
-          >
-            <ArrowLongLeftIcon className="h-6 w-6" />
-            <span>Go back</span>
-          </Link>
-
           <div>
             <Heading>{mesocycle.name}</Heading>
 
@@ -219,8 +216,11 @@ export default function Mesocycle() {
             ) : null}
           </div>
 
-          <div className="mt-4 sm:ml-auto sm:mt-0">
-            <SubmitButton className="whitespace-nowrap" text="Save changes" />
+          <div className="mt-1 sm:ml-auto sm:mt-0">
+            <SubmitButton
+              className="w-full whitespace-nowrap"
+              text="Save changes"
+            />
           </div>
         </div>
 

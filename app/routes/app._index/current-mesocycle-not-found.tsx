@@ -6,6 +6,8 @@ import {
 import type { CurrentMesocycleNotFoundData } from "./route";
 import { Link } from "@remix-run/react";
 import { configRoutes } from "~/config-routes";
+import { classes } from "~/utils/classes";
+import clsx from "clsx";
 
 type CurrentMesocycleNotFoundProps = {
   data: CurrentMesocycleNotFoundData;
@@ -27,20 +29,17 @@ export function CurrentMesocycleNotFound({
         {data.mesocyclesCount > 0 ? (
           <Link
             to={configRoutes.mesocycles.list}
-            className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className={clsx(classes.buttonOrLink.primary, "inline-flex gap-2")}
           >
             Go to your mesocycles
-            <ArrowLongRightIcon
-              className="-mr-0.5 ml-1.5 h-5 w-5"
-              aria-hidden="true"
-            />
+            <ArrowLongRightIcon className="h-5 w-5" aria-hidden="true" />
           </Link>
         ) : (
           <Link
             to={configRoutes.mesocycles.newStepOne}
-            className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className={clsx(classes.buttonOrLink.primary, "inline-flex gap-2")}
           >
-            <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+            <PlusIcon className="h-5 w-5" aria-hidden="true" />
             New mesocycle
           </Link>
         )}

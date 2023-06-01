@@ -2,12 +2,16 @@ import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import clsx from "clsx";
 import { format } from "date-fns";
 import { AppPageLayout } from "~/components/app-page-layout";
+import { BackLink } from "~/components/back-link";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
+import { configRoutes } from "~/config-routes";
 import { getMesocycleRunsById } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
+import { classes } from "~/utils/classes";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -31,8 +35,12 @@ export default function MesocycleHistory() {
 
   return (
     <AppPageLayout>
+      <div className="mb-4 sm:hidden">
+        <BackLink to={configRoutes.mesocycles.list}>Go back</BackLink>
+      </div>
+
       <Heading>{mesocycle.name}</Heading>
-      <Paragraph>
+      <Paragraph className="mt-1">
         {mesocycle.runs.length
           ? `You've done this mesocycle ${mesocycle.runs.length} ${
               mesocycle.runs.length === 1 ? "time" : "times"
@@ -74,7 +82,10 @@ export default function MesocycleHistory() {
                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                   <Link
                     to={`./${run.id}`}
-                    className="flex items-center justify-center gap-2 text-orange-600 hover:text-orange-900"
+                    className={clsx(
+                      classes.buttonOrLink.textOnly,
+                      "flex items-center justify-center gap-2"
+                    )}
                   >
                     <span className="hidden xs:inline">View training</span>
                     <ArrowLongRightIcon className="h-6 w-6" />

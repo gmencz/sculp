@@ -18,7 +18,6 @@ import {
 
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
 import { getUser } from "~/session.server";
-import { useOptionalUser } from "./utils";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
@@ -48,8 +47,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export default function App() {
-  const user = useOptionalUser();
-
   return (
     <html lang="en" className="h-full">
       <head>
@@ -65,6 +62,7 @@ export default function App() {
         <Scripts />
         <LiveReload />
         <Toaster position="top-right" />
+        <noscript>This app requires JavaScript to be enabled</noscript>
       </body>
     </html>
   );

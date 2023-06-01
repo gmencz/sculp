@@ -4,11 +4,12 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { NavLink, Outlet } from "@remix-run/react";
+import { Link, NavLink, Outlet } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren, SVGAttributes } from "react";
 import { Fragment } from "react";
+import { configRoutes } from "~/config-routes";
 import { requireUser } from "~/session.server";
 
 const navigation = [
@@ -206,13 +207,13 @@ function Layout({ children }: PropsWithChildren) {
 
       <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-          <div className="flex items-center gap-4">
+          <Link to={configRoutes.appRoot} className="flex items-center gap-4">
             <img className="h-8 w-auto" src="/logo.png" alt="" />
 
             <span className="text-base font-bold text-zinc-950">
               Sculp Beta
             </span>
-          </div>
+          </Link>
 
           <a
             href="/app/profile"

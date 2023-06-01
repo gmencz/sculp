@@ -18,6 +18,7 @@ import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
 import { PresetMesocycle } from "./preset";
 import clsx from "clsx";
+import { BackLink } from "~/components/back-link";
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
@@ -98,16 +99,6 @@ export default function NewMesocycle() {
   return (
     <div className="px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
       <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-4 sm:hidden">
-          <Link
-            to={configRoutes.mesocycles.list}
-            className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
-          >
-            <ArrowLongLeftIcon className="h-6 w-6" />
-            <span>Go back</span>
-          </Link>
-        </div>
-
         <Heading>Plan a new mesocycle</Heading>
         <Paragraph className="mt-1">
           A mesocycle is a structured training plan designed to help you achieve

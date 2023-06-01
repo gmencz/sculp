@@ -7,6 +7,7 @@ import {
 import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import clsx from "clsx";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Heading } from "~/components/heading";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
@@ -14,6 +15,7 @@ import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
 import { getCurrentMesocycle, getMesocycles } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
+import { classes } from "~/utils/classes";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -52,9 +54,9 @@ export default function Mesocycles() {
         <div className="mt-6">
           <Link
             to={configRoutes.mesocycles.newStepOne}
-            className="inline-flex w-full justify-center rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className={clsx(classes.buttonOrLink.primary, "inline-flex gap-2")}
           >
-            <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+            <PlusIcon className="h-5 w-5" aria-hidden="true" />
             New mesocycle
           </Link>
         </div>
@@ -67,12 +69,12 @@ export default function Mesocycles() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>Mesocycles</Heading>
-          <Paragraph>A list of all your mesocycles.</Paragraph>
+          <Paragraph className="mt-1">A list of all your mesocycles.</Paragraph>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
             to={configRoutes.mesocycles.newStepOne}
-            className="block rounded-md bg-orange-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+            className={clsx(classes.buttonOrLink.primary, "block")}
           >
             New mesocycle
           </Link>

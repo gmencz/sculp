@@ -94,7 +94,9 @@ export default function NewMesocycleDesign() {
   const [form, { trainingDays }] = useForm<Schema>({
     id: "save-mesocycle",
     lastSubmission,
-    noValidate: true,
+    onValidate({ formData }) {
+      return parse(formData, { schema });
+    },
     defaultValue: {
       trainingDays: preset
         ? preset.trainingDays.map((trainingDay) => ({
@@ -157,7 +159,7 @@ export default function NewMesocycleDesign() {
   }, [lastSubmission?.error]);
 
   useAfterPaintEffect(() => {
-    if (lastSubmission?.error) {
+    if (lastSubmission?.error && Object.keys(lastSubmission.error).length) {
       toast.custom(
         (t) => (
           <ErrorToast

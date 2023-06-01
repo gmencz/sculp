@@ -32,6 +32,7 @@ import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Input } from "~/components/input";
+import { classes } from "~/utils/classes";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -191,7 +192,7 @@ export default function Exercises() {
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
             to={configRoutes.exercises.new}
-            className="block rounded-md bg-orange-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+            className={clsx(classes.buttonOrLink.primary, "block")}
           >
             New exercise
           </Link>
@@ -376,7 +377,7 @@ function ExerciseRow({
         <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
           <Link
             to={`./${exercise.id}`}
-            className="text-orange-600 hover:text-orange-900"
+            className={classes.buttonOrLink.textOnly}
           >
             Edit<span className="sr-only">, {exercise.name}</span>
           </Link>

@@ -17,6 +17,7 @@ import { ChevronUpIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Disclosure } from "@headlessui/react";
+import { BackLink } from "~/components/back-link";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -65,6 +66,10 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
+      <div className="mb-4 sm:hidden">
+        <BackLink to={configRoutes.mesocycles.list}>Go back</BackLink>
+      </div>
+
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>{mesocycle.name}</Heading>

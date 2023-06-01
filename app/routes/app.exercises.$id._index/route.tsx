@@ -29,6 +29,7 @@ import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/config-routes";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 import { AppPageLayout } from "~/components/app-page-layout";
+import { BackLink } from "~/components/back-link";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -122,13 +123,7 @@ export default function Exercise() {
   return (
     <AppPageLayout>
       <div className="mb-4 sm:hidden">
-        <Link
-          to={configRoutes.exercises.list}
-          className="flex items-center gap-2 text-sm font-semibold leading-7 text-orange-600"
-        >
-          <ArrowLongLeftIcon className="h-6 w-6" />
-          <span>Go back</span>
-        </Link>
+        <BackLink to={configRoutes.exercises.list}>Go back</BackLink>
       </div>
 
       <div>
