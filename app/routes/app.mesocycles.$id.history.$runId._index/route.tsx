@@ -2,10 +2,11 @@ import { useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { addDays, eachDayOfInterval, isSameDay } from "date-fns";
-import { getMesocycleRunById, getTrainingDay } from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 import { TrainingDay } from "../app._index/day-plan/training-day";
 import { RestDay } from "../app._index/day-plan/rest-day";
+import { prisma } from "~/db.server";
+import { getTrainingDayById } from "~/models/mesocycle.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -14,7 +15,36 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("runId param is falsy, this should never happen");
   }
 
-  const mesocycleRun = await getMesocycleRunById(runId, user.id);
+  const mesocycleRun = await prisma.mesocycleRun.findFirst({
+    where: {
+      id: runId,
+      ranByUserId: user.id,
+    },
+    select: {
+      startDate: true,
+      endDate: true,
+      microcycles: {
+        select: {
+          trainingDays: {
+            select: {
+              id: true,
+              number: true,
+              date: true,
+            },
+          },
+        },
+      },
+      mesocycle: {
+        select: {
+          name: true,
+          restDays: true,
+          microcycles: true,
+          _count: { select: { trainingDays: true } },
+        },
+      },
+    },
+  });
+
   if (!mesocycleRun) {
     throw new Response("Not found", {
       status: 404,
@@ -98,7 +128,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   }
 
   if (foundDay.trainingDay?.id) {
-    const trainingDayData = await getTrainingDay(foundDay.trainingDay.id);
+    const trainingDayData = await getTrainingDayById(foundDay.trainingDay.id);
 
     if (!trainingDayData) {
       throw new Error("trainingDayData is null, this should never happen");

@@ -2,16 +2,16 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { requireUser } from "~/session.server";
+import {
+  getDraftMesocycle,
+  getDraftMesocycleSessionKey,
+  getSession,
+  requireUser,
+} from "~/session.server";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import {
-  createMesocycle,
-  getDraftMesocycle,
-  getMesocyclePresetByName,
-} from "~/models/mesocycle.server";
 import { configRoutes } from "~/config-routes";
 import { Heading } from "~/components/heading";
 import { TrainingDayFieldset } from "./training-day-fieldset";
@@ -19,14 +19,14 @@ import { SubmitButton } from "~/components/submit-button";
 import { ErrorMessage } from "~/components/error-message";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import { getExercisesForAutocomplete } from "~/models/exercise.server";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { useAfterPaintEffect } from "~/utils";
+import { getRepRangeBounds, useAfterPaintEffect } from "~/utils";
 import { toast } from "react-hot-toast";
 import { ErrorToast } from "~/components/error-toast";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
+import { prisma } from "~/db.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -50,13 +50,56 @@ export const action = async ({ request, params }: ActionArgs) => {
     draftMesocycle;
   const { trainingDays } = submission.value;
 
-  return createMesocycle(request, user.id, {
-    draftId: id,
-    goal,
-    name,
-    trainingDays,
-    microcycles: durationInMicrocycles,
-    restDays: restDaysPerMicrocycle,
+  await prisma.mesocycle.create({
+    data: {
+      name,
+      microcycles: durationInMicrocycles,
+      restDays: restDaysPerMicrocycle,
+      goal,
+      userId: user.id,
+      trainingDays: {
+        create: trainingDays.map((trainingDay) => ({
+          label: trainingDay.label,
+          number: trainingDay.dayNumber,
+          exercises: {
+            create: trainingDay.exercises.map((exercise, index) => ({
+              notes: exercise.notes,
+              exercise: {
+                connect: {
+                  id: exercise.id,
+                },
+              },
+              number: index + 1,
+              sets: {
+                create: exercise.sets.map((set, index) => {
+                  const [repRangeLowerBound, repRangeUpperBound] =
+                    getRepRangeBounds(set.repRange);
+
+                  return {
+                    number: index + 1,
+                    weight: set.weight,
+                    repRangeLowerBound,
+                    repRangeUpperBound,
+                    rir: set.rir,
+                  };
+                }),
+              },
+            })),
+          },
+        })),
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const session = await getSession(request);
+  session.unset(getDraftMesocycleSessionKey(id));
+  return redirect(configRoutes.mesocycles.list, {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(session),
+    },
   });
 };
 
@@ -72,10 +115,53 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     return redirect(configRoutes.mesocycles.newStepOne);
   }
 
-  const exercises = await getExercisesForAutocomplete(user.id);
+  const exercises = await prisma.exercise.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
 
   if (mesocycle.presetName) {
-    const preset = await getMesocyclePresetByName(mesocycle.presetName);
+    const preset = await prisma.mesocyclePreset.findUnique({
+      where: { name: mesocycle.presetName },
+      select: {
+        trainingDays: {
+          orderBy: {
+            number: "asc",
+          },
+          select: {
+            number: true,
+            label: true,
+            exercises: {
+              orderBy: {
+                number: "asc",
+              },
+              select: {
+                number: true,
+                exerciseId: true,
+                notes: true,
+                sets: {
+                  orderBy: {
+                    number: "asc",
+                  },
+                  select: {
+                    rir: true,
+                    weight: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
     if (!preset) {
       throw new Error(
         `Preset not found with name ${mesocycle.presetName}. This shouldn't happen`

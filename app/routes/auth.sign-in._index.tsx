@@ -11,7 +11,7 @@ import { ErrorToast } from "~/components/error-toast";
 import { Input } from "~/components/input";
 import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/config-routes";
-import { verifyLogin } from "~/models/user.server";
+import { verifyLogin } from "~/services/auth/api/verify-login";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
 import { createUserSession, sessionStorage } from "~/session.server";
 import { generateId, useAfterPaintEffect } from "~/utils";

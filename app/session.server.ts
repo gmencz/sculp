@@ -1,10 +1,10 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import type { User } from "~/models/user.server";
-import { getUserById } from "~/models/user.server";
-import { createStripeCheckoutSession } from "./services/stripe/api/create-checkout";
 import { configRoutes } from "./config-routes";
+import type { User } from "@prisma/client";
+import { prisma } from "./db.server";
+import { nanoid } from "nanoid";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -35,16 +35,6 @@ export async function getUserId(
   return userId;
 }
 
-export async function getUser(request: Request) {
-  const userId = await getUserId(request);
-  if (userId === undefined) return null;
-
-  const user = await getUserById(userId);
-  if (user) return user;
-
-  throw await logout(request);
-}
-
 export async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
@@ -62,7 +52,16 @@ export async function requireUser(
   options?: { ignoreSubscription: boolean }
 ) {
   const userId = await requireUserId(request);
-  const user = await getUserById(userId);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      subscription: {
+        select: { status: true },
+      },
+    },
+  });
 
   if (user) {
     if (options?.ignoreSubscription) {
@@ -101,6 +100,41 @@ export async function logout(request: Request) {
   return redirect("/", {
     headers: {
       "Set-Cookie": await sessionStorage.destroySession(session),
+    },
+  });
+}
+
+export type DraftMesocycle = {
+  name: string;
+  goal: string;
+  durationInMicrocycles: number;
+  restDaysPerMicrocycle: number[];
+  trainingDaysPerMicrocycle: number[];
+  presetName?: string;
+};
+
+export const getDraftMesocycleSessionKey = (id: string) =>
+  `draft-mesocycle-${id}`;
+
+export async function getDraftMesocycle(
+  request: Request,
+  id: string
+): Promise<DraftMesocycle | null> {
+  const session = await getSession(request);
+  const mesocycle = await session.get(getDraftMesocycleSessionKey(id));
+  return mesocycle;
+}
+
+export async function createDraftMesocycle(
+  request: Request,
+  input: DraftMesocycle
+) {
+  const session = await getSession(request);
+  const id = nanoid();
+  session.set(getDraftMesocycleSessionKey(id), input);
+  return redirect(configRoutes.mesocycles.newStepTwo(id), {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(session),
     },
   });
 }

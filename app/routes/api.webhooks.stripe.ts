@@ -1,12 +1,7 @@
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type Stripe from "stripe";
-import {
-  createSubscription,
-  deleteSubscriptionById,
-  updateSubscriptionByUserId,
-} from "~/models/subscription.server";
-import { getUserByCustomerId } from "~/models/user.server";
+import { prisma } from "~/db.server";
 import { stripe } from "~/services/stripe/config.server";
 import { env } from "~/utils/env";
 
@@ -41,7 +36,7 @@ export async function action({ request }: ActionArgs) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
 
-        await deleteSubscriptionById(subscription.id);
+        await prisma.subscription.delete({ where: { id: subscription.id } });
 
         return json({}, { status: 200 });
       }
@@ -53,7 +48,21 @@ export async function action({ request }: ActionArgs) {
           throw new Error("Missing userId in metadata.");
         }
 
-        await createSubscription(userId, subscription);
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            stripeCustomerId: { set: subscription.customer.toString() },
+            subscription: {
+              create: {
+                id: subscription.id,
+                status: subscription.status,
+                currentPeriodStart: subscription.current_period_start,
+                currentPeriodEnd: subscription.current_period_end,
+                cancelAtPeriodEnd: subscription.cancel_at_period_end,
+              },
+            },
+          },
+        });
 
         return json({}, { status: 200 });
       }
@@ -62,9 +71,17 @@ export async function action({ request }: ActionArgs) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
 
-        const user = await getUserByCustomerId(
-          subscription.customer.toString()
-        );
+        const user = await prisma.user.findUnique({
+          where: { stripeCustomerId: subscription.customer.toString() },
+          select: {
+            id: true,
+            subscription: {
+              select: {
+                status: true,
+              },
+            },
+          },
+        });
 
         if (!user) {
           throw new Error(
@@ -72,7 +89,17 @@ export async function action({ request }: ActionArgs) {
           );
         }
 
-        await updateSubscriptionByUserId(user.id, subscription);
+        await prisma.subscription.update({
+          where: {
+            userId: user.id,
+          },
+          data: {
+            status: { set: subscription.status },
+            currentPeriodStart: { set: subscription.current_period_start },
+            currentPeriodEnd: { set: subscription.current_period_end },
+            cancelAtPeriodEnd: { set: subscription.cancel_at_period_end },
+          },
+        });
 
         return json({}, { status: 200 });
       }

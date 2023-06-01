@@ -6,8 +6,8 @@ import { useState } from "react";
 import { BackLink } from "~/components/back-link";
 import { Spinner } from "~/components/spinner";
 import { configRoutes } from "~/config-routes";
-import { getUserByCustomerId } from "~/models/user.server";
-import { stripe } from "~/services/stripe/config.server";
+import { prisma } from "~/db.server";
+import { getCheckoutSessionById } from "~/services/stripe/api/get-checkout-session-by-id";
 import { createUserSession, sessionStorage } from "~/session.server";
 import { useInterval } from "~/utils/hooks";
 
@@ -18,19 +18,30 @@ export const loader = async ({ request }: LoaderArgs) => {
     return redirect(configRoutes.root);
   }
 
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const session = await getCheckoutSessionById(sessionId);
   if (!session.customer) {
     throw new Error("Missing customer in stripe checkout session.");
   }
 
-  const user = await getUserByCustomerId(session.customer.toString());
-  const successStatuses = ["trialing", "active"];
+  const user = await prisma.user.findUnique({
+    where: { stripeCustomerId: session.customer.toString() },
+    select: {
+      id: true,
+      subscription: {
+        select: {
+          status: true,
+        },
+      },
+    },
+  });
 
+  const successStatuses = ["trialing", "active"];
   if (
     user?.subscription &&
     successStatuses.includes(user.subscription.status)
   ) {
     const userSession = await createUserSession({ request, userId: user.id });
+
     return json(
       {
         sessionId,

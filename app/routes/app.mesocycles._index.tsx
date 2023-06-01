@@ -13,14 +13,34 @@ import { Heading } from "~/components/heading";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
-import { getCurrentMesocycle, getMesocycles } from "~/models/mesocycle.server";
+import { prisma } from "~/db.server";
 import { requireUser } from "~/session.server";
 import { classes } from "~/utils/classes";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
-  const mesocycles = await getMesocycles(user.id);
-  const currentMesocycle = await getCurrentMesocycle(user.id);
+  const mesocycles = await prisma.mesocycle.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      goal: true,
+      microcycles: true,
+      restDays: true,
+      _count: { select: { trainingDays: true } },
+    },
+  });
+
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: { id: true, mesocycle: { select: { id: true } } },
+  });
+
   return json({ mesocycles, currentMesocycle });
 };
 

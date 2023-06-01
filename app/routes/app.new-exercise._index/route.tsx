@@ -1,5 +1,6 @@
 import { useFieldList, useForm } from "@conform-to/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
 import type { Schema } from "./schema";
@@ -8,15 +9,12 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
-import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
-import {
-  createExercise,
-  findExerciseByNameUserId,
-} from "~/models/exercise.server";
 import { AppPageLayout } from "~/components/app-page-layout";
+import { prisma } from "~/db.server";
+import { configRoutes } from "~/config-routes";
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
@@ -29,18 +27,44 @@ export const action = async ({ request }: ActionArgs) => {
 
   const { name, muscleGroups } = submission.value;
 
-  const existingExercise = await findExerciseByNameUserId(name, user.id);
+  const existingExercise = await prisma.exercise.findUnique({
+    where: {
+      name_userId: {
+        name,
+        userId: user.id,
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
+
   if (existingExercise) {
     submission.error["name"] = "An exercise with that name already exists.";
     return json(submission, { status: 400 });
   }
 
-  return createExercise(user.id, { name, muscleGroups });
+  await prisma.exercise.create({
+    data: {
+      name,
+      userId: user.id,
+      muscleGroups: {
+        connect: muscleGroups.map((name) => ({ name })),
+      },
+    },
+    select: { id: true },
+  });
+
+  return redirect(configRoutes.exercises.list);
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
-  const muscleGroups = await getMuscleGroups();
+  const muscleGroups = await prisma.muscleGroup.findMany({
+    select: {
+      name: true,
+    },
+  });
 
   return json({
     muscleGroupsOptions: muscleGroups.map((m) => m.name),

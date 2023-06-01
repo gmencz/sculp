@@ -1,17 +1,12 @@
 import { useFieldList, useForm } from "@conform-to/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import {
-  findExerciseByNameUserId,
-  getExercise,
-  updateExercise,
-} from "~/models/exercise.server";
 import { requireUser } from "~/session.server";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useSearchParams,
@@ -19,17 +14,16 @@ import {
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
-import { getMuscleGroups } from "~/models/muscle-groups.server";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
-import { useAfterPaintEffect } from "~/utils";
+import { generateId, useAfterPaintEffect } from "~/utils";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/config-routes";
-import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { BackLink } from "~/components/back-link";
+import { prisma } from "~/db.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -47,16 +41,63 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const { name, muscleGroups } = submission.value;
 
-  const existingExercise = await findExerciseByNameUserId(name, user.id);
+  const existingExercise = await prisma.exercise.findUnique({
+    where: {
+      name_userId: {
+        name,
+        userId: user.id,
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
+
   if (existingExercise && name !== existingExercise.name) {
     submission.error["name"] = "An exercise with that name already exists.";
     return json(submission, { status: 400 });
   }
 
-  return updateExercise(new URL(request.url), id, user.id, {
-    name,
-    muscleGroups,
+  const exercise = await prisma.exercise.findFirst({
+    where: {
+      AND: [{ id }, { userId: user.id }],
+    },
+    select: {
+      id: true,
+      muscleGroups: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
+
+  if (!exercise) {
+    throw new Response("Not found", { status: 404 });
+  }
+
+  const url = new URL(request.url);
+
+  const disconnectMuscleGroups = exercise.muscleGroups.filter(
+    (muscleGroup) => !muscleGroups.includes(muscleGroup.name)
+  );
+
+  const updatedExercise = await prisma.exercise.update({
+    where: {
+      id: exercise.id,
+    },
+    data: {
+      name,
+      muscleGroups: {
+        disconnect: disconnectMuscleGroups,
+        connect: muscleGroups.map((name) => ({ name })),
+      },
+    },
+    select: { id: true },
+  });
+
+  url.searchParams.set("success_id", generateId());
+  return redirect(configRoutes.exercises.view(updatedExercise.id) + url.search);
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -66,14 +107,36 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  const exercise = await getExercise(id, user.id);
+  const exercise = await prisma.exercise.findFirst({
+    where: {
+      AND: [{ id }, { userId: user.id }],
+    },
+    select: {
+      id: true,
+      name: true,
+      muscleGroups: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   if (!exercise) {
     throw new Response("Not Found", {
       status: 404,
     });
   }
 
-  const muscleGroups = await getMuscleGroups();
+  const muscleGroups = await prisma.muscleGroup.findMany({
+    select: {
+      name: true,
+    },
+  });
 
   return json({
     exercise,

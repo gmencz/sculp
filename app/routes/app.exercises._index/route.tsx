@@ -15,7 +15,6 @@ import { json } from "@remix-run/server-runtime";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
-import { deleteExercises, getExercises } from "~/models/exercise.server";
 import { requireUser } from "~/session.server";
 import type { Schema, SearchSchema } from "./schema";
 import { searchSchema } from "./schema";
@@ -33,6 +32,7 @@ import { SuccessToast } from "~/components/success-toast";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Input } from "~/components/input";
 import { classes } from "~/utils/classes";
+import { prisma } from "~/db.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -51,7 +51,49 @@ export const loader = async ({ request }: LoaderArgs) => {
     }
   }
 
-  const exercises = await getExercises(user.id, query);
+  let formattedQuery;
+  if (query) {
+    formattedQuery = query
+      .split(/\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(" | ");
+  }
+
+  const exercises = await prisma.exercise.findMany({
+    where: formattedQuery
+      ? {
+          AND: [
+            { userId: user.id },
+            {
+              OR: [
+                { name: { search: formattedQuery } },
+                {
+                  muscleGroups: { some: { name: { search: formattedQuery } } },
+                },
+              ],
+            },
+          ],
+        }
+      : {
+          userId: user.id,
+        },
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      muscleGroups: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   return json({
     exercises,
     noResults: exercises.length === 0 && Boolean(query),
@@ -70,7 +112,14 @@ export const action = async ({ request }: ActionArgs) => {
   const { deleteExercisesIds } = submission.value;
 
   try {
-    await deleteExercises(deleteExercisesIds.filter(Boolean), user.id);
+    await prisma.exercise.deleteMany({
+      where: {
+        AND: [
+          { userId: user.id },
+          { id: { in: deleteExercisesIds.filter(Boolean) } },
+        ],
+      },
+    });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2003") {

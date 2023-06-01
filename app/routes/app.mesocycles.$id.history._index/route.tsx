@@ -9,7 +9,7 @@ import { BackLink } from "~/components/back-link";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/config-routes";
-import { getMesocycleRunsById } from "~/models/mesocycle.server";
+import { prisma } from "~/db.server";
 import { requireUser } from "~/session.server";
 import { classes } from "~/utils/classes";
 
@@ -20,7 +20,26 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  const mesocycle = await getMesocycleRunsById(id, user.id);
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      name: true,
+      runs: {
+        select: {
+          id: true,
+          startDate: true,
+          endDate: true,
+        },
+        orderBy: {
+          startDate: "desc",
+        },
+      },
+    },
+  });
+
   if (!mesocycle) {
     throw new Response("Not found", {
       status: 404,

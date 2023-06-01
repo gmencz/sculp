@@ -12,11 +12,6 @@ import {
   isToday,
   startOfToday,
 } from "date-fns";
-import {
-  getCurrentMesocycleDetailed,
-  getMesocyclesCount,
-  getTrainingDay,
-} from "~/models/mesocycle.server";
 import { requireUser } from "~/session.server";
 import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
 import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in-the-future";
@@ -31,6 +26,7 @@ import { getRepRangeBounds, redirectBack } from "~/utils";
 import { prisma } from "~/db.server";
 import { configRoutes } from "~/config-routes";
 import { DayPlan } from "./day-plan";
+import { getTrainingDayById } from "~/models/mesocycle.server";
 
 export type CurrentMesocycleNotFoundData = {
   type: "current_mesocycle_not_found";
@@ -54,7 +50,7 @@ export type CurrentMesocycleStartedData = {
     isCurrent: boolean;
   }[];
   day: {
-    trainingDay: Awaited<ReturnType<typeof getTrainingDay>>;
+    trainingDay: Awaited<ReturnType<typeof getTrainingDayById>>;
     dayNumber: number;
     microcycleNumber: number;
   };
@@ -69,11 +65,46 @@ export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
   let data: Data | null = null;
 
-  const currentMesocycle = await getCurrentMesocycleDetailed(user.id);
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: {
+      startDate: true,
+      mesocycle: {
+        select: {
+          name: true,
+          microcycles: true,
+          restDays: true,
+          _count: { select: { trainingDays: true } },
+        },
+      },
+      microcycles: {
+        select: {
+          restDays: true,
+          trainingDays: {
+            orderBy: {
+              number: "asc",
+            },
+            select: {
+              id: true,
+              number: true,
+              date: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
   if (!currentMesocycle) {
     data = {
       type: "current_mesocycle_not_found",
-      mesocyclesCount: await getMesocyclesCount(user.id),
+      mesocyclesCount: await prisma.mesocycle.count({
+        where: {
+          userId: user.id,
+        },
+      }),
     };
 
     return json(data);
@@ -182,7 +213,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   }
 
   if (foundDay.trainingDay?.id) {
-    const trainingDayData = await getTrainingDay(foundDay.trainingDay.id);
+    const trainingDayData = await getTrainingDayById(foundDay.trainingDay.id);
 
     if (!trainingDayData) {
       throw new Error("trainingDayData is null, this should never happen");

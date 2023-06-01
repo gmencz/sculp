@@ -13,9 +13,10 @@ import { Input } from "~/components/input";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/config-routes";
-import { createUser } from "~/models/user.server";
+import { prisma } from "~/db.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
 import { generateId, useAfterPaintEffect } from "~/utils";
+import { hashPassword } from "~/utils/encryption";
 
 const schema = z
   .object({
@@ -56,12 +57,27 @@ export const action = async ({ request }: ActionArgs) => {
   const { email, password } = submission.value;
 
   try {
-    const newUser = await createUser(email, password);
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: {
+          create: {
+            hash: await hashPassword(password),
+          },
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
       newUser.email,
       configRoutes.auth.getStarted + `?canceled_id=${generateId()}`
     );
+
     return redirect(sessionUrl, { status: 303 });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

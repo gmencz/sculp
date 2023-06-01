@@ -1,7 +1,7 @@
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { CurrentMesocycleStartedData } from "../route";
 import { RestDay } from "./rest-day";
 import { TrainingDay } from "./training-day";
+import type { CurrentMesocycleStartedData } from "../route";
 
 type DayPlanProps = {
   data: SerializeFrom<CurrentMesocycleStartedData>;

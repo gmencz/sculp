@@ -8,7 +8,6 @@ import { Link, NavLink, Outlet } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren, SVGAttributes } from "react";
-import { Fragment } from "react";
 import { configRoutes } from "~/config-routes";
 import { requireUser } from "~/session.server";
 

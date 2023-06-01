@@ -2,7 +2,6 @@ import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import {
   Form,
-  Link,
   isRouteErrorResponse,
   useActionData,
   useLoaderData,
@@ -10,33 +9,29 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { ErrorPage } from "~/components/error-page";
 import { requireUser } from "~/session.server";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
-import {
-  ArrowLongLeftIcon,
-  CheckIcon,
-  ChevronUpDownIcon,
-} from "@heroicons/react/20/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
-import { getMesocycle, updateMesocycle } from "~/models/mesocycle.server";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { toast } from "react-hot-toast";
 import { SuccessToast } from "~/components/success-toast";
-import { useAfterPaintEffect } from "~/utils";
-import { getExercisesForAutocomplete } from "~/models/exercise.server";
+import { generateId, getRepRangeBounds, useAfterPaintEffect } from "~/utils";
 import { configRoutes } from "~/config-routes";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { ErrorToast } from "~/components/error-toast";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
+import { prisma } from "~/db.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -45,14 +40,69 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  const mesocycle = await getMesocycle(id, user.id);
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      goal: true,
+      microcycles: true,
+      restDays: true,
+      trainingDays: {
+        orderBy: { number: "asc" },
+        select: {
+          id: true,
+          number: true,
+          label: true,
+          exercises: {
+            orderBy: { number: "asc" },
+            select: {
+              id: true,
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              number: true,
+              notes: true,
+              sets: {
+                orderBy: { number: "asc" },
+                select: {
+                  id: true,
+                  number: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                  weight: true,
+                  rir: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
   if (!mesocycle) {
     throw new Response("Not Found", {
       status: 404,
     });
   }
 
-  const exercises = await getExercisesForAutocomplete(user.id);
+  const exercises = await prisma.exercise.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
 
   return json({ mesocycle, exercises });
 };
@@ -88,7 +138,77 @@ export const action = async ({ request, params }: ActionArgs) => {
   }
 
   const { trainingDays } = submission.value;
-  return updateMesocycle(new URL(request.url), id, user.id, { trainingDays });
+
+  const mesocycle = await prisma.mesocycle.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      userId: true,
+    },
+  });
+
+  // Check if the mesocycle exists and belongs to the current user.
+  if (!mesocycle || mesocycle.userId !== user.id) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const url = new URL(request.url);
+
+  const updatedMesocycle = await prisma.mesocycle.update({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+    },
+    data: {
+      trainingDays: {
+        update: trainingDays.map((trainingDay) => ({
+          where: { id: trainingDay.id },
+          data: {
+            label: { set: trainingDay.label },
+            exercises: {
+              deleteMany: { mesocycleTrainingDayId: trainingDay.id },
+
+              create: trainingDay.exercises.map((exercise, index) => ({
+                notes: exercise.notes,
+                exercise: {
+                  connect: {
+                    id: exercise.searchedExerciseId,
+                  },
+                },
+                number: index + 1,
+                sets: {
+                  create: exercise.sets.map((set, index) => {
+                    const [repRangeLowerBound, repRangeUpperBound] =
+                      getRepRangeBounds(set.repRange);
+
+                    return {
+                      number: index + 1,
+                      weight: set.weight,
+                      repRangeLowerBound,
+                      repRangeUpperBound,
+                      rir: set.rir,
+                    };
+                  }),
+                },
+              })),
+            },
+          },
+        })),
+      },
+    },
+  });
+
+  url.searchParams.set("success_id", generateId());
+
+  return redirect(
+    configRoutes.mesocycles.view(updatedMesocycle.id) + url.search
+  );
 };
 
 export default function Mesocycle() {

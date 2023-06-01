@@ -2,17 +2,14 @@ import { Form, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { startOfToday } from "date-fns";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { BackLink } from "~/components/back-link";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/config-routes";
-import {
-  getCurrentMesocycle,
-  getMesocycle,
-  stopMesocycle,
-} from "~/models/mesocycle.server";
+import { prisma } from "~/db.server";
 import { requireUser } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -22,14 +19,29 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  const mesocycle = await getMesocycle(id, user.id, true);
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
   if (!mesocycle) {
     throw new Response("Not found", {
       status: 404,
     });
   }
 
-  const currentMesocycle = await getCurrentMesocycle(user.id);
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: { mesocycle: { select: { id: true } } },
+  });
 
   // Can't stop a mesocycle that is not the current one.
   if (
@@ -49,7 +61,62 @@ export const action = async ({ request, params }: ActionArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  return stopMesocycle(user.id, id);
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!mesocycle) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: { id: true, mesocycle: { select: { id: true } } },
+  });
+
+  // Can't stop a mesocycle that is not the current one.
+  if (
+    !currentMesocycle?.mesocycle ||
+    currentMesocycle.mesocycle.id !== mesocycle.id
+  ) {
+    return redirect(configRoutes.mesocycles.list);
+  }
+
+  await prisma.$transaction([
+    prisma.mesocycleRun.update({
+      where: {
+        id: currentMesocycle.id,
+      },
+      data: {
+        endDate: { set: startOfToday() },
+      },
+    }),
+    prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        currentMesocycleRun: {
+          disconnect: true,
+        },
+      },
+      select: {
+        id: true,
+      },
+    }),
+  ]);
+
+  return redirect(configRoutes.mesocycles.list);
 };
 
 export default function StopMesocycle() {

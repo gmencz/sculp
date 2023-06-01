@@ -1,12 +1,10 @@
+import type { User } from "@prisma/client";
 import { useMatches, useSearchParams } from "@remix-run/react";
 import { redirect } from "@remix-run/server-runtime";
 import { nanoid } from "nanoid";
 import type { DependencyList, EffectCallback, RefObject } from "react";
 import { useState } from "react";
-import { useCallback } from "react";
 import { useEffect, useMemo, useRef } from "react";
-
-import type { User } from "~/models/user.server";
 
 const DEFAULT_REDIRECT = "/";
 

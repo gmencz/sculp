@@ -1,29 +1,31 @@
 import { parse } from "@conform-to/zod";
-import { Link } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { requireUser } from "~/session.server";
+import { createDraftMesocycle, requireUser } from "~/session.server";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
-import {
-  createDraftMesocycle,
-  findMesocycleByNameUserId,
-  getMesocyclePresetByName,
-  getMesocyclesPresets,
-} from "~/models/mesocycle.server";
 import { schema } from "./schema";
-import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
-import { configRoutes } from "~/config-routes";
 import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
 import { PresetMesocycle } from "./preset";
 import clsx from "clsx";
-import { BackLink } from "~/components/back-link";
+import { prisma } from "~/db.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
 
-  const mesocyclesPresets = await getMesocyclesPresets();
+  const mesocyclesPresets = await prisma.mesocyclePreset.findMany({
+    select: {
+      name: true,
+      microcycles: true,
+      restDays: true,
+      trainingDays: {
+        select: {
+          number: true,
+        },
+      },
+    },
+  });
 
   return json({ mesocyclesPresets });
 };
@@ -46,7 +48,17 @@ export const action = async ({ request }: ActionArgs) => {
     presetName,
   } = submission.value;
 
-  const existingMesocycle = await findMesocycleByNameUserId(name, user.id);
+  const existingMesocycle = await prisma.mesocycle.findUnique({
+    where: {
+      name_userId: {
+        name,
+        userId: user.id,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
 
   if (existingMesocycle) {
     submission.error["name"] = "A mesocycle with that name already exists.";
@@ -55,7 +67,11 @@ export const action = async ({ request }: ActionArgs) => {
 
   // Use preset.
   if (presetName) {
-    const preset = await getMesocyclePresetByName(presetName);
+    const preset = await prisma.mesocyclePreset.findUnique({
+      where: { name: presetName },
+      select: { name: true },
+    });
+
     if (!preset) {
       throw new Error(
         `Preset not found with name ${presetName}. This shouldn't happen`
@@ -70,7 +86,7 @@ export const action = async ({ request }: ActionArgs) => {
         (a, b) => a - b
       ),
       restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
-      presetName,
+      presetName: preset.name,
     });
   }
 

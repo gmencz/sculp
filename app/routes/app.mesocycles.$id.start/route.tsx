@@ -6,9 +6,9 @@ import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/session.server";
-import { getMesocycle, startMesocycle } from "~/models/mesocycle.server";
 import clsx from "clsx";
 import { Input } from "~/components/input";
 import { configRoutes } from "~/config-routes";
@@ -18,6 +18,8 @@ import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Disclosure } from "@headlessui/react";
 import { BackLink } from "~/components/back-link";
+import { prisma } from "~/db.server";
+import { addDays, startOfDay } from "date-fns";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -26,7 +28,55 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Error("id param is falsy, this should never happen");
   }
 
-  const mesocycle = await getMesocycle(id, user.id, true);
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      trainingDays: {
+        orderBy: { number: "asc" },
+        select: {
+          id: true,
+          number: true,
+          label: true,
+          exercises: {
+            orderBy: { number: "asc" },
+            select: {
+              id: true,
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  muscleGroups: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+              number: true,
+              notes: true,
+              sets: {
+                orderBy: { number: "asc" },
+                select: {
+                  id: true,
+                  number: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                  weight: true,
+                  rir: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
   if (!mesocycle) {
     throw new Response("Not found", {
       status: 404,
@@ -49,8 +99,117 @@ export const action = async ({ request, params }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  const { startDate } = submission.value;
-  return startMesocycle(user.id, id, submission, { startDate });
+  const mesocycle = await prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      microcycles: true,
+      restDays: true,
+      _count: { select: { trainingDays: true } },
+      trainingDays: {
+        select: {
+          number: true,
+          label: true,
+          exercises: {
+            select: {
+              exercise: { select: { id: true } },
+              notes: true,
+              number: true,
+              sets: {
+                select: {
+                  number: true,
+                  weight: true,
+                  rir: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!mesocycle) {
+    throw new Response("Not found", {
+      status: 404,
+    });
+  }
+
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: { id: true },
+  });
+
+  if (currentMesocycle) {
+    submission.error["form"] =
+      "You can't start this mesocycle because you are currently in the middle of one. You can stop your current mesocycle on the mesocycles page and then start this one.";
+
+    return json(submission, { status: 400 });
+  }
+
+  const totalMesocycleDays =
+    mesocycle.microcycles *
+    (mesocycle.restDays.length + mesocycle._count.trainingDays);
+
+  const endDate = addDays(submission.value.startDate, totalMesocycleDays);
+  const startDate = startOfDay(submission.value.startDate);
+
+  const microcycleLength =
+    mesocycle._count.trainingDays + mesocycle.restDays.length;
+
+  await prisma.mesocycleRun.create({
+    data: {
+      mesocycle: { connect: { id } },
+      currentUser: { connect: { id: user.id } },
+      ranByUser: { connect: { id: user.id } },
+      startDate,
+      endDate,
+      microcycles: {
+        // Create the microcycles with the values from the mesocycle.
+        create: Array.from({ length: mesocycle.microcycles }, (_, i) => i).map(
+          (microcycleIndex) => ({
+            restDays: mesocycle.restDays,
+            trainingDays: {
+              create: mesocycle.trainingDays.map((trainingDay) => ({
+                number: trainingDay.number,
+                label: trainingDay.label,
+                completed: false,
+                date: addDays(
+                  startDate,
+                  microcycleIndex * microcycleLength + trainingDay.number - 1
+                ),
+                exercises: {
+                  create: trainingDay.exercises.map((exercise) => ({
+                    number: exercise.number,
+                    notes: exercise.notes,
+                    exercise: { connect: { id: exercise.exercise.id } },
+                    sets: {
+                      create: exercise.sets.map((set) => ({
+                        number: set.number,
+                        repRangeLowerBound: set.repRangeLowerBound,
+                        repRangeUpperBound: set.repRangeUpperBound,
+                        rir: set.rir,
+                        weight: set.weight,
+                        completed: false,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          })
+        ),
+      },
+    },
+  });
+
+  return redirect(configRoutes.appRoot);
 };
 
 export default function StartMesocycle() {

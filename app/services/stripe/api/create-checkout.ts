@@ -1,7 +1,6 @@
 import { stripe } from "../config.server";
 import { configRoutes } from "../../../config-routes";
 import { env } from "~/utils/env";
-import { generateId } from "~/utils";
 
 export async function createStripeCheckoutSession(
   userId: string,

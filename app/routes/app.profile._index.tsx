@@ -10,13 +10,22 @@ import { format } from "date-fns";
 import { Fragment, useRef, useState } from "react";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { configRoutes } from "~/config-routes";
-import { deleteUser, getUserDetails } from "~/models/user.server";
+import { prisma } from "~/db.server";
 import { logout, requireUserId } from "~/session.server";
 import { env } from "~/utils/env";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const user = await getUserDetails(userId);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      createdAt: true,
+      subscription: {
+        select: { status: true, currentPeriodEnd: true },
+      },
+    },
+  });
 
   if (!user || !user.subscription) {
     throw await logout(request);
@@ -32,7 +41,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
   if (request.method === "DELETE") {
-    await deleteUser(userId);
+    await prisma.user.delete({ where: { id: userId }, select: { id: true } });
     return logout(request);
   }
 

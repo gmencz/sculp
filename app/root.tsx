@@ -1,9 +1,4 @@
-import type {
-  LinksFunction,
-  LoaderArgs,
-  V2_MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LinksFunction, V2_MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -17,7 +12,6 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
-import { getUser } from "~/session.server";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
@@ -41,10 +35,6 @@ export const meta: V2_MetaFunction = () => [
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheetUrl },
 ];
-
-export const loader = async ({ request }: LoaderArgs) => {
-  return json({ user: await getUser(request) });
-};
 
 export default function App() {
   return (
