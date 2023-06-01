@@ -66,7 +66,7 @@ export function CustomMesocycle() {
           config={durationInMicrocycles}
           options={durationInMicrocyclesArray}
           label="How many microcycles?"
-          helperText="This cannot be changed later."
+          helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
         />
 
         <Select
