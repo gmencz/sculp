@@ -200,7 +200,7 @@ export default function NewMesocycleDesign() {
 
           <div className="mt-4 sm:ml-auto sm:mt-0">
             <SubmitButton
-              className="whitespace-nowrap"
+              className="w-full whitespace-nowrap"
               text="Save and continue"
             />
           </div>

@@ -117,7 +117,7 @@ export default function StartMesocycle() {
         />
 
         <div className="mt-6">
-          <SubmitButton text="Start mesocycle" />
+          <SubmitButton className="w-full" text="Start mesocycle" />
         </div>
       </Form>
     </AppPageLayout>
