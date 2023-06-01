@@ -1,6 +1,6 @@
 import type { Submission } from "@conform-to/react";
 import { json, redirect } from "@remix-run/server-runtime";
-import { addDays, startOfDay } from "date-fns";
+import { addDays, startOfDay, startOfToday } from "date-fns";
 import { nanoid } from "nanoid";
 import { configRoutes } from "~/config-routes";
 import { prisma } from "~/db.server";
@@ -250,6 +250,60 @@ export async function getMesocycles(userId: string) {
       microcycles: true,
       restDays: true,
       _count: { select: { trainingDays: true } },
+    },
+  });
+}
+
+export async function getMesocycleRunsById(id: string, userId: string) {
+  return prisma.mesocycle.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    select: {
+      name: true,
+      runs: {
+        select: {
+          id: true,
+          startDate: true,
+          endDate: true,
+        },
+        orderBy: {
+          startDate: "desc",
+        },
+      },
+    },
+  });
+}
+
+export async function getMesocycleRunById(id: string, userId: string) {
+  return prisma.mesocycleRun.findFirst({
+    where: {
+      id,
+      ranByUserId: userId,
+    },
+    select: {
+      startDate: true,
+      endDate: true,
+      microcycles: {
+        select: {
+          trainingDays: {
+            select: {
+              id: true,
+              number: true,
+              date: true,
+            },
+          },
+        },
+      },
+      mesocycle: {
+        select: {
+          name: true,
+          restDays: true,
+          microcycles: true,
+          _count: { select: { trainingDays: true } },
+        },
+      },
     },
   });
 }
@@ -568,19 +622,29 @@ export async function stopMesocycle(userId: string, id: string) {
     return redirect(configRoutes.mesocycles.list);
   }
 
-  await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      currentMesocycleRun: {
-        disconnect: true,
+  await prisma.$transaction([
+    prisma.mesocycleRun.update({
+      where: {
+        id: currentMesocycle.id,
       },
-    },
-    select: {
-      id: true,
-    },
-  });
+      data: {
+        endDate: { set: startOfToday() },
+      },
+    }),
+    prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        currentMesocycleRun: {
+          disconnect: true,
+        },
+      },
+      select: {
+        id: true,
+      },
+    }),
+  ]);
 
   return redirect(configRoutes.mesocycles.list);
 }

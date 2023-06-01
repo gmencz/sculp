@@ -18,6 +18,7 @@ import { parse } from "@conform-to/zod";
 import { TrainingDayExerciseReadOnly } from "./training-day-exercise-read-only";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { AppPageLayout } from "~/components/app-page-layout";
+import { format } from "date-fns";
 
 type TrainingDayProps = {
   trainingDay: SerializeFrom<
@@ -80,7 +81,8 @@ export function TrainingDay({
         <div className="flex items-center justify-between">
           {readOnly ? (
             <h2 className="mb-1 font-medium text-zinc-200">
-              {mesocycleName} - M{microcycleNumber} D{dayNumber}
+              {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
+              {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
             </h2>
           ) : (
             <h2 className="mb-1 font-medium text-zinc-200">
@@ -104,7 +106,7 @@ export function TrainingDay({
         </ul>
       </AppPageLayout>
 
-      <div className="bg-zinc-50 sm:mt-6">
+      <div className="bg-zinc-50 pb-12 sm:mt-6">
         <ol className="flex flex-col gap-6">
           {trainingDay.exercises.map((exercise) => (
             <li key={exercise.id}>
