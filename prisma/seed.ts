@@ -20,14 +20,14 @@ import {
 const prisma = new PrismaClient();
 
 async function seed() {
-  const email = "admin@sculpedapp.com";
+  const email = "dev@sculped.app";
 
   // cleanup the existing database
   await prisma.user.delete({ where: { email } }).catch(() => {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("hypertrophyiscool", 10);
+  const hashedPassword = await bcrypt.hash("password123", 10);
 
   const user = await prisma.user.create({
     data: {

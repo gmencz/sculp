@@ -11,6 +11,8 @@ import { getCheckoutSessionById } from "~/services/stripe/api/get-checkout-sessi
 import { useInterval } from "~/utils/hooks";
 import { signIn } from "~/services/auth/api/sign-in";
 import { sessionStorage } from "~/utils/session.server";
+import { classes } from "~/utils/classes";
+import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const url = new URL(request.url);
@@ -113,11 +115,11 @@ export default function Checkout() {
 
           <div className="my-4" />
 
-          <h3 className="mb-3 text-3xl font-bold text-zinc-950">
+          <h3 className="mb-3 text-2xl font-bold text-zinc-950">
             Checkout completed!
           </h3>
 
-          <p className="mb-6 max-w-md text-center font-medium text-zinc-500">
+          <p className="mb-6 max-w-md text-center text-sm font-medium text-zinc-500">
             You're now one step closer to unlocking your ultimate
             muscle-building journey. Prepare to push boundaries, break records,
             and achieve your dream physique. Thank you for choosing our app, and
@@ -127,9 +129,10 @@ export default function Checkout() {
           <Link
             prefetch="intent"
             to={configRoutes.app.current}
-            className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+            className={classes.buttonOrLink.primary}
           >
             Continue to App
+            <ArrowLongRightIcon className="h-4 w-4 text-white" />
           </Link>
         </>
       )}
