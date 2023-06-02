@@ -174,7 +174,10 @@ export default function SignIn() {
             </div>
           </div>
 
-          <SubmitButton text="Sign in" />
+          <SubmitButton
+            text="Sign in"
+            className="flex w-full items-center justify-center gap-1"
+          />
         </Form>
 
         <p className="text-center text-sm leading-6 text-gray-500">

@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
@@ -13,7 +13,7 @@ import clsx from "clsx";
 import { Input } from "~/components/input";
 import { configRoutes } from "~/config-routes";
 import { SubmitButton } from "~/components/submit-button";
-import { ChevronUpIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
+import { ChevronUpIcon } from "@heroicons/react/20/solid";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Disclosure } from "@headlessui/react";
@@ -229,30 +229,13 @@ export default function StartMesocycle() {
         <BackLink to={configRoutes.mesocycles.list}>Go back</BackLink>
       </div>
 
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <Heading>{mesocycle.name}</Heading>
-          <Paragraph className="mt-1">
-            Review your mesocycle to make sure everything looks good before
-            starting your training. Keep in mind that the sets, weights and RIR
-            (Reps In Reserve) shown here are your starting point and you can
-            change them any time during your training.
-          </Paragraph>
-        </div>
-
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <Link
-            to={configRoutes.mesocycles.view(mesocycle.id)}
-            className="inline-flex justify-center gap-3 rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <PencilSquareIcon
-              className="h-5 w-5 text-white"
-              aria-hidden="true"
-            />
-            Make changes
-          </Link>
-        </div>
-      </div>
+      <Heading>{mesocycle.name}</Heading>
+      <Paragraph className="mt-1">
+        Review your mesocycle to make sure everything looks good before starting
+        your training. Keep in mind that the sets, weights and RIR (Reps In
+        Reserve) shown here are your starting point and you can change them any
+        time during your training.
+      </Paragraph>
 
       <nav
         className="mt-6 divide-y divide-zinc-200 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl"

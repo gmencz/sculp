@@ -16,6 +16,7 @@ import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
+import { cssBundleHref } from "@remix-run/css-bundle";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -34,6 +35,7 @@ export const meta: V2_MetaFunction = () => [
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheetUrl },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
 export default function App() {
