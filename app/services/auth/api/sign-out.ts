@@ -1,5 +1,5 @@
 import { redirect } from "@remix-run/server-runtime";
-import { getSessionFromCookie } from "../../../utils/session.server";
+import { getSessionFromCookie, sessionStorage } from "~/utils/session.server";
 import { configRoutes } from "~/utils/routes";
 
 export async function signOut(request: Request) {

@@ -16,24 +16,12 @@ import { createStripeCheckoutSession } from "~/services/stripe/api/create-checko
 import { generateId } from "~/utils/ids";
 import { signIn } from "~/services/auth/api/sign-in";
 import { useAfterPaintEffect } from "~/utils/hooks";
+import { sessionStorage } from "~/utils/session.server";
+import { emailSchema, passwordSchema } from "~/utils/schemas";
 
 const schema = z.object({
-  email: z
-    .string({
-      invalid_type_error: "Email is not valid.",
-      required_error: "Email is required.",
-    })
-    .min(1, "Email is required.")
-    .max(254, "Email must be at most 254 characters long.")
-    .email("Email is not valid."),
-
-  password: z
-    .string({
-      invalid_type_error: "Password is not valid.",
-      required_error: "Password is required.",
-    })
-    .min(8, "Password must be at least 8 characters long.")
-    .max(128, "Password must be at most 128 characters long."),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
 type Schema = z.infer<typeof schema>;

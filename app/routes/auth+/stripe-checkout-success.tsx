@@ -10,6 +10,7 @@ import { prisma } from "~/utils/db.server";
 import { getCheckoutSessionById } from "~/services/stripe/api/get-checkout-session-by-id";
 import { useInterval } from "~/utils/hooks";
 import { signIn } from "~/services/auth/api/sign-in";
+import { sessionStorage } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const url = new URL(request.url);

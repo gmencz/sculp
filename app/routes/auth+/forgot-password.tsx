@@ -15,16 +15,10 @@ import { prisma } from "~/utils/db.server";
 import { sendPasswordResetEmail } from "~/services/resend/api/send-password-reset-email";
 import { generateId } from "~/utils/ids";
 import { useAfterPaintEffect } from "~/utils/hooks";
+import { emailSchema } from "~/utils/schemas";
 
 const schema = z.object({
-  email: z
-    .string({
-      invalid_type_error: "Email is not valid.",
-      required_error: "Email is required.",
-    })
-    .min(1, "Email is required.")
-    .max(254, "Email must be at most 254 characters long.")
-    .email("Email is not valid."),
+  email: emailSchema,
 });
 
 type Schema = z.infer<typeof schema>;

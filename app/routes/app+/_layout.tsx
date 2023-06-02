@@ -4,7 +4,7 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { Link, NavLink, Outlet } from "@remix-run/react";
+import { Link, NavLink, Outlet, useLocation } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren, SVGAttributes } from "react";
@@ -16,7 +16,7 @@ const navigation = [
     name: "Current",
     href: configRoutes.app.current,
     icon: CalendarDaysIcon,
-    end: true,
+    end: () => true,
   },
   {
     name: "Exercises",
@@ -58,6 +58,8 @@ const navigation = [
     name: "Mesocycles",
     href: configRoutes.app.mesocycles.list,
     icon: FolderIcon,
+    end: (currentPath: string) =>
+      currentPath.startsWith(configRoutes.app.mesocycles.new.step1),
   },
   {
     name: "Plan a new mesocycle",
@@ -122,6 +124,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 function Layout({ children }: PropsWithChildren) {
+  const location = useLocation();
+
   return (
     <>
       {/* Static sidebar for desktop */}
@@ -137,7 +141,7 @@ function Layout({ children }: PropsWithChildren) {
                   {navigation.map((item) => (
                     <li key={item.name}>
                       <NavLink
-                        end={item.end}
+                        end={item.end ? item.end(location.pathname) : false}
                         to={item.href}
                         className={({ isActive }) =>
                           clsx(

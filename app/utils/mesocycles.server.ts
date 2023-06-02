@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 import { nanoid } from "nanoid";
-import { getSessionFromCookie } from "./session.server";
+import { getSessionFromCookie, sessionStorage } from "./session.server";
 import { configRoutes } from "./routes";
 
 export type DraftMesocycle = {
