@@ -1,4 +1,8 @@
-import { useEffect, useRef } from "react";
+import type { User } from "@prisma/client";
+import { useMatches } from "@remix-run/react";
+import type { DependencyList, EffectCallback, RefObject } from "react";
+import { useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Declarative interval.
@@ -21,4 +25,124 @@ export function useInterval(callback: () => void, delay: number | null) {
       return () => clearInterval(id);
     }
   }, [delay]);
+}
+
+/**
+ * Delay the execution of a function or a state update with useDebounce.
+ * @param value The value that you want to debounce.
+ * @param delay The delay time in milliseconds. After this amount of time, the latest value is used.
+ * @returns The debounced value. After the delay time has passed without the value changing, this will be updated to the latest value.
+ */
+export function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+/**
+ * Check if a CSS media query matches.
+ * @param query The CSS media query.
+ * @returns whether the media query matches or not.
+ */
+export function useMediaQuery(query: string): boolean {
+  const getMatches = (query: string): boolean => {
+    // Prevents SSR issues
+    if (typeof window !== "undefined") {
+      return window.matchMedia(query).matches;
+    }
+    return false;
+  };
+
+  const [matches, setMatches] = useState<boolean>(getMatches(query));
+
+  function handleChange() {
+    setMatches(getMatches(query));
+  }
+
+  useEffect(() => {
+    const matchMedia = window.matchMedia(query);
+
+    // Triggered at the first client-side load and if query changes
+    handleChange();
+
+    // Listen matchMedia
+    matchMedia.addEventListener("change", handleChange);
+
+    return () => {
+      matchMedia.removeEventListener("change", handleChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  return matches;
+}
+
+/**
+ * Fallback to a ref if one is not provided to the component forwarding it.
+ * @param forwardedRef The ref that might have been forwarded or not.
+ * @returns The forwarded ref if it exists, otherwise a fallback ref.
+ */
+export function useFallbackRef<T>(forwardedRef: RefObject<T>) {
+  const fallbackRef = useRef<T>(null);
+  return forwardedRef || fallbackRef;
+}
+
+/**
+ * Runs an effect after browser paint.
+ * @param effect Imperative function that can return a cleanup function.
+ * @param deps If present, effect will only activate if the values in the list change.
+ */
+export function useAfterPaintEffect(
+  effect: EffectCallback,
+  deps?: DependencyList | undefined
+) {
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        effect();
+      }, 0);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+function isUser(user: any): user is User {
+  return user && typeof user === "object" && typeof user.id === "string";
+}
+
+/**
+ * Get the current user.
+ * @returns The user if it exists or undefined.
+ */
+export function useOptionalUser(): User | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isUser(data.user)) {
+    return undefined;
+  }
+  return data.user;
+}
+
+/**
+ * This base hook is used in other hooks to quickly search for specific data
+ * across all loader data using useMatches.
+ * @param {string} id The route id
+ * @returns {JSON|undefined} The router data or undefined if not found
+ */
+export function useMatchesData(
+  id: string
+): Record<string, unknown> | undefined {
+  const matchingRoutes = useMatches();
+  const route = useMemo(
+    () => matchingRoutes.find((route) => route.id === id),
+    [matchingRoutes, id]
+  );
+  return route?.data;
 }

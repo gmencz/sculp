@@ -1,5 +1,5 @@
 import type { Password, User } from "@prisma/client";
-import { prisma } from "~/db.server";
+import { prisma } from "~/utils/db.server";
 import bcrypt from "bcryptjs";
 
 export async function verifyLogin(

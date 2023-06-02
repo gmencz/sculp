@@ -10,10 +10,10 @@ import { useMemo } from "react";
 import { useEffect } from "react";
 import { Fragment, useRef, useState } from "react";
 import { ErrorMessage } from "./error-message";
-import { capitalize } from "~/utils";
+import { capitalize } from "~/utils/strings";
 
 type SelectProps = {
-  config: FieldConfig;
+  config: FieldConfig<any>;
   label: string;
   options: (string | number)[];
   helperText?: string;

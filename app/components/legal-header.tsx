@@ -1,7 +1,7 @@
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
-import { configRoutes } from "~/config-routes";
-import { useOptionalUser } from "~/utils";
+import { useOptionalUser } from "~/utils/hooks";
+import { configRoutes } from "~/utils/routes";
 
 export function LegalHeader() {
   const user = useOptionalUser();

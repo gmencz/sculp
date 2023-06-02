@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { env } from "~/utils/env";
+import { env } from "~/utils/env.server";
 
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2022-11-15",

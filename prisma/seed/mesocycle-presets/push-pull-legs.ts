@@ -9,7 +9,7 @@ import {
   quads,
   shoulders,
   triceps,
-} from "prisma/exercises";
+} from "../exercises";
 import type { PresetMesocycleTemplate } from ".";
 import { defaultSets } from ".";
 

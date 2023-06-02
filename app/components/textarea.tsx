@@ -8,10 +8,10 @@ import { useState } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import ContentEditable from "react-contenteditable";
-import { useFallbackRef } from "~/utils";
+import { useFallbackRef } from "~/utils/hooks";
 
 type TextareaProps = {
-  config: FieldConfig;
+  config: FieldConfig<string>;
   label: string;
   helperText?: string;
   hideErrorMessage?: boolean;

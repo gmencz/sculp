@@ -20,7 +20,7 @@ import {
 const prisma = new PrismaClient();
 
 async function seed() {
-  const email = "admin@sculpapp.com";
+  const email = "admin@sculpedapp.com";
 
   // cleanup the existing database
   await prisma.user.delete({ where: { email } }).catch(() => {

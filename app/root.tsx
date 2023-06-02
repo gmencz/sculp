@@ -1,4 +1,9 @@
-import type { LinksFunction, V2_MetaFunction } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderArgs,
+  V2_MetaFunction,
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -17,10 +22,12 @@ import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
 import { cssBundleHref } from "@remix-run/css-bundle";
+import { requireUserId } from "./services/auth/api/require-user-id";
+import { prisma } from "./utils/db.server";
 
 export const meta: V2_MetaFunction = () => [
   {
-    title: "Sculp",
+    title: "Sculped",
     charset: "utf-8",
   },
   {
@@ -37,6 +44,15 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheetUrl },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const userId = await requireUserId(request);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+  return json({ user });
+};
 
 export default function App() {
   return (

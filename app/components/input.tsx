@@ -4,13 +4,12 @@ import clsx from "clsx";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { Link } from "@remix-run/react";
 
 type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 > & {
-  config: FieldConfig;
+  config: FieldConfig<string>;
   label: string;
   helperText?: string;
   hideErrorMessage?: boolean;

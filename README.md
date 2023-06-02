@@ -1,3 +1,3 @@
-# Sculp
+# Sculped
 
 Smart hypertrophy app for maximum muscle growth 💪

@@ -1,6 +1,6 @@
 import { stripe } from "../config.server";
-import { configRoutes } from "../../../config-routes";
-import { env } from "~/utils/env";
+import { configRoutes } from "../../../utils/routes";
+import { env } from "~/utils/env.server";
 
 export async function createStripeCheckoutSession(
   userId: string,
@@ -18,7 +18,7 @@ export async function createStripeCheckoutSession(
     line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
     customer_email: userEmail,
     mode: "subscription",
-    success_url: `${env.HOST_URL}${configRoutes.auth.checkout}`,
+    success_url: `${env.HOST_URL}${configRoutes.auth.stripeCheckoutSuccess}`,
     cancel_url: `${env.HOST_URL}${cancelUrl}`,
     subscription_data: {
       trial_period_days: isEligibleForFreeTrial ? 30 : undefined,

@@ -1,3 +1,5 @@
+const { flatRoutes } = require('remix-flat-routes')
+
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
   cacheDirectory: "./node_modules/.cache/remix",
@@ -11,4 +13,9 @@ module.exports = {
   postcss: true,
   serverModuleFormat: "cjs",
   tailwind: true,
+
+  // Flat Routes.
+  routes: async (defineRoutes) => {
+    return flatRoutes('routes', defineRoutes)
+  },
 };
