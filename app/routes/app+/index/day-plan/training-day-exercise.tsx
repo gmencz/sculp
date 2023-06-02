@@ -366,14 +366,19 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         preventScrollReset
         replace
         method="post"
-        className="mt-4 px-4 sm:px-6 lg:px-8"
+        className="mt-4 px-4 pb-4 sm:px-6 lg:px-8"
         {...addSetForm.props}
       >
         <input {...conform.input(addSetId, { hidden: true })} />
         <input {...conform.input(addSetActionintent, { hidden: true })} />
         <input {...conform.input(addSetSetId, { hidden: true })} />
 
-        <SubmitButton isSubmitting={false} secondary text="Add set" />
+        <SubmitButton
+          isSubmitting={false}
+          secondary
+          className="w-full ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
+          text="Add set"
+        />
       </Form>
 
       {exercise.previousRun ? (

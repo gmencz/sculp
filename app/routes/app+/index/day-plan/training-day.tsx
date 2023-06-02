@@ -137,6 +137,7 @@ export function TrainingDay({
               <SubmitButton
                 isSubmitting={isSubmitting}
                 disabled={!canFinishSession}
+                className="w-full"
                 text="Complete session"
               />
             </div>
