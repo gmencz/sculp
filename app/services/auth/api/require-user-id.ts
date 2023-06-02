@@ -3,7 +3,9 @@ import { getSessionFromCookie } from "../../../utils/session.server";
 import { redirect } from "@remix-run/server-runtime";
 import { configRoutes } from "~/utils/routes";
 
-async function getUserId(request: Request): Promise<User["id"] | undefined> {
+export async function getUserId(
+  request: Request
+): Promise<User["id"] | undefined> {
   const session = await getSessionFromCookie(request);
   const userId = session.get("userId");
   return userId;
@@ -15,7 +17,10 @@ export async function requireUserId(
 ) {
   const userId = await getUserId(request);
   if (!userId) {
-    throw redirect(configRoutes.auth.signIn + `?redirectTo=${redirectTo}`);
+    throw redirect(
+      configRoutes.auth.signIn +
+        `?redirect_to=${encodeURIComponent(redirectTo)}`
+    );
   }
   return userId;
 }

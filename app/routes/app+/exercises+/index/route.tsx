@@ -230,10 +230,16 @@ export default function Exercises() {
         <div className="sm:flex-auto">
           <Heading>Exercises</Heading>
 
-          <Paragraph className="mt-1">
-            A list of your exercises including their name and muscle groups
-            worked.
-          </Paragraph>
+          {exercises.length > 0 || noResults ? (
+            <Paragraph className="mt-1">
+              A list of your exercises including their name and muscle groups
+              worked.
+            </Paragraph>
+          ) : (
+            <Paragraph className="mt-1">
+              You don't have any exercises yet, go ahead and add some!
+            </Paragraph>
+          )}
 
           {deleteExercisesIdsConfig.error ? (
             <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
@@ -250,15 +256,17 @@ export default function Exercises() {
       </div>
 
       <>
-        <Form className="mt-4" method="get" {...searchForm.props}>
-          <Input
-            config={queryConfig}
-            label="Quick search"
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-          />
-        </Form>
+        {exercises.length > 0 || noResults ? (
+          <Form className="mt-4" method="get" {...searchForm.props}>
+            <Input
+              config={queryConfig}
+              label="Quick search"
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+            />
+          </Form>
+        ) : null}
 
         {exercises.length > 0 ? (
           <Form className="-mx-4 mt-4 sm:-mx-0" method="delete" {...form.props}>

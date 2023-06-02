@@ -22,7 +22,7 @@ import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
 import { cssBundleHref } from "@remix-run/css-bundle";
-import { requireUserId } from "./services/auth/api/require-user-id";
+import { getUserId } from "./services/auth/api/require-user-id";
 import { prisma } from "./utils/db.server";
 
 export const meta: V2_MetaFunction = () => [
@@ -46,11 +46,16 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await requireUserId(request);
+  const userId = await getUserId(request);
+  if (!userId) {
+    return json({ user: null });
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true },
   });
+
   return json({ user });
 };
 

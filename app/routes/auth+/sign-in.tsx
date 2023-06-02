@@ -61,7 +61,15 @@ export async function action({ request }: ActionArgs) {
     userId: user.id,
   });
 
-  return redirect(configRoutes.app.current, {
+  const url = new URL(request.url);
+  let redirectTo = url.searchParams.get("redirect_to");
+  if (redirectTo) {
+    redirectTo = decodeURIComponent(redirectTo);
+  } else {
+    redirectTo = configRoutes.app.current;
+  }
+
+  return redirect(redirectTo, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(userSession),
     },

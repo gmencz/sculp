@@ -1,7 +1,6 @@
 import {
   PencilSquareIcon,
   PlayIcon,
-  PlusIcon,
   StopIcon,
 } from "@heroicons/react/20/solid";
 import { Link, useLoaderData } from "@remix-run/react";
@@ -47,49 +46,20 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function Mesocycles() {
   const { mesocycles, currentMesocycle } = useLoaderData<typeof loader>();
 
-  if (!mesocycles.length) {
-    return (
-      <div className="flex flex-col items-center justify-center px-4 py-32 text-center sm:px-6 lg:px-8">
-        <svg
-          className="mx-auto h-12 w-12 text-zinc-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            vectorEffect="non-scaling-stroke"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-          />
-        </svg>
-        <h3 className="mt-2 text-sm font-semibold text-zinc-900">
-          Nothing here yet
-        </h3>
-        <p className="mt-1 text-sm text-zinc-500">
-          Get started by planning a new mesocycle.
-        </p>
-        <div className="mt-6">
-          <Link
-            to={configRoutes.app.mesocycles.new.step1}
-            className={clsx(classes.buttonOrLink.primary, "inline-flex gap-2")}
-          >
-            <PlusIcon className="h-5 w-5" aria-hidden="true" />
-            New mesocycle
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Heading>Mesocycles</Heading>
-          <Paragraph className="mt-1">A list of all your mesocycles.</Paragraph>
+          {mesocycles.length > 0 ? (
+            <Paragraph className="mt-1">
+              A list of all your mesocycles.
+            </Paragraph>
+          ) : (
+            <Paragraph className="mt-1">
+              You don't have any mesocycles yet, go ahead and plan a new one!
+            </Paragraph>
+          )}
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link

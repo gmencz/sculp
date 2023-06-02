@@ -13,6 +13,8 @@ export const configRoutes = {
   app: {
     current: "/app",
 
+    profile: "/app/profile",
+
     mesocycles: {
       view: (id: string) => `/app/mesocycles/${id}`,
       list: `/app/mesocycles`,

@@ -163,13 +163,13 @@ function Layout({ children }: PropsWithChildren) {
                 </ul>
               </li>
               <li className="-mx-6 mt-auto">
-                <a
-                  href="/app/profile"
+                <Link
+                  to={configRoutes.app.profile}
                   className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-zinc-800"
                 >
                   <UserCircleIcon className="h-8 w-8 rounded-full" />
                   <span aria-hidden="true">Your Profile</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -221,13 +221,13 @@ function Layout({ children }: PropsWithChildren) {
             </span>
           </Link>
 
-          <a
-            href="/app/profile"
+          <Link
+            to={configRoutes.app.profile}
             className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900"
           >
             <UserCircleIcon className="h-8 w-8 rounded-full" />
             <span className="sr-only">Your Profile</span>
-          </a>
+          </Link>
         </div>
       </div>
 
