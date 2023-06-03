@@ -24,11 +24,16 @@ export function validateRepRange(repRange: string, optional: boolean = false) {
   }
 
   // Format: 5-8 or 5-10 or even 90-100.
-  if (repRange.length > 5 || repRange[1] !== "-") {
+  if (repRange.length < 3 || !repRange.includes("-")) {
     return false;
   }
 
-  const [lowerBoundStr, upperBoundStr] = repRange.split("-");
+  const repRangeBounds = repRange.split("-");
+  if (repRangeBounds.length !== 2) {
+    return false;
+  }
+
+  const [lowerBoundStr, upperBoundStr] = repRangeBounds;
   const lowerBound = Number(lowerBoundStr);
   const upperBound = Number(upperBoundStr);
   if (Number.isNaN(lowerBound) || Number.isNaN(upperBound)) {
