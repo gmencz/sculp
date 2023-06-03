@@ -453,9 +453,23 @@ export const action = async ({ request }: ActionArgs) => {
         },
       });
 
+      const lastTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          select: {
+            date: true,
+          },
+          orderBy: {
+            date: "desc",
+          },
+        });
+
+      if (!lastTrainingDay) {
+        throw new Error(`lastTrainingDay is null, this shouldn't happen.`);
+      }
+
       const isLastDayOfMesocycle = isSameDay(
         thisTrainingDay.date,
-        thisTrainingDay.microcycle.mesocycleRun.endDate
+        lastTrainingDay.date
       );
 
       if (isLastDayOfMesocycle) {
