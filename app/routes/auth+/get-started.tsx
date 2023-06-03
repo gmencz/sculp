@@ -117,7 +117,7 @@ export default function GetStarted() {
         </h2>
         <Paragraph className="mt-2 text-center">
           Take your hypertrophy training to the next level for free the first
-          month and then 2.99$/mo.
+          month and then 4.99$/mo.
         </Paragraph>
         <Form method="POST" {...form.props}>
           <div className="relative mb-2 -space-y-px rounded-md shadow-sm">
