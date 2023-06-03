@@ -1,5 +1,4 @@
 import {
-  AcademicCapIcon,
   CalendarDaysIcon,
   FolderIcon,
   PlusCircleIcon,
@@ -67,11 +66,6 @@ const navigation = [
     href: configRoutes.app.mesocycles.new.step1,
     icon: PlusCircleIcon,
   },
-  {
-    name: "Training guide",
-    href: configRoutes.app.recommendations,
-    icon: AcademicCapIcon,
-  },
 ];
 
 const mobileNavigation = [
@@ -121,11 +115,6 @@ const mobileNavigation = [
     name: "Mesocycles",
     href: configRoutes.app.mesocycles.list,
     icon: FolderIcon,
-  },
-  {
-    name: "Guide",
-    href: configRoutes.app.recommendations,
-    icon: AcademicCapIcon,
   },
 ];
 

@@ -2,16 +2,13 @@ import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import {
   Form,
-  isRouteErrorResponse,
   useActionData,
   useLoaderData,
-  useRouteError,
   useSearchParams,
 } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { ErrorPage } from "~/components/error-page";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -108,23 +105,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   return json({ mesocycle, exercises });
 };
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (isRouteErrorResponse(error) && error.status === 404) {
-    return (
-      <ErrorPage
-        statusCode={error.status}
-        title="Mesocycle not found"
-        subtitle={`We couldn't find the mesocycle you were looking for. So sorry.`}
-        action={<BackLink to="/app">Back to your mesocycles</BackLink>}
-      />
-    );
-  }
-
-  throw error;
-}
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);

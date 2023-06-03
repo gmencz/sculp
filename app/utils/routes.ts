@@ -15,8 +15,6 @@ export const configRoutes = {
 
     profile: "/app/profile",
 
-    recommendations: "/app/recommendations",
-
     mesocycles: {
       view: (id: string) => `/app/mesocycles/${id}`,
       viewHistory: (id: string) => `/app/mesocycles/${id}/history`,
