@@ -4,9 +4,9 @@ export default function TermsOfService() {
       <h2 className="mb-4 text-xl font-semibold text-zinc-900">1. Terms</h2>
 
       <p className="mb-10">
-        By accessing this Website, accessible from https://sculpedapp.com, you
-        are agreeing to be bound by these Website Terms and Conditions of Use
-        and agree that you are responsible for the agreement with any applicable
+        By accessing this Website, accessible from https://sculped.app, you are
+        agreeing to be bound by these Website Terms and Conditions of Use and
+        agree that you are responsible for the agreement with any applicable
         local laws. If you disagree with any of these terms, you are prohibited
         from accessing this site. The materials contained in this Website are
         protected by copyright and trade mark law.

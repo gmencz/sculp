@@ -119,11 +119,11 @@ export default function PrivacyPolicy() {
             <strong>Website</strong> refers to Sculped App, accessible from{" "}
             <a
               className="text-orange-400 underline"
-              href="https://sculpedapp.com"
+              href="https://sculped.app"
               rel="noreferrer"
               target="_blank"
             >
-              https://sculpedapp.com
+              https://sculped.app
             </a>
           </p>
         </li>
@@ -557,9 +557,9 @@ export default function PrivacyPolicy() {
           By email:{" "}
           <a
             className="text-orange-400 underline"
-            href="mailto:info@sculpedapp.com"
+            href="mailto:info@sculped.app"
           >
-            info@sculpedapp.com
+            info@sculped.app
           </a>
         </li>
       </ul>

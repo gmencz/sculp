@@ -11,6 +11,7 @@ const envSchema = z.object({
   HOST_URL: z.string(),
   RESEND_API_KEY: z.string(),
   RESEND_NO_REPLY_EMAIL_SENDER: z.string(),
+  PASSWORD_RESET_JWT_SECRET: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

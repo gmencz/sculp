@@ -31,9 +31,8 @@ export default function Index() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             Unleash the muscle-building potential within you using our
-            groundbreaking app. Design customized mesocycles, keep a close eye
-            on your gains, and allow our biofeedback system to intelligently
-            optimize your training. Say goodbye to plateaus and hello to
+            groundbreaking app. Design customized mesocycles and keep a close
+            eye on your progress. Say goodbye to plateaus and hello to
             extraordinary results.
           </p>
           <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">

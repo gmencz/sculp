@@ -20,16 +20,24 @@ const buttonStyle = {
   border: "none",
   borderRadius: "3px",
   padding: "10px 20px",
-  fontSize: "16px",
+  fontSize: "14px",
   cursor: "pointer",
-  marginTop: "20px",
+  marginTop: "15px",
+  marginBottom: "15px",
+  textDecoration: "none",
 };
 
 const linkStyle = {
   color: "#f97316",
 };
 
-export function PasswordResetEmailTemplate() {
+type PasswordResetEmailTemplateProps = {
+  link: string;
+};
+
+export function PasswordResetEmailTemplate({
+  link,
+}: PasswordResetEmailTemplateProps) {
   return (
     <div style={containerStyle}>
       <h2 style={titleStyle}>Reset Your Sculped Password</h2>
@@ -39,7 +47,10 @@ export function PasswordResetEmailTemplate() {
         got you covered! To set a new password and regain access to your
         account, simply click the button below:
       </p>
-      <button style={buttonStyle}>Reset My Password</button>
+      <a style={buttonStyle} href={link}>
+        Reset My Password
+      </a>
+      <p>The link expires in 1 hour.</p>
       <p>
         If you didn't request this password reset, please disregard this email.
         Your account security is important to us.
@@ -47,8 +58,8 @@ export function PasswordResetEmailTemplate() {
       <p>
         If you need further assistance or have any questions, feel free to reach
         out to our support team at{" "}
-        <a style={linkStyle} href="mailto:support@sculpedapp.com">
-          support@sculpedapp.com
+        <a style={linkStyle} href="mailto:support@sculped.app">
+          support@sculped.app
         </a>
         .
       </p>
