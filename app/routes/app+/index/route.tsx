@@ -1,10 +1,9 @@
 import { useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import {
-  addDays,
   differenceInDays,
-  eachDayOfInterval,
   format,
   isAfter,
   isBefore,
@@ -17,6 +16,7 @@ import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in
 import { parse } from "@conform-to/zod";
 import {
   addSetSchema,
+  finishSessionSchema,
   schema,
   updateExerciseSchema,
   updateSetSchema,
@@ -27,6 +27,10 @@ import { DayPlan } from "./day-plan";
 import { redirectBack } from "~/utils/responses.server";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { requireUser } from "~/services/auth/api/require-user";
+import {
+  getMesocycleRunCalendarDays,
+  getMesocycleRunDayByDate,
+} from "~/utils/mesocycles.server";
 
 export enum CurrentMesocycleState {
   NOT_FOUND,
@@ -43,6 +47,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     },
     select: {
       startDate: true,
+      endDate: true,
       mesocycle: {
         select: {
           name: true,
@@ -118,79 +123,41 @@ export const loader = async ({ request }: LoaderArgs) => {
     currentMesocycle.mesocycle._count.trainingDays +
     currentMesocycle.mesocycle.restDays.length;
 
-  // Here we make an array with the length of a microcycle, this is so we can loop through it
-  // later on inside each microcycle.
-  const microcycleDays = Array(microcycleLength).fill(0);
+  const calendarDays = getMesocycleRunCalendarDays(
+    {
+      startDate: currentMesocycle.startDate,
+      endDate: currentMesocycle.endDate,
+      microcycles: currentMesocycle.microcycles,
+      microcycleLength,
+    },
+    date
+  );
 
-  const mesocycleDaysInterval = eachDayOfInterval({
-    start: currentMesocycle.startDate,
-    end: addDays(
-      currentMesocycle.startDate,
-      currentMesocycle.mesocycle.microcycles * microcycleLength - 1
-    ),
-  });
+  const day = getMesocycleRunDayByDate(
+    {
+      startDate: currentMesocycle.startDate,
+      endDate: currentMesocycle.endDate,
+      microcycles: currentMesocycle.microcycles,
+      microcycleLength,
+    },
+    date
+  );
 
-  const calendarDays = mesocycleDaysInterval.map((intervalDate) => {
-    const isPlannedTrainingDay = currentMesocycle.microcycles.some(
-      (microcycle) =>
-        microcycle.trainingDays.some((trainingDay) =>
-          isSameDay(trainingDay.date, intervalDate)
-        )
-    );
-
-    return {
-      date: intervalDate.toISOString(),
-      isCurrent: isSameDay(intervalDate, date),
-      isPlannedTrainingDay,
-    };
-  });
-
-  // Try and find the training day or rest day for the date param.
-  let foundDay = null;
-  for (
-    let microcycleIndex = 0;
-    microcycleIndex < currentMesocycle.microcycles.length;
-    microcycleIndex++
-  ) {
-    if (foundDay) break;
-
-    const microcycle = currentMesocycle.microcycles[microcycleIndex];
-    for (let dayNumber = 1; dayNumber < microcycleDays.length; dayNumber++) {
-      const isDate = isSameDay(
-        date,
-        addDays(
-          currentMesocycle.startDate,
-          microcycleIndex * microcycleLength + dayNumber - 1
-        )
-      );
-
-      if (isDate) {
-        const trainingDay =
-          microcycle.trainingDays.find(({ number }) => number === dayNumber) ||
-          null;
-
-        foundDay = {
-          trainingDay,
-          dayNumber,
-          microcycleNumber: microcycleIndex + 1,
-        };
-      }
-    }
-  }
-
-  if (!foundDay) {
-    throw new Error("foundDay is null, this should never happen");
+  if (!day) {
+    throw new Error("day is null, this should never happen");
   }
 
   state = CurrentMesocycleState.STARTED;
-  if (foundDay.trainingDay?.id) {
+  if (day.trainingDay?.id) {
     const trainingDayData =
       await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
-        where: { id: foundDay.trainingDay.id },
+        where: { id: day.trainingDay.id },
         select: {
+          id: true,
           completed: true,
           label: true,
           date: true,
+          feedback: true,
           exercises: {
             orderBy: {
               number: "asc",
@@ -265,8 +232,8 @@ export const loader = async ({ request }: LoaderArgs) => {
       calendarDays,
       readOnly: !canEdit,
       day: {
-        dayNumber: foundDay.dayNumber,
-        microcycleNumber: foundDay.microcycleNumber,
+        dayNumber: day.dayNumber,
+        microcycleNumber: day.microcycleNumber,
         trainingDay: trainingDayData,
       },
     });
@@ -279,8 +246,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     calendarDays,
     readOnly: true,
     day: {
-      dayNumber: foundDay.dayNumber,
-      microcycleNumber: foundDay.microcycleNumber,
+      dayNumber: day.dayNumber,
+      microcycleNumber: day.microcycleNumber,
       trainingDay: null,
     },
   });
@@ -421,7 +388,88 @@ export const action = async ({ request }: ActionArgs) => {
     }
 
     case "finish-session": {
-      throw new Error("Not implemented");
+      const submission = parse(formData, { schema: finishSessionSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id, feedback } = submission.value;
+
+      const thisTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            AND: [
+              { id },
+              { completed: false },
+              {
+                exercises: { every: { sets: { every: { completed: true } } } },
+              },
+            ],
+          },
+          select: {
+            id: true,
+            number: true,
+            date: true,
+            microcycle: {
+              select: {
+                mesocycleRun: {
+                  select: {
+                    id: true,
+                    endDate: true,
+                    mesocycleId: true,
+                  },
+                },
+              },
+            },
+            exercises: {
+              select: {
+                exerciseId: true,
+                sets: {
+                  select: {
+                    number: true,
+                    repRangeUpperBound: true,
+                    repsCompleted: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      if (!thisTrainingDay || !thisTrainingDay.microcycle?.mesocycleRun) {
+        throw new Error(`This training day can't be finished`);
+      }
+
+      await prisma.mesocycleRunMicrocycleTrainingDay.update({
+        where: {
+          id: thisTrainingDay.id,
+        },
+        data: {
+          completed: true,
+          feedback,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      const isLastDayOfMesocycle = isSameDay(
+        thisTrainingDay.date,
+        thisTrainingDay.microcycle.mesocycleRun.endDate
+      );
+
+      if (isLastDayOfMesocycle) {
+        return redirect(
+          configRoutes.app.mesocycles.viewRunSummary(
+            thisTrainingDay.microcycle.mesocycleRun.mesocycleId,
+            thisTrainingDay.microcycle.mesocycleRun.id
+          )
+        );
+      }
+
+      return redirectBack(request, { fallback: configRoutes.app.current });
     }
 
     default: {

@@ -245,10 +245,10 @@ export default function Exercises() {
             <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
           ) : null}
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+        <div className="mb-6 mt-4 sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none">
           <Link
             to={configRoutes.app.exercises.new}
-            className={clsx(classes.buttonOrLink.primary, "block")}
+            className={clsx(classes.buttonOrLink.primary, "block w-full")}
           >
             New exercise
           </Link>

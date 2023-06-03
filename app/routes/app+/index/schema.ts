@@ -87,3 +87,20 @@ export const updateSetSchema = z.object({
 });
 
 export type UpdateSetSchema = z.TypeOf<typeof updateSetSchema>;
+
+export const finishSessionSchema = z.object({
+  id: idSchema,
+
+  feedback: z
+    .string({ invalid_type_error: "The feedback is not valid." })
+    .max(4096, "The feedback must be less than 4096 characters long."),
+
+  actionIntent: z
+    .literal(actionIntents[1], {
+      required_error: "The action intent is required",
+      invalid_type_error: "The action intent is not valid",
+    })
+    .default(actionIntents[1]),
+});
+
+export type FinishSessionSchema = z.TypeOf<typeof finishSessionSchema>;

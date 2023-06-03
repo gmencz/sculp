@@ -9,6 +9,7 @@ import {
 import { Transition } from "@headlessui/react";
 import type { Set } from "./training-day-exercise-set";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { getSetPerformance } from "~/utils/sets";
 
 type TrainingDayExerciseSetPerformanceProps = {
   previousRunSets: NonNullable<
@@ -22,8 +23,6 @@ type TrainingDayExerciseSetPerformanceProps = {
   set: Set;
 };
 
-type PerformanceResult = "unknown" | "increased" | "declined" | "maintained";
-
 export function TrainingDayExerciseSetPerformance({
   set,
   previousRunSets,
@@ -32,67 +31,7 @@ export function TrainingDayExerciseSetPerformance({
     (previousSet) => previousSet.number === set.number
   );
 
-  const getPerformance = (): PerformanceResult => {
-    if (
-      !previousRunSet ||
-      !previousRunSet.repsCompleted ||
-      !previousRunSet.weight ||
-      !set.repsCompleted ||
-      !set.completed ||
-      !set.weight
-    ) {
-      return "unknown";
-    }
-
-    // If weight is the same and completed less reps, performance declined.
-    if (
-      set.weight === previousRunSet.weight &&
-      set.repsCompleted < previousRunSet.repsCompleted
-    ) {
-      return "declined";
-    }
-
-    // If weight is the same, intensity is higher and completed same reps, performance declined.
-    if (
-      set.weight === previousRunSet.weight &&
-      set.rir < previousRunSet.rir &&
-      set.repsCompleted === previousRunSet.repsCompleted
-    ) {
-      return "declined";
-    }
-
-    // If weight is the same, intensity is the same or lower and completed more reps, performance increased.
-    if (
-      set.weight === previousRunSet.weight &&
-      set.rir >= previousRunSet.rir &&
-      set.repsCompleted > previousRunSet.repsCompleted
-    ) {
-      return "increased";
-    }
-
-    // If weight is higher, intensity is the same or lower and completed the same or more reps, performance increased.
-    if (
-      set.weight > previousRunSet.weight &&
-      set.rir >= previousRunSet.rir &&
-      set.repsCompleted >= previousRunSet.repsCompleted
-    ) {
-      return "increased";
-    }
-
-    const setTotalVolume = set.weight * set.repsCompleted;
-    const previousRunSetTotalVolume =
-      previousRunSet.weight * previousRunSet.repsCompleted;
-
-    if (setTotalVolume > previousRunSetTotalVolume) {
-      return "increased";
-    } else if (setTotalVolume < previousRunSetTotalVolume) {
-      return "declined";
-    }
-
-    return "maintained";
-  };
-
-  const performance = getPerformance();
+  const performance = getSetPerformance(previousRunSet, set);
 
   return (
     <Transition

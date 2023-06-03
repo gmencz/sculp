@@ -2,6 +2,7 @@ import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import type { CurrentMesocycleState, loader } from "../route";
 import { TrainingDayExerciseSetPerformance } from "./training-day-exercise-set-performance";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { Paragraph } from "~/components/paragraph";
 
 type TrainingDayExerciseReadOnlyProps = {
   exercise: NonNullable<
@@ -34,7 +35,7 @@ export function TrainingDayExerciseReadOnly({
         </h3>
 
         {exercise.notes ? (
-          <p className="mt-2 text-sm">{exercise.notes}</p>
+          <Paragraph className="mt-1">{exercise.notes}</Paragraph>
         ) : null}
       </div>
 

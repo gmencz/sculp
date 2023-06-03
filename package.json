@@ -13,7 +13,6 @@
     "dev:stripe": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
     "docker": "docker-compose up -d",
     "format": "prettier --write .",
-    "generate:css": "tailwindcss -i ./styles/tailwind.css -o ./app/styles/tailwind.css",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "setup": "prisma generate && prisma migrate deploy && prisma db seed",
     "start": "cross-env NODE_ENV=production node ./build/server.js",

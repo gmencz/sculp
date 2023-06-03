@@ -16,7 +16,7 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
-import tailwindStylesheetUrl from "~/styles/tailwind.css";
+import tailwindStylesheetUrl from "./tailwind.css";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
 import { BackLink } from "./components/back-link";

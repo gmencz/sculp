@@ -1,4 +1,5 @@
 import {
+  AcademicCapIcon,
   CalendarDaysIcon,
   FolderIcon,
   PlusCircleIcon,
@@ -66,6 +67,11 @@ const navigation = [
     href: configRoutes.app.mesocycles.new.step1,
     icon: PlusCircleIcon,
   },
+  {
+    name: "Training guide",
+    href: configRoutes.app.recommendations,
+    icon: AcademicCapIcon,
+  },
 ];
 
 const mobileNavigation = [
@@ -115,6 +121,11 @@ const mobileNavigation = [
     name: "Mesocycles",
     href: configRoutes.app.mesocycles.list,
     icon: FolderIcon,
+  },
+  {
+    name: "Guide",
+    href: configRoutes.app.recommendations,
+    icon: AcademicCapIcon,
   },
 ];
 
@@ -196,11 +207,8 @@ function Layout({ children }: PropsWithChildren) {
                     )
                   }
                 >
-                  <item.icon
-                    className="mb-1 h-6 w-6 shrink-0"
-                    aria-hidden="true"
-                  />
-                  {item.name}
+                  <item.icon className="mb-1 h-7 w-7 shrink-0" />
+                  <span className="sr-only">{item.name}</span>
                 </NavLink>
               </li>
             ))}

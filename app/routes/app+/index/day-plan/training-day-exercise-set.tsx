@@ -71,7 +71,7 @@ export function TrainingDayExerciseSet({
       leave="transition-opacity duration-150"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
-      className="relative"
+      className="relative transition"
     >
       <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
         <TrashIcon className="h-5 w-5 text-white" />

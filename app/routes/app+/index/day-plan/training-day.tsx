@@ -1,24 +1,19 @@
-import { useMemo } from "react";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from "@remix-run/react";
-import type { Schema } from "../schema";
-import { actionIntents, schema } from "../schema";
+import { useMemo, useState } from "react";
+import { useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
-import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExercise } from "./training-day-exercise";
 import { Calendar } from "../calendar";
-import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
 import { TrainingDayExerciseReadOnly } from "./training-day-exercise-read-only";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { AppPageLayout } from "~/components/app-page-layout";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import type { CurrentMesocycleState, loader } from "../route";
+import { classes } from "~/utils/classes";
+import clsx from "clsx";
+import { FinishTrainingDayModal } from "./finish-training-day-modal";
+import { Disclosure } from "@headlessui/react";
+import { ChevronUpIcon } from "@heroicons/react/20/solid";
+import { Paragraph } from "~/components/paragraph";
 
 type TrainingDayProps = {
   trainingDay: NonNullable<
@@ -49,24 +44,6 @@ export function TrainingDay({
     return Array.from(set);
   }, [trainingDay]);
 
-  const navigation = useNavigation();
-
-  const isSubmitting =
-    navigation.state === "submitting" &&
-    navigation.formData.get("actionIntent") === actionIntents[1];
-
-  const lastSubmission = useActionData();
-  const [form, { actionIntent }] = useForm<Schema>({
-    id: "finish-session",
-    lastSubmission,
-    defaultValue: {
-      actionIntent: actionIntents[1],
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema });
-    },
-  });
-
   const { readOnly } = useLoaderData<
     SerializeFrom<typeof loader> & {
       state: CurrentMesocycleState.STARTED;
@@ -81,39 +58,72 @@ export function TrainingDay({
     [trainingDay.exercises]
   );
 
+  const isDateToday = isToday(new Date(trainingDay.date));
+
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <>
-      <AppPageLayout className="bg-zinc-900">
-        <div className="flex items-center justify-between">
-          {readOnly ? (
-            <h2 className="mb-1 font-medium text-zinc-200">
-              {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
-              {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
-            </h2>
-          ) : (
-            <h2 className="mb-1 font-medium text-zinc-200">
-              {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
-            </h2>
-          )}
+      <div className="bg-zinc-900 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        <div className="mx-auto w-full max-w-2xl">
+          <div className="flex items-center justify-between">
+            {!isDateToday ? (
+              <h2 className="mb-1 font-medium text-zinc-200">
+                {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
+                {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
+              </h2>
+            ) : (
+              <h2 className="mb-1 font-medium text-zinc-200">
+                {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
+              </h2>
+            )}
 
-          <Calendar />
+            <Calendar />
+          </div>
+
+          <Heading white>{trainingDay.label}</Heading>
+
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {muscleGroups.map((muscleGroup, index) => (
+              <li key={muscleGroup}>
+                <MuscleGroupBadge white index={index}>
+                  {muscleGroup}
+                </MuscleGroupBadge>
+              </li>
+            ))}
+          </ul>
         </div>
+      </div>
 
-        <Heading white>{trainingDay.label}</Heading>
+      <div className="bg-zinc-50 pb-12 ">
+        {trainingDay.feedback ? (
+          <div className="mx-auto w-full max-w-2xl rounded border-b border-b-zinc-200">
+            <Disclosure>
+              {({ open }) => (
+                <>
+                  <Disclosure.Button className="flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-zinc-900 hover:bg-orange-100 sm:px-6 lg:px-8">
+                    <span>Your feedback</span>
 
-        <ul className="mt-3 flex flex-wrap gap-2">
-          {muscleGroups.map((muscleGroup, index) => (
-            <li key={muscleGroup}>
-              <MuscleGroupBadge white index={index}>
-                {muscleGroup}
-              </MuscleGroupBadge>
-            </li>
-          ))}
-        </ul>
-      </AppPageLayout>
+                    <div>
+                      <ChevronUpIcon
+                        className={clsx(
+                          "h-5 w-5 transform text-orange-500",
+                          open ? "rotate-180" : "rotate-90"
+                        )}
+                      />
+                    </div>
+                  </Disclosure.Button>
 
-      <div className="bg-zinc-50 pb-12 sm:mt-6">
-        <ol className="flex flex-col gap-6">
+                  <Disclosure.Panel className="bg-white px-4 py-2 sm:px-6 lg:px-8">
+                    <Paragraph>{trainingDay.feedback}</Paragraph>
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          </div>
+        ) : null}
+
+        <ol className="flex flex-col gap-6 sm:mt-6">
           {trainingDay.exercises.map((exercise) => (
             <li key={exercise.id}>
               {readOnly ? (
@@ -126,24 +136,28 @@ export function TrainingDay({
         </ol>
 
         {readOnly ? null : (
-          <Form
-            method="post"
-            className="mt-6 px-4 pb-12 sm:px-6 lg:px-8"
-            {...form.props}
-          >
+          <div className="mt-6 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto w-full max-w-2xl">
-              <input {...conform.input(actionIntent, { hidden: true })} />
-
-              <SubmitButton
-                isSubmitting={isSubmitting}
+              <button
+                type="button"
                 disabled={!canFinishSession}
-                className="w-full"
-                text="Complete session"
-              />
+                onClick={() => setShowModal(true)}
+                className={clsx(classes.buttonOrLink.primary, "w-full")}
+              >
+                Finish session
+              </button>
             </div>
-          </Form>
+          </div>
         )}
       </div>
+
+      {readOnly ? null : (
+        <FinishTrainingDayModal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+          trainingDay={trainingDay}
+        />
+      )}
     </>
   );
 }

@@ -109,12 +109,12 @@ export default function SignIn() {
         <Link to="/">
           <img className="mx-auto h-16 w-auto" src="/logo.png" alt="Sculped" />
         </Link>
-        <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
           Sign in to your account
         </h2>
         <Form method="POST" {...form.props}>
           <div className="relative mb-2 -space-y-px rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-gray-300" />
+            <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-zinc-300" />
 
             <Input
               config={email}
@@ -124,7 +124,7 @@ export default function SignIn() {
               label="Email"
               hideErrorMessage
               placeholder="Email"
-              className="relative rounded-b-none ring-1 ring-inset ring-gray-100 focus:z-10 sm:leading-6"
+              className="relative rounded-b-none ring-1 ring-inset ring-zinc-100 focus:z-10 sm:leading-6"
             />
 
             <Input
@@ -134,7 +134,7 @@ export default function SignIn() {
               label="Password"
               hideErrorMessage
               placeholder="Password"
-              className="relative rounded-t-none ring-1 ring-inset ring-gray-100 focus:z-10 sm:leading-6"
+              className="relative rounded-t-none ring-1 ring-inset ring-zinc-100 focus:z-10 sm:leading-6"
             />
           </div>
 
@@ -177,7 +177,7 @@ export default function SignIn() {
           />
         </Form>
 
-        <p className="text-center text-sm leading-6 text-gray-500">
+        <p className="text-center text-sm leading-6 text-zinc-500">
           Not a member?{" "}
           <Link
             to={configRoutes.auth.getStarted}

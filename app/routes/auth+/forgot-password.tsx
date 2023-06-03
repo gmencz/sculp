@@ -90,7 +90,7 @@ export default function ForgotPassword() {
         <Link to="/">
           <img className="mx-auto h-16 w-auto" src="/logo.png" alt="Sculped" />
         </Link>
-        <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
           Reset your password
         </h2>
         <Paragraph className="mt-2 text-center">
