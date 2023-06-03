@@ -254,7 +254,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export const action = async ({ request }: ActionArgs) => {
-  await requireUser(request);
+  const user = await requireUser(request);
   const formData = await request.formData();
   const intentSubmission = parse(formData, { schema });
 
@@ -415,7 +415,6 @@ export const action = async ({ request }: ActionArgs) => {
               select: {
                 mesocycleRun: {
                   select: {
-                    id: true,
                     endDate: true,
                     mesocycleId: true,
                   },
@@ -424,7 +423,6 @@ export const action = async ({ request }: ActionArgs) => {
             },
             exercises: {
               select: {
-                exerciseId: true,
                 sets: {
                   select: {
                     number: true,
@@ -461,10 +459,23 @@ export const action = async ({ request }: ActionArgs) => {
       );
 
       if (isLastDayOfMesocycle) {
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            currentMesocycleRun: {
+              disconnect: true,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
         return redirect(
-          configRoutes.app.mesocycles.viewRunSummary(
-            thisTrainingDay.microcycle.mesocycleRun.mesocycleId,
-            thisTrainingDay.microcycle.mesocycleRun.id
+          configRoutes.app.mesocycles.viewHistory(
+            thisTrainingDay.microcycle.mesocycleRun.mesocycleId
           )
         );
       }

@@ -19,8 +19,6 @@ export const configRoutes = {
     mesocycles: {
       view: (id: string) => `/app/mesocycles/${id}`,
       viewHistory: (id: string) => `/app/mesocycles/${id}/history`,
-      viewRunSummary: (id: string, runId: string) =>
-        `/app/mesocycles/${id}/history/${runId}/summary`,
       list: `/app/mesocycles`,
       new: {
         step1: `/app/mesocycles/new`,
