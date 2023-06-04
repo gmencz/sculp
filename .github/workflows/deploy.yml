@@ -122,6 +122,9 @@ jobs:
           wait-on: "http://localhost:8811"
         env:
           PORT: "8811"
+          HOST_URL: "http://localhost:8811"
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
   build:
     name: 🐳 Build
