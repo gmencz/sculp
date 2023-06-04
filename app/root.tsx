@@ -13,36 +13,55 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   useLocation,
-  useNavigation,
   useRouteError,
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./tailwind.css";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
-import { useEffect, useState } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { getUserId } from "./services/auth/api/require-user-id";
 import { prisma } from "./utils/db.server";
-import { useInterval } from "./utils/hooks";
 import { GlobalLoading } from "./components/global-loading";
+import { env } from "./utils/env.server";
 
-export const meta: V2_MetaFunction = () => [
-  {
-    title: "Sculped",
-    charset: "utf-8",
-  },
-  {
-    name: "viewport",
-    content: "width=device-width,initial-scale=1",
-  },
-  {
-    name: "description",
-    content: "Smart hypertrophy app for maximum muscle growth.",
-  },
-];
+export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+  const title = "Sculped - Hypertrophy Training";
+
+  const description =
+    "Unleash the muscle-building potential within you using our groundbreaking app. Design customized mesocycles and keep a close eye on your progress. Say goodbye to plateaus and hello to extraordinary results.";
+
+  const keywords =
+    "Sculped, hypertrophy training, muscle building, mesocycles, progress tracking, results";
+
+  const tags = [
+    { title: title, charset: "utf-8" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { name: "description", content: description },
+    { name: "keywords", content: keywords },
+
+    { name: "og:title", content: title },
+    { name: "og:description", content: description },
+    { name: "og:type", content: "website" },
+
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+  ];
+
+  if (data?.baseUrl) {
+    const imageUrl = `${data.baseUrl}/logo.png`;
+    tags.push(
+      { name: "og:image", content: imageUrl },
+      { name: "og:url", content: data.baseUrl },
+      { name: "twitter:image", content: imageUrl }
+    );
+  }
+
+  return tags;
+};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesheetUrl },
@@ -52,7 +71,7 @@ export const links: LinksFunction = () => [
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
   if (!userId) {
-    return json({ user: null });
+    return json({ user: null, baseUrl: env.HOST_URL });
   }
 
   const user = await prisma.user.findUnique({
@@ -60,7 +79,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     select: { id: true },
   });
 
-  return json({ user });
+  return json({ user, baseUrl: env.HOST_URL });
 };
 
 export default function App() {
