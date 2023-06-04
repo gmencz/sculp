@@ -1,17 +1,11 @@
-import {
-  adductors,
-  back,
-  biceps,
-  calves,
-  chest,
-  glutes,
-  hamstrings,
-  quads,
-  shoulders,
-  triceps,
-} from "../exercises";
-import type { PresetMesocycleTemplate } from ".";
-import { defaultSets } from ".";
+import type { PresetMesocycleTemplate } from "./config";
+import { rir, repRangeLowerBound, repRangeUpperBound } from "./config";
+
+// // 2 sets by default
+const defaultSets = [
+  { rir, repRangeLowerBound, repRangeUpperBound },
+  { rir, repRangeLowerBound, repRangeUpperBound },
+];
 
 export const pushPullLegs3on1off: PresetMesocycleTemplate = {
   name: "Push Pull Legs (3 on 1 off)",
@@ -23,23 +17,23 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 1,
       exercises: [
         {
-          name: chest["Chest Press Machine"],
+          name: "Flat Chest Press (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: chest["Incline Cable Fly"],
+          name: "Chest Fly (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: shoulders["Shoulder Press Machine"],
+          name: "Shoulder Press (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: shoulders["SA Cable Lateral Raise"],
+          name: "Lateral Raise (Cable)",
           sets: [...defaultSets],
         },
         {
-          name: triceps["Cable Triceps Pushdown"],
+          name: "Triceps Pushdown (Cable)",
           sets: [...defaultSets],
         },
       ],
@@ -49,19 +43,21 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 2,
       exercises: [
         {
-          name: back["Lat Pulldown"],
+          name: "Lat Pulldown (Cable)",
           sets: [...defaultSets],
         },
         {
-          name: back["Seated Cable Row Lats Bias"],
+          name: "Seated Row (Cable)",
           sets: [...defaultSets],
+          notes: "Narrow grip",
         },
         {
-          name: back["T-Bar Chest Supported Row Upper Back Bias"],
+          name: "T-Bar Row (Machine)",
           sets: [...defaultSets],
+          notes: "Wide grip",
         },
         {
-          name: biceps["Preacher Curl Machine"],
+          name: "Preacher Curl (Machine)",
           sets: [...defaultSets],
         },
       ],
@@ -71,32 +67,32 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 3,
       exercises: [
         {
-          name: quads["Hack Squat"],
+          name: "Hack Squat (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: quads["Leg Extension"],
+          name: "Leg Extension (Machine)",
           notes: "Superset with Sissy Squat",
           sets: [...defaultSets],
         },
         {
-          name: quads["Sissy Squat"],
+          name: "Sissy Squat",
           sets: [...defaultSets],
         },
         {
-          name: hamstrings["Lying Leg Curl"],
+          name: "Lying Leg Curl (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: glutes["Hip Thrust"],
+          name: "Hip Thrust (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: hamstrings["Back Extension"],
+          name: "Back Extension",
           sets: [...defaultSets],
         },
         {
-          name: calves["Standing Calf Raise Machine"],
+          name: "Standing Calf Raise (Machine)",
           sets: [...defaultSets, defaultSets[0]],
         },
       ],
@@ -106,23 +102,23 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 5,
       exercises: [
         {
-          name: shoulders["Smith Machine Shoulder Press"],
+          name: "Shoulder Press (Smith Machine)",
           sets: [...defaultSets],
         },
         {
-          name: shoulders["Lateral Raise Machine"],
+          name: "Lateral Raise (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: chest["Incline Chest Press Machine"],
+          name: "Incline Chest Press (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: chest["Chest Fly Machine"],
+          name: "Chest Fly (Cable)",
           sets: [...defaultSets],
         },
         {
-          name: triceps["Cable Overhead Extension"],
+          name: "Triceps Overhead Extension (Machine)",
           sets: [...defaultSets],
         },
       ],
@@ -132,23 +128,25 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 6,
       exercises: [
         {
-          name: back["Chest Supported Machine Row Upper Back Bias"],
+          name: "Bent Over Row (Barbell)",
+          sets: [...defaultSets],
+          notes: "Narrow grip",
+        },
+        {
+          name: "Seated Row (Machine)",
+          sets: [...defaultSets],
+          notes: "Wide grip",
+        },
+        {
+          name: "SA High Row (Cable)",
           sets: [...defaultSets],
         },
         {
-          name: back["SA Bench Supported High Row Lats Bias"],
+          name: "Reverse Fly (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: shoulders["Reverse Fly Machine"],
-          sets: [...defaultSets],
-        },
-        {
-          name: back["Chest Supported Machine Row Lats Bias"],
-          sets: [...defaultSets],
-        },
-        {
-          name: biceps["Incline DB Curl"],
+          name: "Bicep Curl (Dumbbell)",
           sets: [...defaultSets],
         },
       ],
@@ -158,27 +156,28 @@ export const pushPullLegs3on1off: PresetMesocycleTemplate = {
       number: 7,
       exercises: [
         {
-          name: hamstrings["DB SLDL"],
+          name: "Stiff-Legged Deadlift (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: adductors["Adductors Machine"],
+          name: "Adductors (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: quads["Leg Press"],
+          name: "Leg Press (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: hamstrings["Seated Leg Curl"],
+          name: "Seated Leg Curl (Machine)",
           sets: [...defaultSets],
         },
         {
-          name: glutes["Bulgarian Split Squat Glutes Bias"],
+          name: "Bulgarian Split Squat (Smith Machine)",
           sets: [...defaultSets],
+          notes: "Wide stance",
         },
         {
-          name: calves["Seated Calf Raise Machine"],
+          name: "Seated Calf Raise (Machine)",
           sets: [...defaultSets, defaultSets[0]],
         },
       ],
@@ -191,10 +190,6 @@ export const pushPullLegs6on1off: PresetMesocycleTemplate = {
   name: "Push Pull Legs (6 on 1 off)",
   restDays: [7],
   trainingDays: [
-    {
-      ...pushPullLegs3on1off.trainingDays[0],
-      number: 1,
-    },
     {
       ...pushPullLegs3on1off.trainingDays[0],
       number: 1,

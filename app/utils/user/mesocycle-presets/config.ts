@@ -2,14 +2,8 @@
 export const rir = 0;
 
 // This is the optimal rep range for hypertrophy to limit fatigue.
-const repRangeLowerBound = 5;
-const repRangeUpperBound = 8;
-
-// 2 sets by default
-export const defaultSets = [
-  { rir, repRangeLowerBound, repRangeUpperBound },
-  { rir, repRangeLowerBound, repRangeUpperBound },
-];
+export const repRangeLowerBound = 5;
+export const repRangeUpperBound = 8;
 
 export type PresetMesocycleTemplate = {
   name: string;

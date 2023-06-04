@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -5,6 +8,7 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "stripe_customer_id" TEXT,
+    "role" "Role" NOT NULL DEFAULT 'USER',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -139,6 +143,7 @@ CREATE TABLE "mesocycles_runs_microcycles_training_days" (
     "completed" BOOLEAN NOT NULL DEFAULT false,
     "microcycle_id" TEXT,
     "date" TIMESTAMP(3) NOT NULL,
+    "feedback" TEXT,
 
     CONSTRAINT "mesocycles_runs_microcycles_training_days_pkey" PRIMARY KEY ("id")
 );

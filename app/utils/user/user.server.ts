@@ -1,45 +1,16 @@
-import { PrismaClient, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import type { User } from "@prisma/client";
+import { prisma } from "../db.server";
 import {
   pushPullLegs3on1off,
   pushPullLegs6on1off,
-} from "~/utils/user/mesocycle-presets/config";
-import { MuscleGroup, exercises } from "~/utils/user/exercises";
+} from "./mesocycle-presets/config";
+import { exercises } from "./exercises";
 
-const prisma = new PrismaClient();
-
-async function seed() {
-  const email = "dev@sculped.app";
-
-  // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
-  });
-
-  const hashedPassword = await bcrypt.hash("password123", 10);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      role: Role.ADMIN,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
-  });
-
-  await Promise.all(
-    Object.values(MuscleGroup).map((muscleGroup) =>
-      prisma.muscleGroup.create({
-        data: {
-          name: muscleGroup,
-        },
-      })
-    )
-  );
-
+/**
+ * Creates the preset exercises and mesocycles for a user.
+ * @param id The user id.
+ */
+export async function seedUserById(id: User["id"]) {
   await Promise.all(
     Object.keys(exercises).map((exerciseName) => {
       const muscleGroups = exercises[exerciseName as keyof typeof exercises];
@@ -47,7 +18,7 @@ async function seed() {
       return prisma.exercise.create({
         data: {
           name: exerciseName,
-          user: { connect: { id: user.id } },
+          user: { connect: { id } },
           muscleGroups: {
             connect: muscleGroups.map((muscleGroup) => ({ name: muscleGroup })),
           },
@@ -76,7 +47,7 @@ async function seed() {
                     connect: {
                       name_userId: {
                         name: exercise.name,
-                        userId: user.id,
+                        userId: id,
                       },
                     },
                   },
@@ -96,15 +67,4 @@ async function seed() {
       });
     })
   );
-
-  console.log(`Database has been seeded. 🌱`);
 }
-
-seed()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });

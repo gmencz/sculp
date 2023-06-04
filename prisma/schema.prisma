@@ -20,8 +20,14 @@ model User {
   currentMesocycleRun MesocycleRun?
   subscription        Subscription?
   stripeCustomerId    String?        @unique @map("stripe_customer_id")
+  role                Role           @default(USER)
 
   @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Password {

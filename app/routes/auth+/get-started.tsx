@@ -19,6 +19,7 @@ import { hashPassword } from "~/utils/encryption.server";
 import { generateId } from "~/utils/ids";
 import { useAfterPaintEffect } from "~/utils/hooks";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
+import { seedUserById } from "~/utils/user/user.server";
 
 const schema = z
   .object({
@@ -47,6 +48,7 @@ export const action = async ({ request }: ActionArgs) => {
     const newUser = await prisma.user.create({
       data: {
         email,
+        role: "USER",
         password: {
           create: {
             hash: await hashPassword(password),
@@ -58,6 +60,8 @@ export const action = async ({ request }: ActionArgs) => {
         email: true,
       },
     });
+
+    await seedUserById(newUser.id);
 
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
