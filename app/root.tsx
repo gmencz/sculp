@@ -13,17 +13,21 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   useLocation,
+  useNavigation,
   useRouteError,
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./tailwind.css";
 import { ErrorPage } from "./components/error-page";
 import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 import { BackLink } from "./components/back-link";
 import { Toaster } from "react-hot-toast";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { getUserId } from "./services/auth/api/require-user-id";
 import { prisma } from "./utils/db.server";
+import { useInterval } from "./utils/hooks";
+import { GlobalLoading } from "./components/global-loading";
 
 export const meta: V2_MetaFunction = () => [
   {
@@ -69,8 +73,8 @@ export default function App() {
         <Links />
       </head>
       <body className="h-full">
+        <GlobalLoading />
         <Outlet />
-
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
