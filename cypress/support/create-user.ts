@@ -4,11 +4,13 @@
 // and it will log out the cookie value you can use to interact with the server
 // as that new user.
 
-import { installGlobals } from "@remix-run/node";
+import { installGlobals, redirect } from "@remix-run/node";
 import { parse } from "cookie";
+import bcrypt from "bcryptjs";
 
-import { createUser } from "~/models/user.server";
-import { createUserSession } from "~/session.server";
+import { signIn } from "~/services/auth/api/sign-in";
+import { prisma } from "~/utils/db.server";
+import { sessionStorage } from "~/utils/session.server";
 
 installGlobals();
 
@@ -20,13 +22,31 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await createUser(email, "myreallystrongpassword");
+  const hashedPassword = await bcrypt.hash("myreallystrongpassword", 10);
 
-  const response = await createUserSession({
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password: {
+        create: {
+          hash: hashedPassword,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const userSession = await signIn({
     request: new Request("test://test"),
     userId: user.id,
-    remember: false,
-    redirectTo: "/",
+  });
+
+  const response = redirect("/", {
+    headers: {
+      "Set-Cookie": await sessionStorage.commitSession(userSession),
+    },
   });
 
   const cookieValue = response.headers.get("Set-Cookie");
