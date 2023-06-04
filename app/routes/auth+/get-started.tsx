@@ -20,6 +20,7 @@ import { generateId } from "~/utils/ids";
 import { useAfterPaintEffect } from "~/utils/hooks";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
 import { seedUserById } from "~/utils/user/user.server";
+import { rateLimit } from "~/services/redis/api/rate-limit";
 
 const schema = z
   .object({
@@ -41,6 +42,9 @@ export const action = async ({ request }: ActionArgs) => {
   if (!submission.value || submission.intent !== "submit") {
     return json(submission, { status: 400 });
   }
+
+  // Max 3 requests per hour. This is generous enough.
+  await rateLimit(request, { max: 3, windowInSeconds: 60 * 60 });
 
   const { email, password } = submission.value;
 

@@ -18,6 +18,7 @@ import { signIn } from "~/services/auth/api/sign-in";
 import { useAfterPaintEffect } from "~/utils/hooks";
 import { sessionStorage } from "~/utils/session.server";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
+import { rateLimit } from "~/services/redis/api/rate-limit";
 
 const schema = z.object({
   email: emailSchema,
@@ -33,6 +34,9 @@ export async function action({ request }: ActionArgs) {
   if (!submission.value || submission.intent !== "submit") {
     return json(submission, { status: 400 });
   }
+
+  // Max 10 requests per hour.
+  await rateLimit(request, { max: 10, windowInSeconds: 60 * 60 });
 
   const user = await verifyLogin(
     submission.value.email,

@@ -16,6 +16,7 @@ import { sendPasswordResetEmail } from "~/services/resend/api/send-password-rese
 import { generateId } from "~/utils/ids";
 import { useAfterPaintEffect } from "~/utils/hooks";
 import { emailSchema } from "~/utils/schemas";
+import { rateLimit } from "~/services/redis/api/rate-limit";
 
 const schema = z.object({
   email: emailSchema,
@@ -30,6 +31,9 @@ export const action = async ({ request }: ActionArgs) => {
   if (!submission.value || submission.intent !== "submit") {
     return json(submission, { status: 400 });
   }
+
+  // Max 3 requests per hour. This is generous enough.
+  await rateLimit(request, { max: 3, windowInSeconds: 60 * 60 });
 
   const { email } = submission.value;
   const url = new URL(request.url);
