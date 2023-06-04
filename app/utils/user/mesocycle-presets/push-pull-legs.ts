@@ -1,10 +1,9 @@
 import type { PresetMesocycleTemplate } from "./config";
-import { rir, repRangeLowerBound, repRangeUpperBound } from "./config";
 
 // // 2 sets by default
 const defaultSets = [
-  { rir, repRangeLowerBound, repRangeUpperBound },
-  { rir, repRangeLowerBound, repRangeUpperBound },
+  { rir: 0, repRangeLowerBound: 5, repRangeUpperBound: 8 },
+  { rir: 0, repRangeLowerBound: 5, repRangeUpperBound: 8 },
 ];
 
 export const pushPullLegs3on1off: PresetMesocycleTemplate = {

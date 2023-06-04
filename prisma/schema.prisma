@@ -80,13 +80,15 @@ model MuscleGroup {
 
 model MesocyclePreset {
   id           String                 @id @default(cuid())
-  name         String                 @unique
+  name         String
+  userId       String
   microcycles  Int
   restDays     Int[]                  @map("rest_days")
   createdAt    DateTime               @default(now()) @map("created_at")
   updatedAt    DateTime               @updatedAt @map("updated_at")
   trainingDays MesocycleTrainingDay[]
 
+  @@unique([name, userId])
   @@map("mesocycles_presets")
 }
 

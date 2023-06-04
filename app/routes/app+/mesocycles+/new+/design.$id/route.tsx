@@ -121,7 +121,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   if (mesocycle.presetName) {
     const preset = await prisma.mesocyclePreset.findUnique({
-      where: { name: mesocycle.presetName },
+      where: {
+        name_userId: {
+          name: mesocycle.presetName,
+          userId: user.id,
+        },
+      },
       select: {
         trainingDays: {
           orderBy: {

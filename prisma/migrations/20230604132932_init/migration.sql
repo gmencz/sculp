@@ -57,6 +57,7 @@ CREATE TABLE "muscle_groups" (
 CREATE TABLE "mesocycles_presets" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "microcycles" INTEGER NOT NULL,
     "rest_days" INTEGER[],
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -203,7 +204,7 @@ CREATE UNIQUE INDEX "exercises_name_user_id_key" ON "exercises"("name", "user_id
 CREATE UNIQUE INDEX "muscle_groups_name_key" ON "muscle_groups"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "mesocycles_presets_name_key" ON "mesocycles_presets"("name");
+CREATE UNIQUE INDEX "mesocycles_presets_name_userId_key" ON "mesocycles_presets"("name", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "mesocycles_name_user_id_key" ON "mesocycles"("name", "user_id");

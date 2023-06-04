@@ -63,6 +63,7 @@ async function seed() {
         data: {
           name: template.name,
           microcycles: template.microcycles,
+          userId: user.id,
           restDays: { set: template.restDays },
           trainingDays: {
             create: template.trainingDays.map((trainingDay) => ({

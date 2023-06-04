@@ -33,6 +33,7 @@ export async function seedUserById(id: User["id"]) {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
+          userId: id,
           microcycles: template.microcycles,
           restDays: { set: template.restDays },
           trainingDays: {
