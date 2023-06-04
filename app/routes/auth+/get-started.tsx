@@ -120,13 +120,15 @@ export default function GetStarted() {
         <Link to="/">
           <img className="mx-auto h-16 w-auto" src="/logo.png" alt="Sculped" />
         </Link>
-        <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
-          Start your 30-day free trial
-        </h2>
-        <Paragraph className="mt-2 text-center">
-          Take your hypertrophy training to the next level for free the first
-          month and then 4.99$/mo.
-        </Paragraph>
+        <div>
+          <h2 className=" text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
+            Start your 30-day free trial
+          </h2>
+          <Paragraph className="mt-2 text-center">
+            Take your hypertrophy training to the next level for free the first
+            month and then 4.99$/mo.
+          </Paragraph>
+        </div>
         <Form method="POST" {...form.props}>
           <div className="relative mb-2 -space-y-px rounded-md shadow-sm">
             <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-zinc-300" />
