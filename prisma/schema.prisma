@@ -41,7 +41,7 @@ model Password {
 
 model Subscription {
   id                 String  @id @unique // Managed by Stripe - (Subscription ID)
-  user               User    @relation(fields: [userId], references: [id])
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId             String  @unique
   status             String
   currentPeriodStart Int     @map("current_period_start")
@@ -57,7 +57,7 @@ model Subscription {
 model Exercise {
   id                                             String                                      @id @default(cuid())
   name                                           String
-  user                                           User?                                       @relation(fields: [userId], references: [id])
+  user                                           User?                                       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId                                         String?                                     @map("user_id")
   notes                                          String? // Notes about the exercise like a link to a youtube video, notes about the execution of the exercise etc.
   createdAt                                      DateTime                                    @default(now()) @map("created_at")
@@ -101,7 +101,7 @@ model Mesocycle {
   createdAt    DateTime               @default(now()) @map("created_at")
   updatedAt    DateTime               @updatedAt @map("updated_at")
   trainingDays MesocycleTrainingDay[]
-  user         User?                  @relation("ExistingMesocycles", fields: [userId], references: [id])
+  user         User?                  @relation("ExistingMesocycles", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId       String?                @map("user_id")
   runs         MesocycleRun[]
 
@@ -111,12 +111,12 @@ model Mesocycle {
 
 model MesocycleTrainingDay {
   id                String                         @id @default(cuid())
-  mesocycle         Mesocycle?                     @relation(fields: [mesocycleId], references: [id])
+  mesocycle         Mesocycle?                     @relation(fields: [mesocycleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleId       String?                        @map("mesocycle_id")
   label             String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
   number            Int // The number of the day.
   exercises         MesocycleTrainingDayExercise[]
-  mesocyclePreset   MesocyclePreset?               @relation(fields: [mesocyclePresetId], references: [id])
+  mesocyclePreset   MesocyclePreset?               @relation(fields: [mesocyclePresetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocyclePresetId String?
 
   @@map("mesocycles_training_days")
@@ -129,7 +129,7 @@ model MesocycleTrainingDayExercise {
   notes                  String?
   exercise               Exercise                          @relation(fields: [exerciseId], references: [id])
   exerciseId             String                            @map("exercise_id")
-  mesocycleTrainingDay   MesocycleTrainingDay?             @relation(fields: [mesocycleTrainingDayId], references: [id])
+  mesocycleTrainingDay   MesocycleTrainingDay?             @relation(fields: [mesocycleTrainingDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleTrainingDayId String?                           @map("mesocycle_training_day_id")
 
   @@map("mesocycle_training_days_exercises")
@@ -142,7 +142,7 @@ model MesocycleTrainingDayExerciseSet {
   rir                            Int // Reps in reserve
   repRangeLowerBound             Int                           @map("rep_range_lower_bound") // If rep range is 5-8 reps then this would be 5 
   repRangeUpperBound             Int                           @map("rep_range_upper_bound") // If rep range is 5-8 reps then this would be 8
-  mesocycleTrainingDayExercise   MesocycleTrainingDayExercise? @relation(fields: [mesocycleTrainingDayExerciseId], references: [id])
+  mesocycleTrainingDayExercise   MesocycleTrainingDayExercise? @relation(fields: [mesocycleTrainingDayExerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleTrainingDayExerciseId String?                       @map("mesocycle_training_day_exercise_id")
 
   @@map("mesocycle_training_days_exercises_sets")
@@ -150,11 +150,11 @@ model MesocycleTrainingDayExerciseSet {
 
 model MesocycleRun {
   id            String                   @id @default(cuid())
-  mesocycle     Mesocycle                @relation(fields: [mesocycleId], references: [id])
+  mesocycle     Mesocycle                @relation(fields: [mesocycleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleId   String                   @map("mesoycle_id")
   startDate     DateTime                 @map("start_date")
   endDate       DateTime                 @map("end_date")
-  ranByUser     User?                    @relation("MesocyclesRuns", fields: [ranByUserId], references: [id])
+  ranByUser     User?                    @relation("MesocyclesRuns", fields: [ranByUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   ranByUserId   String?                  @map("ran_by_user_id")
   currentUser   User?                    @relation(fields: [currentUserId], references: [id])
   currentUserId String?                  @unique @map("current_user_id")
@@ -165,7 +165,7 @@ model MesocycleRun {
 
 model MesocycleRunMicrocycle {
   id             String                              @id @default(cuid())
-  mesocycleRun   MesocycleRun?                       @relation(fields: [mesocycleRunId], references: [id])
+  mesocycleRun   MesocycleRun?                       @relation(fields: [mesocycleRunId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleRunId String?                             @map("mesocycle_run_id")
   trainingDays   MesocycleRunMicrocycleTrainingDay[]
   restDays       Int[]                               @map("rest_days")
@@ -179,7 +179,7 @@ model MesocycleRunMicrocycleTrainingDay {
   label        String
   completed    Boolean                                     @default(false) // Whether the user completed this training day.
   exercises    MesocycleRunMicrocycleTrainingDayExercise[]
-  microcycle   MesocycleRunMicrocycle?                     @relation(fields: [microcycleId], references: [id])
+  microcycle   MesocycleRunMicrocycle?                     @relation(fields: [microcycleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   microcycleId String?                                     @map("microcycle_id")
   date         DateTime
   feedback     String?
@@ -195,7 +195,7 @@ model MesocycleRunMicrocycleTrainingDayExercise {
   previousRun      MesocycleRunMicrocycleTrainingDayExercise?     @relation("ExerciseRunsHistory", fields: [previousRunId], references: [id])
   previousRunId    String?                                        @unique @map("previous_run_id")
   previousRunOfRun MesocycleRunMicrocycleTrainingDayExercise?     @relation("ExerciseRunsHistory")
-  trainingDay      MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id])
+  trainingDay      MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trainingDayId    String?                                        @map("training_day_id")
   exercise         Exercise                                       @relation(fields: [exerciseId], references: [id])
   exerciseId       String                                         @map("exercise_id")
@@ -212,7 +212,7 @@ model MesocycleRunMicrocycleTrainingDayExerciseSet {
   rir                Int
   repRangeLowerBound Int                                        @map("rep_range_lower_bound")
   repRangeUpperBound Int                                        @map("rep_range_upper_bound")
-  exercise           MesocycleRunMicrocycleTrainingDayExercise? @relation(fields: [exerciseId], references: [id])
+  exercise           MesocycleRunMicrocycleTrainingDayExercise? @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   exerciseId         String?                                    @map("exercise_id")
 
   @@map("mesocycles_runs_microcycles_training_days_exercises_sets")
