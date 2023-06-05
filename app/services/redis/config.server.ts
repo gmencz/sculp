@@ -5,4 +5,6 @@ export const redis = new Redis({
   host: env.REDIS_HOST,
   family: env.NODE_ENV === "production" ? 6 : undefined,
   password: env.REDIS_PASSWORD,
+  commandTimeout: 2 * 1000,
+  enableAutoPipelining: true,
 });
