@@ -15,7 +15,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { configRoutes } from "~/utils/routes";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { prisma } from "~/utils/db.server";
@@ -262,6 +262,12 @@ export default function Mesocycle() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     lastSubmission?.selectedTab || 0
   );
+
+  useEffect(() => {
+    if (typeof lastSubmission?.selectedTab === "number") {
+      setSelectedTabIndex(lastSubmission.selectedTab);
+    }
+  }, [lastSubmission?.selectedTab]);
 
   return (
     <Form

@@ -15,7 +15,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
@@ -24,6 +24,7 @@ import {
   deleteDraftMesocycle,
   getDraftMesocycle,
 } from "~/utils/mesocycles.server";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -250,6 +251,12 @@ export default function NewMesocycleDesign() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(
     lastSubmission?.selectedTab || 0
   );
+
+  useEffect(() => {
+    if (typeof lastSubmission?.selectedTab === "number") {
+      setSelectedTabIndex(lastSubmission.selectedTab);
+    }
+  }, [lastSubmission?.selectedTab]);
 
   return (
     <Form
