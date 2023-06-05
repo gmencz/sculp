@@ -4,27 +4,19 @@ import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
-import { toast } from "react-hot-toast";
-import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/utils/routes";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { BackLink } from "~/components/back-link";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
-import { generateId } from "~/utils/ids";
-import { useAfterPaintEffect } from "~/utils/hooks";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -77,8 +69,6 @@ export const action = async ({ request, params }: ActionArgs) => {
     throw new Response("Not found", { status: 404 });
   }
 
-  const url = new URL(request.url);
-
   const disconnectMuscleGroups = exercise.muscleGroups.filter(
     (muscleGroup) => !muscleGroups.includes(muscleGroup.name)
   );
@@ -97,10 +87,16 @@ export const action = async ({ request, params }: ActionArgs) => {
     select: { id: true },
   });
 
-  url.searchParams.set("success_id", generateId());
-  return redirect(
-    configRoutes.app.exercises.view(updatedExercise.id) + url.search
-  );
+  const updatedSession = await flashGlobalNotification(request, {
+    type: "success",
+    message: "The exercise has been updated.",
+  });
+
+  return redirect(configRoutes.app.exercises.view(updatedExercise.id), {
+    headers: {
+      "Set-Cookie": await commitSession(updatedSession),
+    },
+  });
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -148,12 +144,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export default function Exercise() {
-  const [searchParams] = useSearchParams();
-
   const { exercise, muscleGroupsOptions } = useLoaderData<typeof loader>();
-
   const lastSubmission = useActionData();
-
   const [form, { name, muscleGroups }] = useForm<Schema>({
     id: "edit-exercise",
     lastSubmission,
@@ -169,22 +161,6 @@ export default function Exercise() {
   });
 
   const muscleGroupsList = useFieldList(form.ref, muscleGroups);
-
-  const successId = searchParams.get("success_id");
-  useAfterPaintEffect(() => {
-    if (successId) {
-      toast.custom(
-        (t) => (
-          <SuccessToast
-            t={t}
-            title="Success"
-            description="Your changes have been saved."
-          />
-        ),
-        { duration: 3000, position: "bottom-center", id: successId }
-      );
-    }
-  }, [successId]);
 
   return (
     <AppPageLayout>

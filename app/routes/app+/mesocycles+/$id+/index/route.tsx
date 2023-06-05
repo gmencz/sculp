@@ -1,11 +1,6 @@
 import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
@@ -18,19 +13,15 @@ import { TrainingDayFieldset } from "./training-day-fieldset";
 import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import { toast } from "react-hot-toast";
-import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/utils/routes";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { ErrorToast } from "~/components/error-toast";
+import { Fragment, useMemo, useState } from "react";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { prisma } from "~/utils/db.server";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
-import { generateId } from "~/utils/ids";
-import { useAfterPaintEffect } from "~/utils/hooks";
 import { requireUser } from "~/services/auth/api/require-user";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -138,8 +129,6 @@ export const action = async ({ request, params }: ActionArgs) => {
     });
   }
 
-  const url = new URL(request.url);
-
   const updatedMesocycle = await prisma.mesocycle.update({
     where: {
       id,
@@ -186,16 +175,20 @@ export const action = async ({ request, params }: ActionArgs) => {
     },
   });
 
-  url.searchParams.set("success_id", generateId());
+  const updatedSession = await flashGlobalNotification(request, {
+    type: "success",
+    message: "The mesocycle has been updated.",
+  });
 
-  return redirect(
-    configRoutes.app.mesocycles.view(updatedMesocycle.id) + url.search
-  );
+  return redirect(configRoutes.app.mesocycles.view(updatedMesocycle.id), {
+    headers: {
+      "Set-Cookie": await commitSession(updatedSession),
+    },
+  });
 };
 
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
-  const [searchParams] = useSearchParams();
   const lastSubmission = useActionData<typeof action>();
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
@@ -224,21 +217,6 @@ export default function Mesocycle() {
   });
 
   const trainingDaysList = useFieldList(form.ref, trainingDays);
-  const successId = searchParams.get("success_id");
-  useAfterPaintEffect(() => {
-    if (successId) {
-      toast.custom(
-        (t) => (
-          <SuccessToast
-            t={t}
-            title="Success"
-            description="Your changes have been saved."
-          />
-        ),
-        { duration: 3000, position: "top-center", id: successId }
-      );
-    }
-  }, [successId]);
 
   const allDays = useMemo(
     () =>
@@ -257,37 +235,6 @@ export default function Mesocycle() {
   );
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-
-  // Find the tab where the first error happened and focus it.
-  useEffect(() => {
-    if (lastSubmission?.error) {
-      const errorKeys = Object.keys(lastSubmission.error);
-      if (errorKeys.length) {
-        // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
-        // so we are getting the number inside the square brackets which will be the tab index.
-        const errorTabIndex = Number(
-          errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
-        );
-
-        setSelectedTabIndex(errorTabIndex);
-      }
-    }
-  }, [lastSubmission?.error]);
-
-  useAfterPaintEffect(() => {
-    if (lastSubmission?.error && Object.keys(lastSubmission.error).length) {
-      toast.custom(
-        (t) => (
-          <ErrorToast
-            t={t}
-            title="Error"
-            description="There was a problem with your form submission. Please review the days to make sure there are no errors."
-          />
-        ),
-        { duration: 5000, position: "top-center" }
-      );
-    }
-  }, [lastSubmission?.error]);
 
   return (
     <Form

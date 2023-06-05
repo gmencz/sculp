@@ -4,12 +4,24 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { Link, NavLink, Outlet, useLocation } from "@remix-run/react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import type { PropsWithChildren, SVGAttributes } from "react";
+import { useEffect } from "react";
 import { configRoutes } from "~/utils/routes";
 import { requireUser } from "~/services/auth/api/require-user";
+import { getGlobalNotification } from "~/utils/session.server";
+import { SuccessToast } from "~/components/success-toast";
+import { toast } from "react-hot-toast";
+import { ErrorToast } from "~/components/error-toast";
 
 const navigation = [
   {
@@ -120,11 +132,49 @@ const mobileNavigation = [
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
-  return null;
+  const globalNotification = await getGlobalNotification(request);
+  return json({ globalNotification });
 };
 
 function Layout({ children }: PropsWithChildren) {
   const location = useLocation();
+  const { globalNotification } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    if (globalNotification) {
+      switch (globalNotification.type) {
+        case "success": {
+          toast.custom(
+            (t) => (
+              <SuccessToast
+                t={t}
+                title="Success!"
+                description={globalNotification.message}
+              />
+            ),
+            { duration: 5000, id: globalNotification.id }
+          );
+
+          break;
+        }
+
+        case "error": {
+          toast.custom(
+            (t) => (
+              <ErrorToast
+                t={t}
+                title="Oops!"
+                description={globalNotification.message}
+              />
+            ),
+            { duration: 5000, id: globalNotification.id }
+          );
+
+          break;
+        }
+      }
+    }
+  }, [globalNotification]);
 
   return (
     <>

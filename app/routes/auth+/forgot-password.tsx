@@ -1,22 +1,19 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { Input } from "~/components/input";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
-import { SuccessToast } from "~/components/success-toast";
 import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { sendPasswordResetEmail } from "~/services/resend/api/send-password-reset-email";
-import { generateId } from "~/utils/ids";
-import { useAfterPaintEffect } from "~/utils/hooks";
 import { emailSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 const schema = z.object({
   email: emailSchema,
@@ -36,9 +33,11 @@ export const action = async ({ request }: ActionArgs) => {
   await rateLimit(request, { max: 3, windowInSeconds: 60 * 60 });
 
   const { email } = submission.value;
-  const url = new URL(request.url);
-  url.searchParams.set("sent_to_email", email);
-  url.searchParams.set("success_id", generateId());
+
+  const updatedSession = await flashGlobalNotification(request, {
+    type: "success",
+    message: `We've sent you an email with a link to reset your password at ${email}.`,
+  });
 
   const user = await prisma.user.findUnique({
     where: {
@@ -48,7 +47,11 @@ export const action = async ({ request }: ActionArgs) => {
   });
 
   if (!user) {
-    return redirect(configRoutes.auth.forgotPassword + url.search);
+    return redirect(configRoutes.auth.forgotPassword, {
+      headers: {
+        "Set-Cookie": await commitSession(updatedSession),
+      },
+    });
   }
 
   try {
@@ -57,7 +60,11 @@ export const action = async ({ request }: ActionArgs) => {
     console.error(error);
   }
 
-  return redirect(configRoutes.auth.forgotPassword + url.search);
+  return redirect(configRoutes.auth.forgotPassword, {
+    headers: {
+      "Set-Cookie": await commitSession(updatedSession),
+    },
+  });
 };
 
 export default function ForgotPassword() {
@@ -69,24 +76,6 @@ export default function ForgotPassword() {
       return parse(formData, { schema });
     },
   });
-
-  const [searchParams] = useSearchParams();
-  const sentToEmail = searchParams.get("sent_to_email");
-  const successId = searchParams.get("success_id");
-  useAfterPaintEffect(() => {
-    if (sentToEmail && successId) {
-      toast.custom(
-        (t) => (
-          <SuccessToast
-            t={t}
-            title="Success!"
-            description={`We've sent you an email with a link to reset your password at ${sentToEmail}.`}
-          />
-        ),
-        { duration: 5000, position: "top-center", id: successId }
-      );
-    }
-  }, [sentToEmail, successId]);
 
   return (
     <div className="flex min-h-full flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8">

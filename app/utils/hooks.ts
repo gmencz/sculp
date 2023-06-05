@@ -95,25 +95,6 @@ export function useFallbackRef<T>(forwardedRef: RefObject<T>) {
   return forwardedRef || fallbackRef;
 }
 
-/**
- * Runs an effect after browser paint.
- * @param effect Imperative function that can return a cleanup function.
- * @param deps If present, effect will only activate if the values in the list change.
- */
-export function useAfterPaintEffect(
-  effect: EffectCallback,
-  deps?: DependencyList | undefined
-) {
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        effect();
-      }, 0);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-}
-
 function isUser(user: any): user is User {
   return user && typeof user === "object" && typeof user.id === "string";
 }

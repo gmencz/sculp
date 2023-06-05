@@ -15,9 +15,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { ErrorToast } from "~/components/error-toast";
+import { Fragment, useMemo, useState } from "react";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
@@ -26,7 +24,6 @@ import {
   deleteDraftMesocycle,
   getDraftMesocycle,
 } from "~/utils/mesocycles.server";
-import { useAfterPaintEffect } from "~/utils/hooks";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -226,37 +223,6 @@ export default function NewMesocycleDesign() {
   );
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-
-  // Find the tab where the first error happened and focus it.
-  useEffect(() => {
-    if (lastSubmission?.error) {
-      const errorKeys = Object.keys(lastSubmission.error);
-      if (errorKeys.length) {
-        // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
-        // so we are getting the number inside the square brackets which will be the tab index.
-        const errorTabIndex = Number(
-          errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
-        );
-
-        setSelectedTabIndex(errorTabIndex);
-      }
-    }
-  }, [lastSubmission?.error]);
-
-  useAfterPaintEffect(() => {
-    if (lastSubmission?.error && Object.keys(lastSubmission.error).length) {
-      toast.custom(
-        (t) => (
-          <ErrorToast
-            t={t}
-            title="Error"
-            description="There was a problem with your form submission. Please review the days to make sure there are no errors."
-          />
-        ),
-        { duration: 5000, position: "top-center" }
-      );
-    }
-  }, [lastSubmission?.error]);
 
   return (
     <Form

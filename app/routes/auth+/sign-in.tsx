@@ -1,21 +1,17 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { ErrorMessage } from "~/components/error-message";
-import { ErrorToast } from "~/components/error-toast";
 import { Input } from "~/components/input";
 import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/utils/routes";
 import { verifyLogin } from "~/services/auth/api/verify-login";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
-import { generateId } from "~/utils/ids";
 import { signIn } from "~/services/auth/api/sign-in";
-import { useAfterPaintEffect } from "~/utils/hooks";
 import { sessionStorage } from "~/utils/session.server";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
@@ -53,7 +49,7 @@ export async function action({ request }: ActionArgs) {
     const sessionUrl = await createStripeCheckoutSession(
       user.id,
       user.email,
-      configRoutes.auth.signIn + `?canceled_id=${generateId()}`,
+      configRoutes.auth.signIn,
       user.stripeCustomerId ?? undefined
     );
 
@@ -89,23 +85,6 @@ export default function SignIn() {
       return parse(formData, { schema });
     },
   });
-
-  const [searchParams] = useSearchParams();
-  const canceledId = searchParams.get("canceled_id");
-  useAfterPaintEffect(() => {
-    if (canceledId) {
-      toast.custom(
-        (t) => (
-          <ErrorToast
-            t={t}
-            title="Free trial canceled"
-            description="Your free trial registration has been canceled."
-          />
-        ),
-        { duration: 5000, position: "top-center", id: canceledId }
-      );
-    }
-  }, [canceledId]);
 
   return (
     <div className="flex min-h-full flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
