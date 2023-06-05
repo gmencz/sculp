@@ -7,7 +7,7 @@ export default function Index() {
   const user = useOptionalUser();
 
   return (
-    <div className="relative isolate h-full overflow-hidden bg-zinc-50">
+    <div className="relative isolate h-full bg-zinc-50">
       <div
         className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
         aria-hidden="true"
@@ -21,7 +21,7 @@ export default function Index() {
         />
       </div>
 
-      <div className="mx-auto flex h-full max-w-7xl flex-col px-6 py-10">
+      <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-12 px-6 py-6 sm:py-10">
         <div className="mx-auto my-auto w-full max-w-2xl flex-shrink-0 pt-10">
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
             Currently in beta
