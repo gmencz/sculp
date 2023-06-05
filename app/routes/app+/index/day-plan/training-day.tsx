@@ -36,7 +36,7 @@ export function TrainingDay({
     const set = new Set<string>();
 
     trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise.muscleGroups.forEach((muscleGroup) => {
+      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
         set.add(muscleGroup.name);
       });
     });

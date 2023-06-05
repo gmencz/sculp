@@ -205,7 +205,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
-          {exercise.exercise.muscleGroups.map((muscleGroup, index) => (
+          {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
             <li key={muscleGroup.name}>
               <MuscleGroupBadge index={index}>
                 {muscleGroup.name}
@@ -259,7 +259,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
 
       <div className="mt-3 px-4 sm:px-6 lg:px-8">
         <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
-          {exercise.exercise.name}
+          {exercise.exercise?.name}
         </h3>
       </div>
 

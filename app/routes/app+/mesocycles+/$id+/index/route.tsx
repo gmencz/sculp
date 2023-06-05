@@ -228,7 +228,7 @@ export default function Mesocycle() {
         dayNumber: trainingDay.number.toString(),
         exercises: trainingDay.exercises.map((exercise) => ({
           id: exercise.id,
-          searchedExerciseId: exercise.exercise.id,
+          searchedExerciseId: exercise.exercise?.id,
           notes: exercise.notes ?? undefined,
           sets: exercise.sets.map((set) => ({
             id: set.id,
