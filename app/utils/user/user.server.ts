@@ -11,8 +11,9 @@ import { exercises } from "./exercises";
  * @param id The user id.
  */
 export async function seedUserById(id: User["id"]) {
-  await Promise.all(
-    Object.keys(exercises).map((exerciseName) => {
+  await prisma.$transaction([
+    // Create preset exercises.
+    ...Object.keys(exercises).map((exerciseName) => {
       const muscleGroups = exercises[exerciseName as keyof typeof exercises];
 
       return prisma.exercise.create({
@@ -24,12 +25,9 @@ export async function seedUserById(id: User["id"]) {
           },
         },
       });
-    })
-  );
+    }),
 
-  const presetMesocycleTemplates = [pushPullLegs3on1off, pushPullLegs6on1off];
-  await Promise.all(
-    presetMesocycleTemplates.map(async (template) => {
+    ...[pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
@@ -66,6 +64,6 @@ export async function seedUserById(id: User["id"]) {
           },
         },
       });
-    })
-  );
+    }),
+  ]);
 }

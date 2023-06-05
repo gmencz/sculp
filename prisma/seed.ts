@@ -30,18 +30,18 @@ async function seed() {
     },
   });
 
-  await Promise.all(
-    Object.values(MuscleGroup).map((muscleGroup) =>
+  await prisma.$transaction([
+    // Create muscle groups.
+    ...Object.values(MuscleGroup).map((muscleGroup) =>
       prisma.muscleGroup.create({
         data: {
           name: muscleGroup,
         },
       })
-    )
-  );
+    ),
 
-  await Promise.all(
-    Object.keys(exercises).map((exerciseName) => {
+    // Create preset exercises.
+    ...Object.keys(exercises).map((exerciseName) => {
       const muscleGroups = exercises[exerciseName as keyof typeof exercises];
 
       return prisma.exercise.create({
@@ -53,17 +53,14 @@ async function seed() {
           },
         },
       });
-    })
-  );
+    }),
 
-  const presetMesocycleTemplates = [pushPullLegs3on1off, pushPullLegs6on1off];
-  await Promise.all(
-    presetMesocycleTemplates.map(async (template) => {
+    ...[pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
-          microcycles: template.microcycles,
           userId: user.id,
+          microcycles: template.microcycles,
           restDays: { set: template.restDays },
           trainingDays: {
             create: template.trainingDays.map((trainingDay) => ({
@@ -95,8 +92,8 @@ async function seed() {
           },
         },
       });
-    })
-  );
+    }),
+  ]);
 
   console.log(`Database has been seeded. 🌱`);
 }
