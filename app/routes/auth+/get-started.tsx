@@ -40,7 +40,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   // Max 3 requests per hour. This is generous enough.
-  await rateLimit(request, { max: 3, windowInSeconds: 60 * 60 });
+  await rateLimit(request, { max: 5, windowInSeconds: 60 * 60 });
 
   const { email, password } = submission.value;
 
