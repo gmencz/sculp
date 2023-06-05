@@ -1,14 +1,12 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Prisma } from "@prisma/client";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { ErrorMessage } from "~/components/error-message";
-import { ErrorToast } from "~/components/error-toast";
 import { Input } from "~/components/input";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
@@ -16,8 +14,6 @@ import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
 import { hashPassword } from "~/utils/encryption.server";
-import { generateId } from "~/utils/ids";
-import { useAfterPaintEffect } from "~/utils/hooks";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
 import { seedUserById } from "~/utils/user/user.server";
 import { rateLimit } from "~/services/redis/api/rate-limit";
@@ -70,7 +66,7 @@ export const action = async ({ request }: ActionArgs) => {
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
       newUser.email,
-      configRoutes.auth.getStarted + `?canceled_id=${generateId()}`
+      configRoutes.auth.getStarted
     );
 
     return redirect(sessionUrl, { status: 303 });
@@ -96,23 +92,6 @@ export default function GetStarted() {
       return parse(formData, { schema });
     },
   });
-
-  const [searchParams] = useSearchParams();
-  const canceledId = searchParams.get("canceled_id");
-  useAfterPaintEffect(() => {
-    if (canceledId) {
-      toast.custom(
-        (t) => (
-          <ErrorToast
-            t={t}
-            title="Free trial canceled"
-            description="Your free trial registration has been canceled."
-          />
-        ),
-        { duration: 5000, position: "top-center", id: canceledId }
-      );
-    }
-  }, [canceledId]);
 
   return (
     <div className="flex min-h-full flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8">

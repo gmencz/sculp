@@ -188,7 +188,7 @@ export const action = async ({ request, params }: ActionArgs) => {
                   create: trainingDay.exercises.map((exercise) => ({
                     number: exercise.number,
                     notes: exercise.notes,
-                    exercise: { connect: { id: exercise.exercise.id } },
+                    exercise: { connect: { id: exercise.exercise?.id } },
                     sets: {
                       create: exercise.sets.map((set) => ({
                         number: set.number,
@@ -281,7 +281,7 @@ type TrainingDayProps = {
         muscleGroups: {
           name: string;
         }[];
-      };
+      } | null;
       sets: {
         number: number;
         id: string;
@@ -301,7 +301,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
     const set = new Set<string>();
 
     trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise.muscleGroups.forEach((muscleGroup) => {
+      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
         set.add(muscleGroup.name);
       });
     });
@@ -383,7 +383,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
                   </svg>
                   <div className="min-w-0 flex-1  ">
                     <p className="flex items-center gap-2 text-sm font-semibold leading-6 text-zinc-900">
-                      <span>{exercise.exercise.name}</span>
+                      <span>{exercise.exercise?.name}</span>
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500/10 px-3 py-0.5 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
                         {exercise.number}
                       </span>

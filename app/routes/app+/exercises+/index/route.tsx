@@ -25,15 +25,13 @@ import { Fragment } from "react";
 import { useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { ErrorMessage } from "~/components/error-message";
-import { toast } from "react-hot-toast";
-import { SuccessToast } from "~/components/success-toast";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Input } from "~/components/input";
 import { classes } from "~/utils/classes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
-import { generateId } from "~/utils/ids";
-import { useAfterPaintEffect, useDebounce } from "~/utils/hooks";
+import { useDebounce } from "~/utils/hooks";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -134,10 +132,19 @@ export const action = async ({ request }: ActionArgs) => {
     throw error;
   }
 
-  const url = new URL(request.url);
-  url.searchParams.set("success_id", generateId());
+  const updatedSession = await flashGlobalNotification(request, {
+    type: "success",
+    message:
+      deleteExercisesIds.length > 1
+        ? "The selected exercises have been deleted."
+        : "The selected exercise has been deleted.",
+  });
 
-  return redirect(configRoutes.app.exercises.list + url.search);
+  return redirect(configRoutes.app.exercises.list, {
+    headers: {
+      "Set-Cookie": await commitSession(updatedSession),
+    },
+  });
 };
 
 export default function Exercises() {
@@ -169,22 +176,6 @@ export default function Exercises() {
   }
 
   const [searchParams] = useSearchParams();
-  const successId = searchParams.get("success_id");
-  useAfterPaintEffect(() => {
-    if (successId) {
-      toast.custom(
-        (t) => (
-          <SuccessToast
-            t={t}
-            title="Success"
-            description="The selected exercises were deleted."
-          />
-        ),
-        { duration: 3000, position: "bottom-center", id: successId }
-      );
-    }
-  }, [successId]);
-
   const [isValidQuery, setIsValidQuery] = useState(true);
   const [searchForm, { query: queryConfig }] = useForm<SearchSchema>({
     id: "search-exercises",

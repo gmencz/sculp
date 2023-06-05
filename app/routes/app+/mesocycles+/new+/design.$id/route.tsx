@@ -16,8 +16,6 @@ import { schema } from "./schema";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { ErrorToast } from "~/components/error-toast";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
@@ -26,7 +24,7 @@ import {
   deleteDraftMesocycle,
   getDraftMesocycle,
 } from "~/utils/mesocycles.server";
-import { useAfterPaintEffect } from "~/utils/hooks";
+import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -38,7 +36,33 @@ export const action = async ({ request, params }: ActionArgs) => {
   const formData = await request.formData();
   const submission = parse(formData, { schema });
   if (!submission.value || submission.intent !== "submit") {
-    return json(submission, { status: 400 });
+    const errorKeys = Object.keys(submission.error);
+    if (errorKeys.length > 0) {
+      // The error key will look something like "trainingDays[0].exercises[0].sets[0].weight"
+      // so we are getting the number inside the square brackets which will be the tab index.
+      const errorTabIndex = Number(
+        errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
+      );
+
+      if (!Number.isNaN(errorTabIndex)) {
+        const updatedSession = await flashGlobalNotification(request, {
+          type: "error",
+          message: "There's some errors in the mesocycle.",
+        });
+
+        return json(
+          { ...submission, selectedTab: errorTabIndex },
+          {
+            status: 400,
+            headers: {
+              "Set-Cookie": await commitSession(updatedSession),
+            },
+          }
+        );
+      }
+    }
+
+    return json({ ...submission, selectedTab: null }, { status: 400 });
   }
 
   const draftMesocycle = await getDraftMesocycle(request, id);
@@ -179,9 +203,8 @@ export default function NewMesocycleDesign() {
   const [form, { trainingDays }] = useForm<Schema>({
     id: "save-mesocycle",
     lastSubmission,
-    onValidate({ formData }) {
-      return parse(formData, { schema });
-    },
+    noValidate: true,
+    shouldRevalidate: "onSubmit",
     defaultValue: {
       trainingDays: preset
         ? preset.trainingDays.map((trainingDay) => ({
@@ -225,38 +248,15 @@ export default function NewMesocycleDesign() {
     [mesocycle.restDaysPerMicrocycle, trainingDaysList]
   );
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(
+    lastSubmission?.selectedTab || 0
+  );
 
-  // Find the tab where the first error happened and focus it.
   useEffect(() => {
-    if (lastSubmission?.error) {
-      const errorKeys = Object.keys(lastSubmission.error);
-      if (errorKeys.length) {
-        // The error will look something like "trainingDays[0].exercises[0].sets[0].weight"
-        // so we are getting the number inside the square brackets which will be the tab index.
-        const errorTabIndex = Number(
-          errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
-        );
-
-        setSelectedTabIndex(errorTabIndex);
-      }
+    if (typeof lastSubmission?.selectedTab === "number") {
+      setSelectedTabIndex(lastSubmission.selectedTab);
     }
-  }, [lastSubmission?.error]);
-
-  useAfterPaintEffect(() => {
-    if (lastSubmission?.error && Object.keys(lastSubmission.error).length) {
-      toast.custom(
-        (t) => (
-          <ErrorToast
-            t={t}
-            title="Error"
-            description="There was a problem with your form submission. Please review the days to make sure there are no errors."
-          />
-        ),
-        { duration: 5000, position: "top-center" }
-      );
-    }
-  }, [lastSubmission?.error]);
+  }, [lastSubmission?.selectedTab]);
 
   return (
     <Form

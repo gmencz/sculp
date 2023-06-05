@@ -92,12 +92,12 @@ export default function App() {
         <Links />
       </head>
       <body className="h-full">
+        <Toaster position="bottom-right" />
         <GlobalLoading />
         <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-        <Toaster position="top-right" />
         <noscript>This app requires JavaScript to be enabled</noscript>
       </body>
     </html>

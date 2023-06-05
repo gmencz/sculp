@@ -127,8 +127,8 @@ model MesocycleTrainingDayExercise {
   sets                   MesocycleTrainingDayExerciseSet[]
   number                 Int // The number of the exercise, if it is 2 then it will be the 2nd exercise.
   notes                  String?
-  exercise               Exercise                          @relation(fields: [exerciseId], references: [id])
-  exerciseId             String                            @map("exercise_id")
+  exercise               Exercise?                         @relation(fields: [exerciseId], references: [id])
+  exerciseId             String?                           @map("exercise_id")
   mesocycleTrainingDay   MesocycleTrainingDay?             @relation(fields: [mesocycleTrainingDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleTrainingDayId String?                           @map("mesocycle_training_day_id")
 
@@ -197,8 +197,8 @@ model MesocycleRunMicrocycleTrainingDayExercise {
   previousRunOfRun MesocycleRunMicrocycleTrainingDayExercise?     @relation("ExerciseRunsHistory")
   trainingDay      MesocycleRunMicrocycleTrainingDay?             @relation(fields: [trainingDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trainingDayId    String?                                        @map("training_day_id")
-  exercise         Exercise                                       @relation(fields: [exerciseId], references: [id])
-  exerciseId       String                                         @map("exercise_id")
+  exercise         Exercise?                                      @relation(fields: [exerciseId], references: [id])
+  exerciseId       String?                                        @map("exercise_id")
 
   @@map("mesocycles_runs_microcycles_training_days_exercises")
 }
