@@ -45,6 +45,7 @@ export const action = async ({ request }: ActionArgs) => {
   const { email, password } = submission.value;
 
   try {
+    console.log("PRE USER CREATION");
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -60,15 +61,20 @@ export const action = async ({ request }: ActionArgs) => {
         email: true,
       },
     });
+    console.log("POST USER CREATION");
 
+    console.log("PRE USER SEED");
     await seedUserById(newUser.id);
+    console.log("POST USER CREATION");
 
+    console.log("PRE STRIPE");
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
       newUser.email,
       configRoutes.auth.getStarted
     );
 
+    console.log("POST STRIPE");
     return redirect(sessionUrl, { status: 303 });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
