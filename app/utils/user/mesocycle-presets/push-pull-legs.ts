@@ -1,4 +1,4 @@
-import type { PresetMesocycleTemplate } from "./config";
+import type { PresetMesocycleTemplate } from ".";
 
 // // 2 sets by default
 const defaultSets = [

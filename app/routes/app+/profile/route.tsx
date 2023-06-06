@@ -42,6 +42,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
   if (request.method === "DELETE") {
+    // TODO: Delete all stripe things
     await prisma.user.delete({ where: { id: userId }, select: { id: true } });
     return signOut(request);
   }

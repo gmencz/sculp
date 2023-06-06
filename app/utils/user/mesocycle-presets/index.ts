@@ -1,3 +1,5 @@
+import { pushPullLegs6on1off, pushPullLegs3on1off } from "./push-pull-legs";
+
 export type PresetMesocycleTemplate = {
   name: string;
   microcycles: number;
@@ -17,4 +19,4 @@ export type PresetMesocycleTemplate = {
   }[];
 };
 
-export { pushPullLegs3on1off, pushPullLegs6on1off } from "./push-pull-legs";
+export const mesocyclePresets = [pushPullLegs3on1off, pushPullLegs6on1off];

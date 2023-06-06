@@ -1,10 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import {
-  pushPullLegs3on1off,
-  pushPullLegs6on1off,
-} from "~/utils/user/mesocycle-presets/config";
+import { mesocyclePresets } from "~/utils/user/mesocycle-presets";
 import { MuscleGroup, exercises } from "~/utils/user/exercises";
+import { hashPassword } from "~/utils/encryption.server";
 
 const prisma = new PrismaClient();
 
@@ -16,21 +13,21 @@ async function seed() {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("password123", 10);
-
-  await prisma.user.create({
-    data: {
-      email,
-      role: Role.ADMIN,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
-  });
+  const hashedPassword = await hashPassword("password123");
 
   await prisma.$transaction([
+    prisma.user.create({
+      data: {
+        email,
+        role: Role.ADMIN,
+        password: {
+          create: {
+            hash: hashedPassword,
+          },
+        },
+      },
+    }),
+
     // Create muscle groups.
     ...Object.values(MuscleGroup).map((muscleGroup) =>
       prisma.muscleGroup.create({
@@ -56,7 +53,7 @@ async function seed() {
     }),
   ]);
 
-  const allExercises = await prisma.exercise.findMany({
+  const sharedExercises = await prisma.exercise.findMany({
     where: {
       shared: true,
     },
@@ -67,7 +64,7 @@ async function seed() {
   });
 
   await prisma.$transaction(
-    [pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
+    mesocyclePresets.map((template) => {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
@@ -83,7 +80,7 @@ async function seed() {
                   notes: exercise.notes,
                   exercise: {
                     connect: {
-                      id: allExercises.find(
+                      id: sharedExercises.find(
                         ({ name }) => name === exercise.name
                       )!.id,
                     },
