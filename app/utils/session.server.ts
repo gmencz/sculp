@@ -1,3 +1,4 @@
+import type { Session } from "@remix-run/node";
 import { createCookieSessionStorage } from "@remix-run/node";
 import { env } from "~/utils/env.server";
 import { generateId } from "./ids";
@@ -34,11 +35,12 @@ export async function flashGlobalNotification(
   return session;
 }
 
-export async function getGlobalNotification(request: Request) {
+export async function getGlobalNotification(
+  request: Request
+): Promise<{ session: Session; notification: GlobalNotification | null }> {
   const session = await getSessionFromCookie(request);
-  const notification = session.get("globalNotification");
-  if (!notification) return null;
-  return notification as GlobalNotification;
+  const notification = session.get("globalNotification") || null;
+  return { session, notification };
 }
 
 export const { getSession, commitSession, destroySession } = sessionStorage;
