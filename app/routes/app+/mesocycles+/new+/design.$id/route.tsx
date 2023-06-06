@@ -15,7 +15,7 @@ import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
@@ -38,31 +38,21 @@ export const action = async ({ request, params }: ActionArgs) => {
   if (!submission.value || submission.intent !== "submit") {
     const errorKeys = Object.keys(submission.error);
     if (errorKeys.length > 0) {
-      // The error key will look something like "trainingDays[0].exercises[0].sets[0].weight"
-      // so we are getting the number inside the square brackets which will be the tab index.
-      const errorTabIndex = Number(
-        errorKeys[0].slice(errorKeys[0].indexOf("]") - 1)[0]
-      );
+      const updatedSession = await flashGlobalNotification(request, {
+        type: "error",
+        message:
+          "There's some errors in the mesocycle, double check the training days.",
+      });
 
-      if (!Number.isNaN(errorTabIndex)) {
-        const updatedSession = await flashGlobalNotification(request, {
-          type: "error",
-          message: "There's some errors in the mesocycle.",
-        });
-
-        return json(
-          { ...submission, selectedTab: errorTabIndex },
-          {
-            status: 400,
-            headers: {
-              "Set-Cookie": await commitSession(updatedSession),
-            },
-          }
-        );
-      }
+      return json(submission, {
+        status: 400,
+        headers: {
+          "Set-Cookie": await commitSession(updatedSession),
+        },
+      });
     }
 
-    return json({ ...submission, selectedTab: null }, { status: 400 });
+    return json(submission, { status: 400 });
   }
 
   const draftMesocycle = await getDraftMesocycle(request, id);
@@ -135,7 +125,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const exercises = await prisma.exercise.findMany({
     where: {
-      userId: user.id,
+      OR: [{ userId: user.id }, { shared: true }],
     },
     select: {
       id: true,
@@ -245,15 +235,7 @@ export default function NewMesocycleDesign() {
     [mesocycle.restDaysPerMicrocycle, trainingDaysList]
   );
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(
-    lastSubmission?.selectedTab || 0
-  );
-
-  useEffect(() => {
-    if (typeof lastSubmission?.selectedTab === "number") {
-      setSelectedTabIndex(lastSubmission.selectedTab);
-    }
-  }, [lastSubmission?.selectedTab]);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
     <Form
