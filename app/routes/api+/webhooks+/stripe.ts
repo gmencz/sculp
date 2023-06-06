@@ -30,6 +30,7 @@ async function getStripeEvent(request: Request) {
 
 export async function action({ request }: ActionArgs) {
   const event = await getStripeEvent(request);
+  console.log(`Stripe webhook event`);
 
   try {
     switch (event.type) {
@@ -42,12 +43,13 @@ export async function action({ request }: ActionArgs) {
       }
 
       case "customer.subscription.created": {
+        console.log("customer.subscription.created before update 1");
         const subscription = event.data.object as Stripe.Subscription;
         const { userId } = subscription.metadata;
         if (!userId) {
           throw new Error("Missing userId in metadata.");
         }
-
+        console.log("customer.subscription.created before update 2");
         await prisma.user.update({
           where: { id: userId },
           data: {
@@ -63,6 +65,8 @@ export async function action({ request }: ActionArgs) {
             },
           },
         });
+
+        console.log("customer.subscription.created after update 1");
 
         return json({}, { status: 200 });
       }
