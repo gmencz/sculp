@@ -53,10 +53,7 @@ export const schema = z.object({
           }
         )
         .min(1, "You must add at least 1 exercise.")
-        .max(
-          7,
-          "You can't add more than 7 exercises on a given day, this is to prevent junk volume."
-        ),
+        .max(10, "You can't add more than 10 exercises on a given day."),
     })
   ),
 });
