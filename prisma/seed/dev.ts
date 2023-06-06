@@ -1,10 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import {
-  pushPullLegs3on1off,
-  pushPullLegs6on1off,
-} from "~/utils/user/mesocycle-presets/config";
+import { mesocyclePresets } from "~/utils/user/mesocycle-presets";
 import { MuscleGroup, exercises } from "~/utils/user/exercises";
+import { hashPassword } from "~/utils/encryption.server";
 
 const prisma = new PrismaClient();
 
@@ -16,21 +13,21 @@ async function seed() {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("password123", 10);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      role: Role.ADMIN,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
-  });
+  const hashedPassword = await hashPassword("password123");
 
   await prisma.$transaction([
+    prisma.user.create({
+      data: {
+        email,
+        role: Role.ADMIN,
+        password: {
+          create: {
+            hash: hashedPassword,
+          },
+        },
+      },
+    }),
+
     // Create muscle groups.
     ...Object.values(MuscleGroup).map((muscleGroup) =>
       prisma.muscleGroup.create({
@@ -40,26 +37,37 @@ async function seed() {
       })
     ),
 
-    // Create preset exercises.
+    // Create exercises.
     ...Object.keys(exercises).map((exerciseName) => {
       const muscleGroups = exercises[exerciseName as keyof typeof exercises];
 
       return prisma.exercise.create({
         data: {
           name: exerciseName,
-          user: { connect: { id: user.id } },
+          shared: true,
           muscleGroups: {
             connect: muscleGroups.map((muscleGroup) => ({ name: muscleGroup })),
           },
         },
       });
     }),
+  ]);
 
-    ...[pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
+  const sharedExercises = await prisma.exercise.findMany({
+    where: {
+      shared: true,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  await prisma.$transaction(
+    mesocyclePresets.map((template) => {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
-          userId: user.id,
           microcycles: template.microcycles,
           restDays: { set: template.restDays },
           trainingDays: {
@@ -72,10 +80,9 @@ async function seed() {
                   notes: exercise.notes,
                   exercise: {
                     connect: {
-                      name_userId: {
-                        name: exercise.name,
-                        userId: user.id,
-                      },
+                      id: sharedExercises.find(
+                        ({ name }) => name === exercise.name
+                      )!.id,
                     },
                   },
                   sets: {
@@ -92,8 +99,8 @@ async function seed() {
           },
         },
       });
-    }),
-  ]);
+    })
+  );
 
   console.log(`Database has been seeded. 🌱`);
 }

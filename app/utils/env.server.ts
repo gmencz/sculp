@@ -14,6 +14,12 @@ const envSchema = z.object({
   PASSWORD_RESET_JWT_SECRET: z.string(),
   REDIS_HOST: z.string(),
   REDIS_PASSWORD: z.string(),
+
+  // Only for running the production prisma seed.
+  PRISMA_SEED_ADMIN_EMAIL: z.string().optional(),
+  PRISMA_SEED_ADMIN_PASSWORD: z.string().optional(),
+  PRISMA_SEED_ADMIN_STRIPE_CUSTOMER_ID: z.string().optional(),
+  PRISMA_SEED_ADMIN_STRIPE_SUBSCRIPTION_ID: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
