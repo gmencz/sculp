@@ -10,17 +10,17 @@ export function LegalHeader() {
     <header className="mx-auto flex w-full max-w-5xl justify-between p-6">
       <Link
         className="flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"
-        to="/"
+        to={configRoutes.home}
       >
         <img className="h-10 w-10 rounded-full" src="/logo.png" alt="Logo" />
       </Link>
 
       {user ? (
         <Link
-          to="/app"
+          to={configRoutes.app.current}
           className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
         >
-          Open logbook
+          Open app
         </Link>
       ) : (
         <Link

@@ -27,6 +27,7 @@ import { getUserId } from "./services/auth/api/require-user-id";
 import { prisma } from "./utils/db.server";
 import { GlobalLoading } from "./components/global-loading";
 import { env } from "./utils/env.server";
+import { configRoutes } from "./utils/routes";
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
   const title = "Sculped - Hypertrophy Training";
@@ -134,7 +135,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Page not found"
             subtitle={`"${location.pathname}" is not a page. So sorry.`}
-            action={<BackLink to="/">Back to home</BackLink>}
+            action={<BackLink to={configRoutes.home}>Back to home</BackLink>}
           />
         </ErrorDoc>
       );
@@ -147,7 +148,7 @@ export function ErrorBoundary() {
             statusCode={error.status}
             title="Oh no, something did not go well."
             subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-            action={<BackLink to="/">Back to home</BackLink>}
+            action={<BackLink to={configRoutes.home}>Back to home</BackLink>}
           />
         </ErrorDoc>
       );
@@ -164,7 +165,7 @@ export function ErrorBoundary() {
         statusCode={500}
         title="Oh no, something did not go well."
         subtitle={`"${location.pathname}" is currently not working. So sorry.`}
-        action={<BackLink to="/">Back to home</BackLink>}
+        action={<BackLink to={configRoutes.home}>Back to home</BackLink>}
       />
     </ErrorDoc>
   );

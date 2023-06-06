@@ -159,7 +159,7 @@ export default function Checkout() {
           </p>
           <div className="my-3" />
 
-          <BackLink to="/">Go back home</BackLink>
+          <BackLink to={configRoutes.home}>Go back home</BackLink>
         </>
       )}
     </div>
