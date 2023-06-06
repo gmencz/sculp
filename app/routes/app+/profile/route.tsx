@@ -14,6 +14,7 @@ import { prisma } from "~/utils/db.server";
 import { env } from "~/utils/env.server";
 import { signOut } from "~/services/auth/api/sign-out";
 import { requireUserId } from "~/services/auth/api/require-user-id";
+import { stripe } from "~/services/stripe/config.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
@@ -41,9 +42,23 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
+
   if (request.method === "DELETE") {
-    // TODO: Delete all stripe things
-    await prisma.user.delete({ where: { id: userId }, select: { id: true } });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        stripeCustomerId: true,
+      },
+    });
+
+    if (user) {
+      if (user.stripeCustomerId) {
+        await stripe.customers.del(user.stripeCustomerId);
+      }
+
+      await prisma.user.delete({ where: { id: userId }, select: { id: true } });
+    }
+
     return signOut(request);
   }
 
@@ -190,7 +205,8 @@ export default function Profile() {
                         <p className="text-sm text-zinc-500">
                           Are you sure you want to delete your account? All of
                           your data will be permanently removed from our servers
-                          forever. This action cannot be undone.
+                          forever and your subscription will be immediately
+                          canceled. This action cannot be undone.
                         </p>
                       </div>
                     </div>
