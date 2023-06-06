@@ -49,7 +49,7 @@ export const loader = async ({ request }: LoaderArgs) => {
       return redirect(configRoutes.home);
     }
 
-    return null;
+    return json({});
   } catch (error) {
     return redirect(configRoutes.home);
   }

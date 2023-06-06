@@ -15,6 +15,7 @@ import { signIn } from "~/services/auth/api/sign-in";
 import { sessionStorage } from "~/utils/session.server";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
+import { addHours } from "date-fns";
 
 const schema = z.object({
   email: emailSchema,
@@ -50,7 +51,8 @@ export async function action({ request }: ActionArgs) {
       user.id,
       user.email,
       configRoutes.auth.signIn,
-      user.stripeCustomerId ?? undefined
+      user.stripeCustomerId ?? undefined,
+      addHours(new Date(), 1)
     );
 
     return redirect(sessionUrl, { status: 303 });

@@ -2,7 +2,7 @@ import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Prisma } from "@prisma/client";
 import { Form, Link, useActionData } from "@remix-run/react";
-import type { ActionArgs } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { z } from "zod";
@@ -14,8 +14,11 @@ import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
 import { hashPassword } from "~/utils/encryption.server";
-import { emailSchema, passwordSchema } from "~/utils/schemas";
+import { emailSchema, idSchema, passwordSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
+import { jwt } from "~/utils/jwt.server";
+import { env } from "~/utils/env.server";
+import { addHours } from "date-fns";
 
 const schema = z
   .object({
@@ -44,6 +47,7 @@ export const action = async ({ request }: ActionArgs) => {
   const { email, password } = submission.value;
 
   try {
+    // Create temporary user.
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -60,10 +64,26 @@ export const action = async ({ request }: ActionArgs) => {
       },
     });
 
+    const cancelToken = await new Promise<string | undefined>((res, rej) =>
+      jwt.sign(
+        { userId: newUser.id },
+        env.STRIPE_CHECKOUT_JWT_SECRET,
+        {
+          expiresIn: "1h",
+        },
+        (error, encoded) => {
+          if (error) rej(error);
+          res(encoded);
+        }
+      )
+    );
+
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,
       newUser.email,
-      configRoutes.auth.getStarted
+      configRoutes.auth.getStarted + `?cancel_token=${cancelToken}`,
+      undefined,
+      addHours(new Date(), 1)
     );
 
     return redirect(sessionUrl, { status: 303 });
@@ -78,6 +98,40 @@ export const action = async ({ request }: ActionArgs) => {
     }
     throw e;
   }
+};
+
+const payloadSchema = z.object({
+  userId: idSchema,
+});
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const url = new URL(request.url);
+  const cancelToken = url.searchParams.get("cancel_token");
+  if (!cancelToken) {
+    return json({});
+  }
+
+  const payload = await new Promise((res, rej) => {
+    jwt.verify(
+      cancelToken,
+      env.STRIPE_CHECKOUT_JWT_SECRET,
+      (error, decoded) => {
+        if (error) rej(error);
+        res(decoded);
+      }
+    );
+  });
+
+  // Delete the temporary user that was created during the checkout because the checkout was canceled.
+  const { userId } = payloadSchema.parse(payload);
+
+  await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+
+  return json({});
 };
 
 export default function GetStarted() {

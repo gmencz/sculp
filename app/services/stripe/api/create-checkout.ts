@@ -6,7 +6,8 @@ export async function createStripeCheckoutSession(
   userId: string,
   userEmail: string,
   cancelUrl: string,
-  customerId?: string
+  customerId?: string,
+  expiresAt?: Date
 ) {
   // If a user has a customer id, it means that they've already been part of the free trial
   // so they are not eligible for it again.
@@ -26,6 +27,7 @@ export async function createStripeCheckoutSession(
         userId,
       },
     },
+    expires_at: expiresAt ? Math.floor(expiresAt.getTime() / 1000) : undefined,
   });
 
   if (!session?.url) {
