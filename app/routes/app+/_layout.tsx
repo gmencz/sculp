@@ -18,7 +18,7 @@ import type { PropsWithChildren, SVGAttributes } from "react";
 import { useEffect } from "react";
 import { configRoutes } from "~/utils/routes";
 import { requireUser } from "~/services/auth/api/require-user";
-import { getGlobalNotification } from "~/utils/session.server";
+import { commitSession, getGlobalNotification } from "~/utils/session.server";
 import { SuccessToast } from "~/components/success-toast";
 import { toast } from "react-hot-toast";
 import { ErrorToast } from "~/components/error-toast";
@@ -132,27 +132,34 @@ const mobileNavigation = [
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
-  const globalNotification = await getGlobalNotification(request);
-  return json({ globalNotification });
+  const { session, notification } = await getGlobalNotification(request);
+  return json(
+    { notification },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 };
 
 function Layout({ children }: PropsWithChildren) {
   const location = useLocation();
-  const { globalNotification } = useLoaderData<typeof loader>();
+  const { notification } = useLoaderData<typeof loader>();
 
   useEffect(() => {
-    if (globalNotification) {
-      switch (globalNotification.type) {
+    if (notification) {
+      switch (notification.type) {
         case "success": {
           toast.custom(
             (t) => (
               <SuccessToast
                 t={t}
                 title="Success!"
-                description={globalNotification.message}
+                description={notification.message}
               />
             ),
-            { duration: 5000, id: globalNotification.id }
+            { duration: 5000, id: notification.id }
           );
 
           break;
@@ -164,17 +171,17 @@ function Layout({ children }: PropsWithChildren) {
               <ErrorToast
                 t={t}
                 title="Oops!"
-                description={globalNotification.message}
+                description={notification.message}
               />
             ),
-            { duration: 5000, id: globalNotification.id }
+            { duration: 5000, id: notification.id }
           );
 
           break;
         }
       }
     }
-  }, [globalNotification]);
+  }, [notification]);
 
   return (
     <>

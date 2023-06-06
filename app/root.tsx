@@ -15,6 +15,7 @@ import {
   useLocation,
   useRouteError,
 } from "@remix-run/react";
+import { withSentry } from "@sentry/remix";
 
 import tailwindStylesheetUrl from "./tailwind.css";
 import { ErrorPage } from "./components/error-page";
@@ -82,7 +83,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({ user, baseUrl: env.HOST_URL });
 };
 
-export default function App() {
+function App() {
   return (
     <html lang="en" className="h-full">
       <head>
@@ -168,3 +169,5 @@ export function ErrorBoundary() {
     </ErrorDoc>
   );
 }
+
+export default withSentry(App);
