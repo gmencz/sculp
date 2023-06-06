@@ -32,6 +32,7 @@ import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -63,7 +64,9 @@ export const loader = async ({ request }: LoaderArgs) => {
     where: formattedQuery
       ? {
           AND: [
-            { userId: user.id },
+            {
+              OR: [{ userId: user.id }, { shared: true }],
+            },
             {
               OR: [
                 { name: { search: formattedQuery } },
@@ -75,12 +78,13 @@ export const loader = async ({ request }: LoaderArgs) => {
           ],
         }
       : {
-          userId: user.id,
+          OR: [{ userId: user.id }, { shared: true }],
         },
     select: {
       id: true,
       name: true,
       userId: true,
+      shared: true,
       muscleGroups: {
         select: {
           id: true,
@@ -114,6 +118,7 @@ export const action = async ({ request }: ActionArgs) => {
     await prisma.exercise.deleteMany({
       where: {
         AND: [
+          { shared: false },
           { userId: user.id },
           { id: { in: deleteExercisesIds.filter(Boolean) } },
         ],
@@ -215,6 +220,8 @@ export default function Exercises() {
     setSelectedExercisesIds([]);
   }, [exercises]);
 
+  const canDeleteExercises = exercises.some((exercise) => !exercise.shared);
+
   return (
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
@@ -223,8 +230,9 @@ export default function Exercises() {
 
           {exercises.length > 0 || noResults ? (
             <Paragraph className="mt-1">
-              A list of your exercises including their name and muscle groups
-              worked.
+              A list of all exercises including their name and muscle groups
+              worked. There's some exercises that are read only because they are
+              shared by all Sculped users.
             </Paragraph>
           ) : (
             <Paragraph className="mt-1">
@@ -262,33 +270,37 @@ export default function Exercises() {
         {exercises.length > 0 ? (
           <Form className="-mx-4 mt-4 sm:-mx-0" method="delete" {...form.props}>
             <div className="relative">
-              <div
-                className={clsx(
-                  "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
-                  selectedExercisesIds.length > 0 ? "flex" : "hidden"
-                )}
-              >
-                <button
-                  disabled={isSubmitting}
-                  type="submit"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              {canDeleteExercises ? (
+                <div
+                  className={clsx(
+                    "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
+                    selectedExercisesIds.length > 0 ? "flex" : "hidden"
+                  )}
                 >
-                  Delete selected
-                </button>
-              </div>
+                  <button
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                  >
+                    Delete selected
+                  </button>
+                </div>
+              ) : null}
 
               <table className="min-w-full divide-y divide-zinc-300">
                 <thead>
                   <tr>
                     <th scope="col" className="relative px-6 sm:w-12">
-                      <input
-                        id="toggle-all"
-                        type="checkbox"
-                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
-                        ref={checkbox}
-                        checked={checked}
-                        onChange={toggleAll}
-                      />
+                      {canDeleteExercises ? (
+                        <input
+                          id="toggle-all"
+                          type="checkbox"
+                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
+                          ref={checkbox}
+                          checked={checked}
+                          onChange={toggleAll}
+                        />
+                      ) : null}
                     </th>
 
                     <th
@@ -349,6 +361,7 @@ type ExerciseRowProps = {
     id: string;
     name: string;
     userId: string | null;
+    shared: boolean;
     muscleGroups: {
       id: string;
       name: string;
@@ -380,7 +393,9 @@ function ExerciseRow({
           <div className="absolute inset-y-0 left-0 w-0.5 bg-orange-600" />
         ) : null}
 
-        {exercise.userId ? (
+        {exercise.shared ? (
+          <LockClosedIcon className="h-4 w-4 text-zinc-600" />
+        ) : (
           <>
             <input
               type="hidden"
@@ -405,7 +420,7 @@ function ExerciseRow({
               }}
             />
           </>
-        ) : null}
+        )}
       </td>
 
       <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 sm:w-auto sm:max-w-none sm:pl-0">
@@ -421,8 +436,11 @@ function ExerciseRow({
         {formattedMuscleGroups}
       </td>
 
-      {/* Only show edit link if the exercise was created by the user */}
-      {exercise.userId ? (
+      {exercise.shared ? (
+        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium text-zinc-600 sm:pr-0">
+          Read only
+        </td>
+      ) : (
         <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
           <Link
             to={`./${exercise.id}`}
@@ -431,7 +449,7 @@ function ExerciseRow({
             Edit<span className="sr-only">, {exercise.name}</span>
           </Link>
         </td>
-      ) : null}
+      )}
     </tr>
   );
 }

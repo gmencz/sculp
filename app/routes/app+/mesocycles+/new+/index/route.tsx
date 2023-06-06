@@ -13,12 +13,9 @@ import { requireUser } from "~/services/auth/api/require-user";
 import { createDraftMesocycle } from "~/utils/mesocycles.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const user = await requireUser(request);
+  await requireUser(request);
 
   const mesocyclesPresets = await prisma.mesocyclePreset.findMany({
-    where: {
-      userId: user.id,
-    },
     select: {
       name: true,
       microcycles: true,
@@ -76,10 +73,7 @@ export const action = async ({ request }: ActionArgs) => {
   if (presetName) {
     const preset = await prisma.mesocyclePreset.findUnique({
       where: {
-        name_userId: {
-          name: presetName,
-          userId: user.id,
-        },
+        name: presetName,
       },
       select: { name: true },
     });

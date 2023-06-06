@@ -15,7 +15,6 @@ import { prisma } from "~/utils/db.server";
 import { createStripeCheckoutSession } from "~/services/stripe/api/create-checkout";
 import { hashPassword } from "~/utils/encryption.server";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
-import { seedUserById } from "~/utils/user/user.server";
 import { rateLimit } from "~/services/redis/api/rate-limit";
 
 const schema = z
@@ -39,7 +38,7 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  // Max 3 requests per hour. This is generous enough.
+  // Max 5 requests per hour. This is generous enough.
   await rateLimit(request, { max: 5, windowInSeconds: 60 * 60 });
 
   const { email, password } = submission.value;
@@ -60,9 +59,6 @@ export const action = async ({ request }: ActionArgs) => {
         email: true,
       },
     });
-
-    // Not awaiting this because it just takes too long.
-    seedUserById(newUser.id);
 
     const sessionUrl = await createStripeCheckoutSession(
       newUser.id,

@@ -18,7 +18,7 @@ async function seed() {
 
   const hashedPassword = await bcrypt.hash("password123", 10);
 
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email,
       role: Role.ADMIN,
@@ -40,26 +40,37 @@ async function seed() {
       })
     ),
 
-    // Create preset exercises.
+    // Create exercises.
     ...Object.keys(exercises).map((exerciseName) => {
       const muscleGroups = exercises[exerciseName as keyof typeof exercises];
 
       return prisma.exercise.create({
         data: {
           name: exerciseName,
-          user: { connect: { id: user.id } },
+          shared: true,
           muscleGroups: {
             connect: muscleGroups.map((muscleGroup) => ({ name: muscleGroup })),
           },
         },
       });
     }),
+  ]);
 
-    ...[pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
+  const allExercises = await prisma.exercise.findMany({
+    where: {
+      shared: true,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  await prisma.$transaction(
+    [pushPullLegs3on1off, pushPullLegs6on1off].map((template) => {
       return prisma.mesocyclePreset.create({
         data: {
           name: template.name,
-          userId: user.id,
           microcycles: template.microcycles,
           restDays: { set: template.restDays },
           trainingDays: {
@@ -72,10 +83,9 @@ async function seed() {
                   notes: exercise.notes,
                   exercise: {
                     connect: {
-                      name_userId: {
-                        name: exercise.name,
-                        userId: user.id,
-                      },
+                      id: allExercises.find(
+                        ({ name }) => name === exercise.name
+                      )!.id,
                     },
                   },
                   sets: {
@@ -92,8 +102,8 @@ async function seed() {
           },
         },
       });
-    }),
-  ]);
+    })
+  );
 
   console.log(`Database has been seeded. 🌱`);
 }

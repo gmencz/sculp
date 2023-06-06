@@ -65,6 +65,7 @@ model Exercise {
   muscleGroups                                   MuscleGroup[]
   mesocyclesTrainingDaysExercises                MesocycleTrainingDayExercise[]
   mesocyclesRunsMicrocyclesTrainingDaysExercises MesocycleRunMicrocycleTrainingDayExercise[]
+  shared                                         Boolean                                     @default(false) // Whether this exercise is shared by all users.
 
   @@unique([name, userId])
   @@map("exercises")
@@ -80,15 +81,13 @@ model MuscleGroup {
 
 model MesocyclePreset {
   id           String                 @id @default(cuid())
-  name         String
-  userId       String
+  name         String                 @unique
   microcycles  Int
   restDays     Int[]                  @map("rest_days")
   createdAt    DateTime               @default(now()) @map("created_at")
   updatedAt    DateTime               @updatedAt @map("updated_at")
   trainingDays MesocycleTrainingDay[]
 
-  @@unique([name, userId])
   @@map("mesocycles_presets")
 }
 
