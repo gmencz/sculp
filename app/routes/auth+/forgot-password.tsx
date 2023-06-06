@@ -5,6 +5,7 @@ import type { ActionArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { z } from "zod";
+import * as Sentry from "@sentry/remix";
 import { Input } from "~/components/input";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
@@ -57,7 +58,7 @@ export const action = async ({ request }: ActionArgs) => {
   try {
     await sendPasswordResetEmail(email);
   } catch (error) {
-    console.error(error);
+    Sentry.captureException(error);
   }
 
   return redirect(configRoutes.auth.forgotPassword, {

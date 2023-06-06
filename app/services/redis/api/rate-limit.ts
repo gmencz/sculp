@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/remix";
 import { env } from "~/utils/env.server";
 import { redis } from "../config.server";
 
@@ -19,7 +20,7 @@ export async function rateLimit(request: Request, config: RateLimiterConfig) {
   try {
     res = await redis.incr(key);
   } catch (err) {
-    console.error("isOverLimit: could not increment key");
+    Sentry.captureException(err);
     throw err;
   }
 

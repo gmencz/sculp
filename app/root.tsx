@@ -4,6 +4,7 @@ import type {
   V2_MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import * as Sentry from "@sentry/remix";
 import {
   Links,
   LiveReload,
@@ -126,7 +127,7 @@ export function ErrorBoundary() {
   const location = useLocation();
 
   if (isRouteErrorResponse(error)) {
-    console.error("Caught route error", error);
+    Sentry.captureException(error);
 
     if (error.status === 404) {
       return (
@@ -157,7 +158,7 @@ export function ErrorBoundary() {
     throw new Error(`Unhandled error: ${error.status}`);
   }
 
-  console.error(`Uncaught error`, error);
+  Sentry.captureException(error);
 
   return (
     <ErrorDoc>

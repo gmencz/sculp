@@ -1,6 +1,7 @@
 import type { ActionArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type Stripe from "stripe";
+import * as Sentry from "@sentry/remix";
 import { prisma } from "~/utils/db.server";
 import { stripe } from "~/services/stripe/config.server";
 import { env } from "~/utils/env.server";
@@ -22,15 +23,14 @@ async function getStripeEvent(request: Request) {
     );
 
     return event;
-  } catch (err: unknown) {
-    console.log(err);
+  } catch (err) {
+    Sentry.captureException(err);
     return json({}, { status: 400 });
   }
 }
 
 export async function action({ request }: ActionArgs) {
   const event = await getStripeEvent(request);
-  console.log(`Stripe webhook event`);
 
   try {
     switch (event.type) {
@@ -43,13 +43,12 @@ export async function action({ request }: ActionArgs) {
       }
 
       case "customer.subscription.created": {
-        console.log("customer.subscription.created before update 1");
         const subscription = event.data.object as Stripe.Subscription;
         const { userId } = subscription.metadata;
         if (!userId) {
           throw new Error("Missing userId in metadata.");
         }
-        console.log("customer.subscription.created before update 2");
+
         await prisma.user.update({
           where: { id: userId },
           data: {
@@ -65,8 +64,6 @@ export async function action({ request }: ActionArgs) {
             },
           },
         });
-
-        console.log("customer.subscription.created after update 1");
 
         return json({}, { status: 200 });
       }
@@ -109,7 +106,7 @@ export async function action({ request }: ActionArgs) {
       }
     }
   } catch (err: unknown) {
-    console.error(err);
+    Sentry.captureException(err);
     return json({}, { status: 400 });
   }
 

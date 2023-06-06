@@ -75,6 +75,7 @@ function handleBotRequest(
         },
         onError(error: unknown) {
           responseStatusCode = 500;
+          Sentry.captureException(error);
           console.error(error);
         },
       }
@@ -117,6 +118,7 @@ function handleBrowserRequest(
         },
         onError(error: unknown) {
           console.error(error);
+          Sentry.captureException(error);
           responseStatusCode = 500;
         },
       }
