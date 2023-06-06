@@ -1,3 +1,8 @@
+import type { V2_MetaFunction } from "@remix-run/node";
+import { getMeta } from "~/utils/seo";
+
+export const meta: V2_MetaFunction = () => getMeta("Sculped - Privacy Policy");
+
 export default function PrivacyPolicy() {
   return (
     <>

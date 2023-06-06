@@ -15,6 +15,8 @@ import { sendPasswordResetEmail } from "~/services/resend/api/send-password-rese
 import { emailSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
+import type { V2_MetaFunction } from "@remix-run/node";
+import { getMeta } from "~/utils/seo";
 
 const schema = z.object({
   email: emailSchema,
@@ -67,6 +69,9 @@ export const action = async ({ request }: ActionArgs) => {
     },
   });
 };
+
+export const meta: V2_MetaFunction = () =>
+  getMeta("Sculped - Reset Your Password");
 
 export default function ForgotPassword() {
   const lastSubmission = useActionData();

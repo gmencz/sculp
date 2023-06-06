@@ -1,3 +1,9 @@
+import type { V2_MetaFunction } from "@remix-run/node";
+import { getMeta } from "~/utils/seo";
+
+export const meta: V2_MetaFunction = () =>
+  getMeta("Sculped - Terms Of Service");
+
 export default function TermsOfService() {
   return (
     <>

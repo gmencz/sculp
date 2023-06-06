@@ -1,5 +1,6 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import type { V2_MetaFunction } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
@@ -15,6 +16,7 @@ import { env } from "~/utils/env.server";
 import { jwt } from "~/utils/jwt.server";
 import { configRoutes } from "~/utils/routes";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
+import { getMeta } from "~/utils/seo";
 
 const payloadSchema = z.object({
   email: emailSchema,
@@ -135,6 +137,9 @@ export const action = async ({ request }: ActionArgs) => {
 
   return redirect(configRoutes.auth.signIn);
 };
+
+export const meta: V2_MetaFunction = () =>
+  getMeta("Sculped - Reset Your Password");
 
 export default function ResetPassword() {
   const lastSubmission = useActionData();

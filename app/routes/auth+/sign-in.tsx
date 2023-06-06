@@ -16,6 +16,8 @@ import { sessionStorage } from "~/utils/session.server";
 import { emailSchema, passwordSchema } from "~/utils/schemas";
 import { rateLimit } from "~/services/redis/api/rate-limit";
 import { addHours } from "date-fns";
+import type { V2_MetaFunction } from "@remix-run/node";
+import { getMeta } from "~/utils/seo";
 
 const schema = z.object({
   email: emailSchema,
@@ -77,6 +79,8 @@ export async function action({ request }: ActionArgs) {
     },
   });
 }
+
+export const meta: V2_MetaFunction = () => getMeta("Sculped - Sign In");
 
 export default function SignIn() {
   const lastSubmission = useActionData();
