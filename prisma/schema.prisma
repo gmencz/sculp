@@ -9,18 +9,19 @@ generator client {
 }
 
 model User {
-  id                  String         @id @default(cuid())
-  email               String         @unique
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
-  password            Password?
-  exercises           Exercise[]
-  mesocycles          Mesocycle[]    @relation("ExistingMesocycles")
-  mesocyclesRuns      MesocycleRun[] @relation("MesocyclesRuns")
-  currentMesocycleRun MesocycleRun?
-  subscription        Subscription?
-  stripeCustomerId    String?        @unique @map("stripe_customer_id")
-  role                Role           @default(USER)
+  id                    String         @id @default(cuid())
+  email                 String         @unique
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+  password              Password?
+  exercises             Exercise[]
+  mesocycles            Mesocycle[]    @relation("ExistingMesocycles")
+  mesocyclesRuns        MesocycleRun[] @relation("MesocyclesRuns")
+  currentMesocycleRun   MesocycleRun?
+  subscription          Subscription?
+  stripeCustomerId      String?        @unique @map("stripe_customer_id")
+  role                  Role           @default(USER)
+  subscriptionCheckedAt DateTime       @default(now())
 
   @@map("users")
 }
