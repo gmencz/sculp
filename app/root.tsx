@@ -12,6 +12,7 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  useLoaderData,
   useLocation,
   useRouteError,
 } from "@remix-run/react";
@@ -28,6 +29,8 @@ import { prisma } from "./utils/db.server";
 import { GlobalLoading } from "./components/global-loading";
 import { configRoutes } from "./utils/routes";
 import { getMeta } from "./utils/seo";
+import { useSWEffect } from "@remix-pwa/sw";
+import { env } from "./utils/env.server";
 
 export const meta: V2_MetaFunction = () => getMeta();
 
@@ -38,8 +41,13 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
+
+  const ENV = {
+    SENTRY_DSN: env.SENTRY_DSN,
+  };
+
   if (!userId) {
-    return json({ user: null });
+    return json({ user: null, ENV });
   }
 
   const user = await prisma.user.findUnique({
@@ -47,15 +55,20 @@ export const loader = async ({ request }: LoaderArgs) => {
     select: { id: true },
   });
 
-  return json({ user });
+  return json({ user, ENV });
 };
 
 function App() {
+  useSWEffect();
+
+  const data = useLoaderData<typeof loader>();
+
   return (
     <html lang="en" className="h-full">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Meta />
         <Links />
       </head>
@@ -64,6 +77,11 @@ function App() {
         <GlobalLoading />
         <Outlet />
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <Scripts />
         <LiveReload />
         <noscript>This app requires JavaScript to be enabled</noscript>
