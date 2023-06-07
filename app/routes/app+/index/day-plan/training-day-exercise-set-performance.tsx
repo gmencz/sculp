@@ -106,7 +106,7 @@ export function TrainingDayExerciseSetPerformance({
             </>
           ) : (
             <div className="flex items-center text-xs">
-              <span>No data available</span>
+              <span>Set pending completion</span>
             </div>
           )}
         </div>
