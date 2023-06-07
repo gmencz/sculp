@@ -10,9 +10,14 @@ import { hydrateRoot } from "react-dom/client";
 import { useLocation, useMatches } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
 import { useEffect } from "react";
+import { loadServiceWorker } from "@remix-pwa/sw";
+
+loadServiceWorker({
+  serviceWorkerUrl: "/entry.worker.js",
+});
 
 Sentry.init({
-  dsn: "https://22342f7d3ec24dfcbc17be4c7f901d91:4f308d53b9ab480ca9e956f50e22dc29@o446724.ingest.sentry.io/4505313057177600",
+  dsn: (window as any).ENV.SENTRY_DSN,
   tracesSampleRate: 1,
   integrations: [
     new Sentry.BrowserTracing({

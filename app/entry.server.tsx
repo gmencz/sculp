@@ -11,10 +11,11 @@ import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import * as Sentry from "@sentry/remix";
-import { prisma } from "~/utils/db.server";
+import { prisma } from "./utils/db.server";
+import { env } from "./utils/env.server";
 
 Sentry.init({
-  dsn: "https://22342f7d3ec24dfcbc17be4c7f901d91:4f308d53b9ab480ca9e956f50e22dc29@o446724.ingest.sentry.io/4505313057177600",
+  dsn: env.SENTRY_DSN,
   tracesSampleRate: 1,
   integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 });

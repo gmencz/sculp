@@ -61,9 +61,11 @@ export function TrainingDayExerciseSet({
       unmount={false}
       afterLeave={() => {
         if (isXs) {
+          // If XS screen, we need to submit the form to delete the set, on XS+ we don't because this button is visible.
           removeSetButtonRef.current?.click();
-          setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
         }
+
+        setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
       }}
       enter="transition ease-out duration-200"
       enterFrom="opacity-0 -translate-y-1"

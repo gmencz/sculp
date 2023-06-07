@@ -91,19 +91,17 @@ export function TrainingDayExerciseReadOnly({
         </tbody>
       </table>
 
-      {exercise.previousRun ? (
-        <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-          <ol className="flex flex-col gap-4">
-            {exercise.sets.map((set) => (
-              <TrainingDayExerciseSetPerformance
-                previousRunSets={exercise.previousRun?.sets || []}
-                set={{ ...set, isNew: false }}
-                key={`${set.id}-performance-change`}
-              />
-            ))}
-          </ol>
-        </div>
-      ) : null}
+      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
+        <ol className="flex flex-col gap-4">
+          {exercise.sets.map((set) => (
+            <TrainingDayExerciseSetPerformance
+              previousRunSets={exercise.previousRun?.sets || []}
+              set={{ ...set, isNew: false }}
+              key={`${set.id}-performance-change`}
+            />
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

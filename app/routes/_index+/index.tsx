@@ -1,13 +1,108 @@
 import { Link } from "@remix-run/react";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowLongRightIcon,
+  ArrowTrendingUpIcon,
+  BookOpenIcon,
+  MinusSmallIcon,
+  PencilIcon,
+  PlusSmallIcon,
+} from "@heroicons/react/24/solid";
 import { configRoutes } from "~/utils/routes";
 import { useOptionalUser } from "~/utils/hooks";
+import { Disclosure } from "@headlessui/react";
+import type { SVGAttributes } from "react";
+
+const faqs = [
+  {
+    question: "Why aren't I downloading this app from an App Store?",
+    answer:
+      "Sculped is a Progressive Web App (PWA), which means you don't need to download it from traditional app stores like the Play Store or Google Play Store. A Progressive Web App (PWA) offers several advantages that make it a better choice like instant access, cross-platform compatibility, space-saving, automatic updates, offline functionality and more.",
+  },
+  {
+    question: "Is there a free trial?",
+    answer:
+      "Absolutely! We offer a 30-day free trial you can cancel at any time, allowing you to explore every feature of the app in depth. It's a wonderful opportunity to experience the full capabilities of Sculped before committing. Following the trial period, our subscription is priced at $4.99 per month. We believe this combination of a free trial and affordable pricing provides excellent value for your muscle-building journey.",
+  },
+  {
+    question: "What is a mesocycle and why do I need one?",
+    answer:
+      "Training should be structured and designed around your likes and needs which is exactly what a mesocycle is. Structured training. The only way to know you're making progress is by tracking your performance every session somewhere and this is something that's built in to our mesocycles.",
+  },
+  {
+    question: "Can I do the same mesocycle multiple times?",
+    answer:
+      "Of course! You can repeat a mesocycle as many times as you want, you'll be able to see how you performed on each of the times you did the mesocycle and see the amount of progress you've made.",
+  },
+  {
+    question: "What mesocycle presets are there?",
+    answer:
+      "We currently have 5 presets which are the most popular. 3 Push pull legs presets, 1 upper lower preset and 1 bro split. You can of course customize each of them however you'd like or create your own from scratch.",
+  },
+];
+
+const features = [
+  {
+    name: "Mesocycles",
+    description:
+      "Structure your training with our powerful mesocycles. You can either use a preset created by a hypertrophy expert or design your own fully customizable mesocycle.",
+    icon: BookOpenIcon,
+  },
+  {
+    name: "Exercises",
+    description:
+      "Perform any exercise you can think of, you can either pick one from our extensive directory of preset exercises or create your own.",
+    icon: (props: SVGAttributes<SVGElement>) => (
+      <svg
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 485.535 485.535"
+        {...props}
+      >
+        <g>
+          <g id="_x35__13_">
+            <g>
+              <path
+                d="M55.465,123.228c-15.547,0-28.159,12.608-28.159,28.161v56.673C11.653,211.908,0,225.928,0,242.765
+         c0,16.842,11.652,30.861,27.306,34.707v56.666c0,15.555,12.612,28.16,28.159,28.16c15.546,0,28.16-12.605,28.16-28.16V151.389
+         C83.625,135.837,71.011,123.228,55.465,123.228z"
+              />
+              <path
+                d="M334.498,65.278c-23.092,0-41.811,18.719-41.811,41.812v93.864h-12.801h-60.585h-19.625l-6.827-0.163V107.09
+         c0-23.092-18.72-41.812-41.813-41.812c-23.091,0-41.812,18.719-41.812,41.812v271.355c0,23.093,18.721,41.812,41.812,41.812
+         c23.094,0,41.813-18.719,41.813-41.812v-93.653c0,0,4.501-0.211,6.827-0.211h19.625h60.585h12.801v93.864
+         c0,23.093,18.719,41.812,41.811,41.812c23.094,0,41.812-18.719,41.812-41.812V107.089
+         C376.311,83.998,357.592,65.278,334.498,65.278z"
+              />
+              <path
+                d="M458.229,208.062v-56.673c0-15.552-12.613-28.161-28.158-28.161c-15.547,0-28.16,12.608-28.16,28.161v182.749
+         c0,15.555,12.613,28.16,28.16,28.16c15.545,0,28.158-12.605,28.158-28.16v-56.666c15.654-3.846,27.307-17.865,27.307-34.707
+         C485.535,225.927,473.883,211.908,458.229,208.062z"
+              />
+            </g>
+          </g>
+        </g>
+      </svg>
+    ),
+  },
+  {
+    name: "Performance tracking",
+    description:
+      "Track and analyze your performance each training session to make sure you're consistently making progress.",
+    icon: ArrowTrendingUpIcon,
+  },
+  {
+    name: "Customization",
+    description:
+      "We understand how many variables come into training and performance which is why you can customize absolutely everything down to repetition ranges, RIR and more.",
+    icon: PencilIcon,
+  },
+];
 
 export default function Index() {
   const user = useOptionalUser();
 
   return (
-    <div className="relative isolate h-full bg-zinc-50">
+    <div className="relative isolate mx-auto flex  max-w-7xl flex-col gap-12 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <div
         className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
         aria-hidden="true"
@@ -21,12 +116,16 @@ export default function Index() {
         />
       </div>
 
-      <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-12 bg-zinc-50 px-6 py-6 sm:py-10">
-        <div className="mx-auto my-auto w-full max-w-2xl flex-shrink-0 pt-10">
+      <div className="my-auto flex flex-shrink-0 flex-col items-center gap-20 pt-2 lg:flex-row lg:gap-12 lg:pt-10">
+        <div className="mx-auto w-full max-w-2xl xs:text-center lg:mx-0 lg:-mt-20 lg:max-w-none lg:text-left">
+          <div className="lg:ml-1l mb-10 xs:flex xs:items-center xs:justify-center lg:block">
+            <img src="/logo.png" alt="Sculped" className="h-12 w-12" />
+          </div>
+
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
             Currently in beta
           </span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-950 sm:text-6xl">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-950 xs:text-5xl sm:text-6xl">
             Supercharge your hypertrophy training
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
@@ -35,7 +134,7 @@ export default function Index() {
             eye on your progress. Say goodbye to plateaus and hello to
             extraordinary results.
           </p>
-          <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+          <div className="mt-8 flex items-center gap-6 xs:justify-center lg:justify-normal">
             {user ? (
               <Link
                 to={configRoutes.app.current}
@@ -49,7 +148,7 @@ export default function Index() {
                   to={configRoutes.auth.getStarted}
                   className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
                 >
-                  Get started
+                  Get started for free
                 </Link>
                 <Link
                   to={configRoutes.auth.signIn}
@@ -63,21 +162,119 @@ export default function Index() {
           </div>
         </div>
 
-        <footer className="mx-auto mt-auto flex w-full max-w-2xl flex-shrink-0 gap-6 self-start text-sm">
-          <Link
-            to="/legal/privacy-policy"
-            className="text-zinc-600 hover:text-zinc-800"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            to="/legal/terms-of-service"
-            className="text-zinc-600 hover:text-zinc-800"
-          >
-            Terms Of Service
-          </Link>
-        </footer>
+        <div className="flex-shrink-0">
+          <img
+            src="/app-preview.png"
+            className="w-auto rounded-3xl border-[6px] border-zinc-900 lg:h-[856px]"
+            alt="App preview"
+          />
+        </div>
+        <div
+          className="absolute inset-x-0 top-[calc(100%-30rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-60rem)]"
+          aria-hidden="true"
+        >
+          <div
+            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#fcc189] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+            style={{
+              clipPath:
+                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+            }}
+          />
+        </div>
       </div>
+
+      <div className="mx-auto mt-32 max-w-7xl sm:mt-56">
+        <div className="mx-auto max-w-2xl lg:text-center">
+          <h2 className="text-base font-semibold leading-7 text-orange-600">
+            Train like a pro
+          </h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
+            Everything you need to maximize results
+          </p>
+          <p className="mt-6 text-lg leading-8 text-zinc-600">
+            We've revolutionized the way you approach hypertrophy training. Our
+            app is packed with powerful features designed to improve your
+            training like nothing you've seen before and help you achieve
+            unparalleled muscle growth.
+          </p>
+        </div>
+        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+            {features.map((feature) => (
+              <div key={feature.name} className="relative pl-16">
+                <dt className="text-base font-semibold leading-7 text-zinc-900">
+                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-600">
+                    <feature.icon
+                      className="h-6 w-6 text-white"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  {feature.name}
+                </dt>
+                <dd className="mt-2 text-base leading-7 text-zinc-600">
+                  {feature.description}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+
+      <div className="mt-32 divide-y divide-zinc-900/10 sm:mt-56">
+        <h2 className="text-2xl font-bold leading-10 tracking-tight text-zinc-900">
+          Frequently asked questions
+        </h2>
+        <dl className="mt-10 space-y-6 divide-y divide-zinc-900/10">
+          {faqs.map((faq) => (
+            <Disclosure as="div" key={faq.question} className="pt-6">
+              {({ open }) => (
+                <>
+                  <dt>
+                    <Disclosure.Button className="flex w-full items-start justify-between text-left text-zinc-900">
+                      <span className="text-base font-semibold leading-7">
+                        {faq.question}
+                      </span>
+                      <span className="ml-6 flex h-7 items-center">
+                        {open ? (
+                          <MinusSmallIcon
+                            className="h-6 w-6"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <PlusSmallIcon
+                            className="h-6 w-6"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </span>
+                    </Disclosure.Button>
+                  </dt>
+                  <Disclosure.Panel as="dd" className="mt-2 pr-12">
+                    <p className="text-base leading-7 text-zinc-600">
+                      {faq.answer}
+                    </p>
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          ))}
+        </dl>
+      </div>
+
+      <footer className="mt-32 flex gap-6 text-sm">
+        <Link
+          to="/legal/privacy-policy"
+          className="text-zinc-600 hover:text-zinc-900"
+        >
+          Privacy Policy
+        </Link>
+        <Link
+          to="/legal/terms-of-service"
+          className="text-zinc-600 hover:text-zinc-900"
+        >
+          Terms Of Service
+        </Link>
+      </footer>
     </div>
   );
 }

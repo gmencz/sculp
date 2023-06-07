@@ -15,6 +15,7 @@ const envSchema = z.object({
   REDIS_HOST: z.string(),
   REDIS_PASSWORD: z.string(),
   STRIPE_CHECKOUT_JWT_SECRET: z.string(),
+  SENTRY_DSN: z.string(),
 
   // Only for running the production prisma seed.
   PRISMA_SEED_ADMIN_EMAIL: z.string().optional(),
