@@ -44,7 +44,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     3000
   );
   const submit = useSubmit();
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [
     updateExerciseForm,
     {
@@ -381,19 +381,17 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         />
       </Form>
 
-      {exercise.previousRun ? (
-        <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-          <ol className="flex flex-col gap-4">
-            {sets.map((set) => (
-              <TrainingDayExerciseSetPerformance
-                previousRunSets={exercise.previousRun?.sets || []}
-                set={set}
-                key={`${set.id}-performance-change`}
-              />
-            ))}
-          </ol>
-        </div>
-      ) : null}
+      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
+        <ol className="flex flex-col gap-4">
+          {sets.map((set) => (
+            <TrainingDayExerciseSetPerformance
+              previousRunSets={exercise.previousRun?.sets || []}
+              set={set}
+              key={`${set.id}-performance-change`}
+            />
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

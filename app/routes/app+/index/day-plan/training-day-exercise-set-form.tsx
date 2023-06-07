@@ -28,7 +28,7 @@ export function TrainingDayExerciseSetForm({
   setSets,
   exerciseId,
 }: TrainingDayExerciseSetFormProps) {
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [
     form,
     {
@@ -149,6 +149,12 @@ export function TrainingDayExerciseSetForm({
       }));
     }
   }, [set.completed, values.completed]);
+
+  // useEffect(() => {
+  //   if (isRemoved) {
+  //     setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
+  //   }
+  // }, [isRemoved, set.id, setSets]);
 
   const isBeingCreated =
     navigation.state === "submitting" &&

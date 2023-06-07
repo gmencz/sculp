@@ -5,6 +5,7 @@ import {
   ArrowPathRoundedSquareIcon,
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/20/solid";
 import { Transition } from "@headlessui/react";
 import type { Set } from "./training-day-exercise-set";
@@ -33,9 +34,11 @@ export function TrainingDayExerciseSetPerformance({
 
   const performance = getSetPerformance(previousRunSet, set);
 
+  const hasAnyData = Boolean(previousRunSet) && set.completed;
+
   return (
     <Transition
-      show={performance !== "unknown"}
+      show
       appear={set.isNew}
       enter="transition ease-out duration-200"
       enterFrom="opacity-0 -translate-y-1"
@@ -44,7 +47,7 @@ export function TrainingDayExerciseSetPerformance({
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <li className="mx-auto flex w-full max-w-[18rem] items-center justify-between gap-4">
+      <li className="mx-auto flex w-full max-w-xs items-center justify-between gap-4">
         <span
           className={clsx(
             "flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-2",
@@ -58,36 +61,54 @@ export function TrainingDayExerciseSetPerformance({
           S{set.number}
         </span>
 
-        <div className="flex flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center justify-center gap-0.5 text-center">
           <span className="text-xs font-bold">
             {performance === "increased"
               ? "PERFORMANCE INCREASED"
               : performance === "declined"
               ? "PERFORMANCE DECLINED"
-              : "PERFORMANCE MAINTAINED"}
+              : performance === "maintained"
+              ? "PERFORMANCE MAINTAINED"
+              : "PERFORMANCE UNKNOWN"}
           </span>
 
-          <div className="flex items-center gap-1 text-xs">
-            <span>
-              {previousRunSet!.weight}x{previousRunSet!.repsCompleted}{" "}
-              {previousRunSet!.rir} RIR
-            </span>
+          {hasAnyData ? (
+            <>
+              <div className="flex items-center gap-1 text-xs">
+                {previousRunSet ? (
+                  <span>
+                    {previousRunSet.weight}x{previousRunSet.repsCompleted}{" "}
+                    {previousRunSet.rir} RIR
+                  </span>
+                ) : (
+                  <span>No previous data</span>
+                )}
 
-            <ArrowLongRightIcon
-              className={clsx(
-                "h-4 w-4",
-                performance === "increased"
-                  ? "text-green-500"
-                  : performance === "declined"
-                  ? "text-red-500"
-                  : "text-zinc-500"
-              )}
-            />
+                <ArrowLongRightIcon
+                  className={clsx(
+                    "h-4 w-4",
+                    performance === "increased"
+                      ? "text-green-500"
+                      : performance === "declined"
+                      ? "text-red-500"
+                      : "text-zinc-500"
+                  )}
+                />
 
-            <span>
-              {set.weight}x{set.repsCompleted} {set.rir} RIR
-            </span>
-          </div>
+                {set.completed ? (
+                  <span>
+                    {set.weight}x{set.repsCompleted} {set.rir} RIR
+                  </span>
+                ) : (
+                  <span>No current data</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center text-xs">
+              <span>No data available</span>
+            </div>
+          )}
         </div>
 
         <div
@@ -104,8 +125,10 @@ export function TrainingDayExerciseSetPerformance({
             <ArrowTrendingUpIcon className="h-6 w-6" />
           ) : performance === "declined" ? (
             <ArrowTrendingDownIcon className="h-6 w-6" />
-          ) : (
+          ) : performance === "maintained" ? (
             <ArrowPathRoundedSquareIcon className="h-6 w-6" />
+          ) : (
+            <QuestionMarkCircleIcon className="h-6 w-6" />
           )}
         </div>
       </li>
