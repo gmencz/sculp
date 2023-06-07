@@ -1,6 +1,6 @@
 import type { User } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
-import type { DependencyList, EffectCallback, RefObject } from "react";
+import type { RefObject } from "react";
 import { useMemo } from "react";
 import { useEffect, useRef, useState } from "react";
 

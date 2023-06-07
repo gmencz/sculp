@@ -135,7 +135,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export default function GetStarted() {
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { email, password, confirmedPassword }] = useForm<Schema>({
     id: "get-started",
     lastSubmission,

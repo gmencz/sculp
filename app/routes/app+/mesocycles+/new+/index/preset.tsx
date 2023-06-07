@@ -12,7 +12,7 @@ import { Fragment, useState } from "react";
 
 export function PresetMesocycle() {
   const { mesocyclesPresets } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [
     form,
     {

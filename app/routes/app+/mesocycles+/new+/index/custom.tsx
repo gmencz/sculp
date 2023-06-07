@@ -13,7 +13,7 @@ import { Select } from "~/components/select";
 import { SubmitButton } from "~/components/submit-button";
 
 export function CustomMesocycle() {
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [restDaysOptions, setRestDaysOptions] = useState<number[]>([]);
   const [
     form,

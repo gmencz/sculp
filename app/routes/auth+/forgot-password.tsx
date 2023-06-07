@@ -74,7 +74,7 @@ export const meta: V2_MetaFunction = () =>
   getMeta("Sculped - Reset Your Password");
 
 export default function ForgotPassword() {
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { email }] = useForm<Schema>({
     id: "forgot-password",
     lastSubmission,

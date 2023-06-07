@@ -214,7 +214,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 export default function StartMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData() as any;
+  const lastSubmission = useActionData() as any as any;
   const [form, { startDate }] = useForm<Schema>({
     id: "delete-exercises",
     lastSubmission,
