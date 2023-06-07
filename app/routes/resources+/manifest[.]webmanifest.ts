@@ -1,32 +1,18 @@
 import { json } from "@remix-run/node";
-import type { LoaderFunction } from "@remix-run/node";
-import { configRoutes } from "~/utils/routes";
 
-export let loader: LoaderFunction = async () => {
+export const loader = async () => {
   return json(
     {
       short_name: "Sculped",
       name: "Sculped - Hypertrophy Training",
-      start_url: "/",
+      start_url: "/app",
       display: "standalone",
       background_color: "#fafafa",
       theme_color: "#f97316",
       shortcuts: [
         {
-          name: "Current",
-          url: configRoutes.app,
-          icons: [
-            {
-              src: "/icons/icon-96x96.png",
-              sizes: "96x96",
-              type: "image/png",
-              purpose: "any monochrome",
-            },
-          ],
-        },
-        {
           name: "Mesocycles",
-          url: configRoutes.app.mesocycles,
+          url: "/app/mesocycles",
           icons: [
             {
               src: "/icons/icon-96x96.png",
@@ -38,7 +24,7 @@ export let loader: LoaderFunction = async () => {
         },
         {
           name: "Exercises",
-          url: configRoutes.app.exercises,
+          url: "/app/exercises",
           icons: [
             {
               src: "/icons/icon-96x96.png",
@@ -50,7 +36,7 @@ export let loader: LoaderFunction = async () => {
         },
         {
           name: "Profile",
-          url: configRoutes.app.profile,
+          url: "/app/profile",
           icons: [
             {
               src: "/icons/icon-96x96.png",
