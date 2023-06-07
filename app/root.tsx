@@ -72,7 +72,7 @@ function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full">
+      <body className="h-full bg-zinc-50">
         <Toaster position="bottom-right" />
         <GlobalLoading />
         <Outlet />

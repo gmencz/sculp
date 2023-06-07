@@ -34,7 +34,7 @@ export function TrainingDayExerciseSetPerformance({
 
   const performance = getSetPerformance(previousRunSet, set);
 
-  const hasAnyData = Boolean(previousRunSet) && set.completed;
+  const hasAnyData = Boolean(previousRunSet) || set.completed;
 
   return (
     <Transition
@@ -100,13 +100,13 @@ export function TrainingDayExerciseSetPerformance({
                     {set.weight}x{set.repsCompleted} {set.rir} RIR
                   </span>
                 ) : (
-                  <span>No current data</span>
+                  <span>Set in progress</span>
                 )}
               </div>
             </>
           ) : (
             <div className="flex items-center text-xs">
-              <span>Set pending completion</span>
+              <span>Set in progress</span>
             </div>
           )}
         </div>
