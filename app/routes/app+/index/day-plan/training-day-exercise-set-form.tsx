@@ -28,7 +28,7 @@ export function TrainingDayExerciseSetForm({
   setSets,
   exerciseId,
 }: TrainingDayExerciseSetFormProps) {
-  const lastSubmission = useActionData() as any;
+  const lastSubmission = useActionData() as any as any;
   const [
     form,
     {

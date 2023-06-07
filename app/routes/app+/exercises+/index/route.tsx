@@ -163,7 +163,7 @@ export default function Exercises() {
   const [selectedExercisesIds, setSelectedExercisesIds] = useState<string[]>(
     []
   );
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { deleteExercisesIds: deleteExercisesIdsConfig }] =
     useForm<Schema>({
       id: "delete-exercises",

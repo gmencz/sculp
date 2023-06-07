@@ -39,7 +39,7 @@ export function FinishTrainingDayModal({
     navigation.state === "submitting" &&
     navigation.formData.get("actionIntent") === actionIntents[1];
 
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { actionIntent, id, feedback }] = useForm<FinishSessionSchema>({
     id: "finish-session",
     lastSubmission,

@@ -44,7 +44,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     3000
   );
   const submit = useSubmit();
-  const lastSubmission = useActionData() as any;
+  const lastSubmission = useActionData() as any as any;
   const [
     updateExerciseForm,
     {

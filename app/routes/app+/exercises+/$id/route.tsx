@@ -145,7 +145,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function Exercise() {
   const { exercise, muscleGroupsOptions } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { name, muscleGroups }] = useForm<Schema>({
     id: "edit-exercise",
     lastSubmission,

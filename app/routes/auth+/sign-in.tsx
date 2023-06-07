@@ -83,7 +83,7 @@ export async function action({ request }: ActionArgs) {
 export const meta: V2_MetaFunction = () => getMeta("Sculped - Sign In");
 
 export default function SignIn() {
-  const lastSubmission = useActionData();
+  const lastSubmission = useActionData() as any;
   const [form, { email, password }] = useForm<Schema>({
     id: "sign-in",
     lastSubmission,
