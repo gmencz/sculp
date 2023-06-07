@@ -34,6 +34,18 @@ export const loader = async () => {
             },
           ],
         },
+        {
+          name: "Profile",
+          url: "/app/profile",
+          icons: [
+            {
+              src: "/icons/icon-96x96.png",
+              sizes: "96x96",
+              type: "image/png",
+              purpose: "any monochrome",
+            },
+          ],
+        },
       ],
       icons: [
         {
