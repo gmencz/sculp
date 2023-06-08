@@ -59,13 +59,7 @@ export default function MesocycleHistory() {
       </div>
 
       <Heading>{mesocycle.name}</Heading>
-      <Paragraph className="mt-1">
-        {mesocycle.runs.length
-          ? `You've done this mesocycle ${mesocycle.runs.length} ${
-              mesocycle.runs.length === 1 ? "time" : "times"
-            }.`
-          : `You haven't done this mesocycle yet.`}
-      </Paragraph>
+      <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
 
       {mesocycle.runs.length ? (
         <table className="mt-4 min-w-full divide-y divide-zinc-300">

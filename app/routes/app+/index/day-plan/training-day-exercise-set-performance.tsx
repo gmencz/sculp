@@ -100,13 +100,13 @@ export function TrainingDayExerciseSetPerformance({
                     {set.weight}x{set.repsCompleted} {set.rir} RIR
                   </span>
                 ) : (
-                  <span>Set in progress</span>
+                  <span>Set incomplete</span>
                 )}
               </div>
             </>
           ) : (
             <div className="flex items-center text-xs">
-              <span>Set in progress</span>
+              <span>Set incomplete</span>
             </div>
           )}
         </div>

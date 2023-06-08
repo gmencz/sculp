@@ -6,9 +6,7 @@ import {
   differenceInDays,
   format,
   isAfter,
-  isBefore,
   isSameDay,
-  isToday,
   startOfToday,
 } from "date-fns";
 import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
@@ -16,7 +14,7 @@ import { CurrentMesocycleStartsInTheFuture } from "./current-mesocycle-starts-in
 import { parse } from "@conform-to/zod";
 import {
   addSetSchema,
-  finishSessionSchema,
+  finishOrUpdateSessionSchema,
   schema,
   updateExerciseSchema,
   updateSetSchema,
@@ -27,10 +25,13 @@ import { DayPlan } from "./day-plan";
 import { redirectBack } from "~/utils/responses.server";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { requireUser } from "~/services/auth/api/require-user";
+import { getSessionFromCookie } from "~/utils/session.server";
 import {
   getMesocycleRunCalendarDays,
   getMesocycleRunDayByDate,
 } from "~/utils/mesocycles.server";
+import { commitSession } from "~/utils/session.server";
+import { generateId } from "~/utils/ids";
 
 export enum CurrentMesocycleState {
   NOT_FOUND,
@@ -147,6 +148,16 @@ export const loader = async ({ request }: LoaderArgs) => {
     throw new Error("day is null, this should never happen");
   }
 
+  const session = await getSessionFromCookie(request);
+
+  const trainingDaySessionUpdated = ((await session.get(
+    "trainingDaySessionUpdated"
+  )) || null) as string | null;
+
+  const trainingDaySessionFinished = ((await session.get(
+    "trainingDaySessionFinished"
+  )) || null) as string | null;
+
   state = CurrentMesocycleState.STARTED;
   if (day.trainingDay?.id) {
     const trainingDayData =
@@ -220,37 +231,53 @@ export const loader = async ({ request }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
-    // Can only edit the training if it's today's training or an uncompleted past training day.
-    const canEdit =
-      isToday(date) ||
-      (!trainingDayData.completed && isBefore(trainingDayData.date, today));
+    // Read only if it's a day in the future (doesn't make sense to update/finish a day you haven't done yet).
+    const readOnly = isAfter(trainingDayData.date, today);
 
-    return json({
+    return json(
+      {
+        state,
+        mesocycleName: currentMesocycle.mesocycle.name,
+        microcycleLength,
+        calendarDays,
+        readOnly,
+        trainingDaySessionUpdated,
+        trainingDaySessionFinished,
+        day: {
+          dayNumber: day.dayNumber,
+          microcycleNumber: day.microcycleNumber,
+          trainingDay: trainingDayData,
+        },
+      },
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      }
+    );
+  }
+
+  return json(
+    {
       state,
       mesocycleName: currentMesocycle.mesocycle.name,
       microcycleLength,
       calendarDays,
-      readOnly: !canEdit,
+      readOnly: true,
+      trainingDaySessionUpdated,
+      trainingDaySessionFinished,
       day: {
         dayNumber: day.dayNumber,
         microcycleNumber: day.microcycleNumber,
-        trainingDay: trainingDayData,
+        trainingDay: null,
       },
-    });
-  }
-
-  return json({
-    state,
-    mesocycleName: currentMesocycle.mesocycle.name,
-    microcycleLength,
-    calendarDays,
-    readOnly: true,
-    day: {
-      dayNumber: day.dayNumber,
-      microcycleNumber: day.microcycleNumber,
-      trainingDay: null,
     },
-  });
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -387,8 +414,10 @@ export const action = async ({ request }: ActionArgs) => {
       return redirectBack(request, { fallback: configRoutes.app.current });
     }
 
-    case "finish-session": {
-      const submission = parse(formData, { schema: finishSessionSchema });
+    case "finish-or-update-session": {
+      const submission = parse(formData, {
+        schema: finishOrUpdateSessionSchema,
+      });
 
       if (!submission.value || submission.intent !== "submit") {
         return json(submission, { status: 400 });
@@ -401,7 +430,6 @@ export const action = async ({ request }: ActionArgs) => {
           where: {
             AND: [
               { id },
-              { completed: false },
               {
                 exercises: { every: { sets: { every: { completed: true } } } },
               },
@@ -409,6 +437,7 @@ export const action = async ({ request }: ActionArgs) => {
           },
           select: {
             id: true,
+            completed: true,
             number: true,
             date: true,
             microcycle: {
@@ -472,6 +501,13 @@ export const action = async ({ request }: ActionArgs) => {
         lastTrainingDay.date
       );
 
+      const session = await getSessionFromCookie(request);
+      if (thisTrainingDay.completed) {
+        session.flash("trainingDaySessionUpdated", generateId());
+      } else {
+        session.flash("trainingDaySessionFinished", generateId());
+      }
+
       if (isLastDayOfMesocycle) {
         await prisma.user.update({
           where: {
@@ -490,11 +526,21 @@ export const action = async ({ request }: ActionArgs) => {
         return redirect(
           configRoutes.app.mesocycles.viewHistory(
             thisTrainingDay.microcycle.mesocycleRun.mesocycleId
-          )
+          ),
+          {
+            headers: {
+              "Set-Cookie": await commitSession(session),
+            },
+          }
         );
       }
 
-      return redirectBack(request, { fallback: configRoutes.app.current });
+      return redirectBack(request, {
+        fallback: configRoutes.app.current,
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      });
     }
 
     default: {

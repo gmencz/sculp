@@ -268,7 +268,12 @@ export default function Exercises() {
         ) : null}
 
         {exercises.length > 0 ? (
-          <Form className="-mx-4 mt-4 sm:-mx-0" method="delete" {...form.props}>
+          <Form
+            replace
+            className="-mx-4 mt-4 sm:-mx-0"
+            method="delete"
+            {...form.props}
+          >
             <div className="relative">
               {canDeleteExercises ? (
                 <div
@@ -394,7 +399,7 @@ function ExerciseRow({
         ) : null}
 
         {exercise.shared ? (
-          <LockClosedIcon className="h-4 w-4 text-zinc-600" />
+          <LockClosedIcon className="-mx-2 h-4 w-4 text-zinc-600" />
         ) : (
           <>
             <input

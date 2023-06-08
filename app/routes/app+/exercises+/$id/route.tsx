@@ -177,6 +177,7 @@ export default function Exercise() {
       </div>
 
       <Form
+        replace
         method="post"
         className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
         {...form.props}

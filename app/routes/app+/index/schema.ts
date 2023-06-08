@@ -9,7 +9,7 @@ import {
 
 export const actionIntents = [
   "update-set",
-  "finish-session",
+  "finish-or-update-session",
   "update-exercise",
   "add-set",
 ] as const;
@@ -88,7 +88,7 @@ export const updateSetSchema = z.object({
 
 export type UpdateSetSchema = z.TypeOf<typeof updateSetSchema>;
 
-export const finishSessionSchema = z.object({
+export const finishOrUpdateSessionSchema = z.object({
   id: idSchema,
 
   feedback: z
@@ -103,4 +103,6 @@ export const finishSessionSchema = z.object({
     .default(actionIntents[1]),
 });
 
-export type FinishSessionSchema = z.TypeOf<typeof finishSessionSchema>;
+export type FinishOrUpdateSessionSchema = z.TypeOf<
+  typeof finishOrUpdateSessionSchema
+>;
