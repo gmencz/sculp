@@ -15,6 +15,12 @@ import { env } from "~/utils/env.server";
 import { signOut } from "~/services/auth/api/sign-out";
 import { requireUserId } from "~/services/auth/api/require-user-id";
 import { stripe } from "~/services/stripe/config.server";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader = {
+  header: "Profile",
+  links: [],
+};
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
@@ -73,67 +79,57 @@ export default function Profile() {
   return (
     <>
       <AppPageLayout>
-        <div>
-          <h3 className="text-base font-semibold leading-7 text-zinc-900">
-            Profile
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
-            Your profile's details and subscription.
-          </p>
-        </div>
-        <div className="mt-6 border-t border-zinc-200">
-          <dl className="divide-y divide-zinc-200">
-            <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Email
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {user?.email}
-              </dd>
-            </div>
-            <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Subscription
-              </dt>
-              <dd className="mt-1 flex text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                <div className="flex-grow">
-                  <p>
-                    <span className="font-medium">Status:</span>{" "}
-                    {user.subscription!.status}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {user.subscription!.status === "trialing"
-                        ? "Trial ends:"
-                        : "Current period ends:"}
-                    </span>{" "}
-                    {format(
-                      new Date(user.subscription!.currentPeriodEnd! * 1000),
-                      "MMMM' 'd' 'yyyy"
-                    )}
-                  </p>
-                </div>
+        <dl className="divide-y divide-zinc-200">
+          <div className="pb-6 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt className="text-sm font-medium leading-6 text-zinc-900">
+              Email
+            </dt>
+            <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              {user?.email}
+            </dd>
+          </div>
+          <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt className="text-sm font-medium leading-6 text-zinc-900">
+              Subscription
+            </dt>
+            <dd className="mt-1 flex text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <div className="flex-grow">
+                <p>
+                  <span className="font-medium">Status:</span>{" "}
+                  {user.subscription!.status}
+                </p>
+                <p>
+                  <span className="font-medium">
+                    {user.subscription!.status === "trialing"
+                      ? "Trial ends:"
+                      : "Current period ends:"}
+                  </span>{" "}
+                  {format(
+                    new Date(user.subscription!.currentPeriodEnd! * 1000),
+                    "MMMM' 'd' 'yyyy"
+                  )}
+                </p>
+              </div>
 
-                <span className="ml-4 flex-shrink-0">
-                  <a
-                    href={customerPortalLink}
-                    className="rounded-md font-medium text-orange-600 hover:text-orange-500"
-                  >
-                    Manage
-                  </a>
-                </span>
-              </dd>
-            </div>
-            <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Joined
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
-              </dd>
-            </div>
-          </dl>
-        </div>
+              <span className="ml-4 flex-shrink-0">
+                <a
+                  href={customerPortalLink}
+                  className="rounded-md font-medium text-orange-600 hover:text-orange-500"
+                >
+                  Manage
+                </a>
+              </span>
+            </dd>
+          </div>
+          <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt className="text-sm font-medium leading-6 text-zinc-900">
+              Joined
+            </dt>
+            <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
+            </dd>
+          </div>
+        </dl>
 
         <div className="flex items-center gap-4 border-t border-zinc-200 pt-6">
           <a

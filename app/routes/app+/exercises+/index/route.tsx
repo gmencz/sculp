@@ -12,7 +12,6 @@ import {
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/utils/routes";
 import type { Schema, SearchSchema } from "./schema";
@@ -30,9 +29,17 @@ import { Input } from "~/components/input";
 import { classes } from "~/utils/classes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
+import type { MatchWithHeader } from "~/utils/hooks";
 import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
+
+export const handle: MatchWithHeader = {
+  header: "Exercises",
+  links: [
+    { type: "new", label: "New exercise", to: configRoutes.app.exercises.new },
+  ],
+};
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -226,37 +233,17 @@ export default function Exercises() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading>Exercises</Heading>
-
-          {exercises.length > 0 || noResults ? (
-            <Paragraph className="mt-1">
-              A list of all exercises including their name and muscle groups
-              worked. There's some exercises that are read only because they are
-              shared by all Sculped users.
-            </Paragraph>
-          ) : (
-            <Paragraph className="mt-1">
-              You don't have any exercises yet, go ahead and add some!
-            </Paragraph>
-          )}
-
           {deleteExercisesIdsConfig.error ? (
-            <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
+            <ErrorMessage className="mb-4">
+              {deleteExercisesIdsConfig.error}
+            </ErrorMessage>
           ) : null}
-        </div>
-        <div className="mb-6 mt-4 sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none">
-          <Link
-            to={configRoutes.app.exercises.new}
-            className={clsx(classes.buttonOrLink.primary, "block w-full")}
-          >
-            New exercise
-          </Link>
         </div>
       </div>
 
       <>
         {exercises.length > 0 || noResults ? (
-          <Form className="mt-4" method="get" {...searchForm.props}>
+          <Form method="get" {...searchForm.props}>
             <Input
               config={queryConfig}
               label="Quick search"

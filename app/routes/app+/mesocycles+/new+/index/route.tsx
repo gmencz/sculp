@@ -1,8 +1,6 @@
 import { parse } from "@conform-to/zod";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { Heading } from "~/components/heading";
-import { Paragraph } from "~/components/paragraph";
 import { schema } from "./schema";
 import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
@@ -11,6 +9,12 @@ import clsx from "clsx";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { createDraftMesocycle } from "~/utils/mesocycles.server";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader = {
+  header: "Plan a new mesocycle",
+  links: [],
+};
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUser(request);
@@ -121,51 +125,42 @@ export default function NewMesocycle() {
   return (
     <div className="px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
       <div className="mx-auto w-full max-w-2xl">
-        <Heading>Plan a new mesocycle</Heading>
-        <Paragraph className="mt-1">
-          A mesocycle is a structured training plan designed to help you achieve
-          maximum muscle growth. Use a preset designed by a hypertrophy expert
-          or design your own.
-        </Paragraph>
+        <Tab.Group>
+          <Tab.List className="flex">
+            {tabs.map((tab, index) => (
+              <Tab
+                key={tab}
+                className={({ selected }) =>
+                  clsx(
+                    selected
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-white text-zinc-500 hover:text-zinc-700",
 
-        <div className="mt-4">
-          <Tab.Group>
-            <Tab.List className="flex">
-              {tabs.map((tab, index) => (
-                <Tab
-                  key={tab}
-                  className={({ selected }) =>
-                    clsx(
-                      selected
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-white text-zinc-500 hover:text-zinc-700",
+                    index === 0
+                      ? "rounded-bl rounded-tl"
+                      : index === tabs.length - 1
+                      ? "rounded-br rounded-tr"
+                      : null,
 
-                      index === 0
-                        ? "rounded-bl rounded-tl"
-                        : index === tabs.length - 1
-                        ? "rounded-br rounded-tr"
-                        : null,
+                    "flex-1 px-3 py-2 text-sm font-medium"
+                  )
+                }
+              >
+                {tab}
+              </Tab>
+            ))}
+          </Tab.List>
 
-                      "flex-1 px-3 py-2 text-sm font-medium"
-                    )
-                  }
-                >
-                  {tab}
-                </Tab>
-              ))}
-            </Tab.List>
+          <Tab.Panels className="mt-4">
+            <Tab.Panel>
+              <PresetMesocycle />
+            </Tab.Panel>
 
-            <Tab.Panels className="mt-4">
-              <Tab.Panel>
-                <PresetMesocycle />
-              </Tab.Panel>
-
-              <Tab.Panel>
-                <CustomMesocycle />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
-        </div>
+            <Tab.Panel>
+              <CustomMesocycle />
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
     </div>
   );

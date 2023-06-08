@@ -1,9 +1,9 @@
 import {
   CalendarDaysIcon,
   FolderIcon,
-  PlusCircleIcon,
+  UserCircleIcon,
 } from "@heroicons/react/20/solid";
-import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import {
   Link,
   NavLink,
@@ -22,10 +22,11 @@ import { commitSession, getGlobalNotification } from "~/utils/session.server";
 import { SuccessToast } from "~/components/success-toast";
 import { toast } from "react-hot-toast";
 import { ErrorToast } from "~/components/error-toast";
+import { useMatchWithHeader } from "~/utils/hooks";
 
 const navigation = [
   {
-    name: "Current",
+    name: "Current mesocycle",
     href: configRoutes.app.current,
     icon: CalendarDaysIcon,
     end: () => true,
@@ -82,7 +83,7 @@ const navigation = [
 
 const mobileNavigation = [
   {
-    name: "Current",
+    name: "Current mesocycle",
     href: configRoutes.app.current,
     icon: CalendarDaysIcon,
     end: true,
@@ -128,6 +129,11 @@ const mobileNavigation = [
     href: configRoutes.app.mesocycles.list,
     icon: FolderIcon,
   },
+  {
+    name: "Profile",
+    href: configRoutes.app.profile,
+    icon: UserCircleIcon,
+  },
 ];
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -146,6 +152,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 function Layout({ children }: PropsWithChildren) {
   const location = useLocation();
   const { notification } = useLoaderData<typeof loader>();
+  const matchWithHeader = useMatchWithHeader();
 
   useEffect(() => {
     if (notification) {
@@ -225,7 +232,7 @@ function Layout({ children }: PropsWithChildren) {
                   className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-zinc-800"
                 >
                   <UserCircleIcon className="h-8 w-8 rounded-full" />
-                  <span aria-hidden="true">Your Profile</span>
+                  <span aria-hidden="true">Profile</span>
                 </Link>
               </li>
             </ul>
@@ -271,17 +278,27 @@ function Layout({ children }: PropsWithChildren) {
             <img className="h-8 w-auto" src="/logo.png" alt="" />
 
             <span className="text-base font-bold text-zinc-950">
-              Sculped Beta
+              {matchWithHeader?.header || "Sculped"}
             </span>
           </Link>
 
-          <Link
-            to={configRoutes.app.profile}
-            className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900"
-          >
-            <UserCircleIcon className="h-8 w-8 rounded-full" />
-            <span className="sr-only">Your Profile</span>
-          </Link>
+          <nav>
+            <ul className="flex items-center gap-4">
+              {matchWithHeader?.links.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900"
+                  >
+                    {link.type === "new" ? (
+                      <PlusCircleIcon className="h-8 w-8 rounded-full" />
+                    ) : null}
+                    <span className="sr-only">{link.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
 

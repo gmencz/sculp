@@ -4,7 +4,6 @@ import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { startOfToday } from "date-fns";
 import { AppPageLayout } from "~/components/app-page-layout";
-import { BackLink } from "~/components/back-link";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
@@ -124,9 +123,6 @@ export default function StopMesocycle() {
 
   return (
     <AppPageLayout>
-      <div className="mb-4 sm:hidden">
-        <BackLink to={configRoutes.app.mesocycles.list}>Go back</BackLink>
-      </div>
       <Heading>Stop mesocycle</Heading>
       <Paragraph>
         Are you sure you want to stop the current mesocycle{" "}

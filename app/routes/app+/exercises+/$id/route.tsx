@@ -13,7 +13,6 @@ import { SubmitButton } from "~/components/submit-button";
 import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/utils/routes";
 import { AppPageLayout } from "~/components/app-page-layout";
-import { BackLink } from "~/components/back-link";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
@@ -164,10 +163,6 @@ export default function Exercise() {
 
   return (
     <AppPageLayout>
-      <div className="mb-4 sm:hidden">
-        <BackLink to={configRoutes.app.exercises.list}>Go back</BackLink>
-      </div>
-
       <div>
         <Heading>Edit exercise</Heading>
         <Paragraph>
