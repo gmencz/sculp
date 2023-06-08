@@ -75,9 +75,9 @@ const navigation = [
       currentPath.startsWith(configRoutes.app.mesocycles.new.step1),
   },
   {
-    name: "Plan a new mesocycle",
-    href: configRoutes.app.mesocycles.new.step1,
-    icon: PlusCircleIcon,
+    name: "Profile",
+    href: configRoutes.app.profile,
+    icon: UserCircleIcon,
   },
 ];
 
@@ -194,7 +194,7 @@ function Layout({ children }: PropsWithChildren) {
     <>
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6 pb-6">
           <div className="flex h-16 shrink-0 items-center">
             <img className="h-8 w-auto" src="/logo.png" alt="Sculped" />
           </div>
@@ -225,15 +225,6 @@ function Layout({ children }: PropsWithChildren) {
                     </li>
                   ))}
                 </ul>
-              </li>
-              <li className="-mx-6 mt-auto">
-                <Link
-                  to={configRoutes.app.profile}
-                  className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-zinc-800"
-                >
-                  <UserCircleIcon className="h-8 w-8 rounded-full" />
-                  <span aria-hidden="true">Profile</span>
-                </Link>
               </li>
             </ul>
           </nav>
@@ -270,21 +261,22 @@ function Layout({ children }: PropsWithChildren) {
       </div>
 
       <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-8">
           <Link
             to={configRoutes.app.current}
-            className="flex items-center gap-4"
+            className="flex items-center gap-4 truncate"
           >
             <img className="h-8 w-auto" src="/logo.png" alt="" />
 
-            <span className="text-base font-bold text-zinc-950">
-              {matchWithHeader?.header || "Sculped"}
+            <span className="max-w-xl text-base font-bold text-zinc-950">
+              {matchWithHeader?.handle?.header(matchWithHeader.data) ||
+                "Sculped"}
             </span>
           </Link>
 
-          <nav>
+          <nav className="shrink-0">
             <ul className="flex items-center gap-4">
-              {matchWithHeader?.links.map((link) => (
+              {matchWithHeader?.handle?.links.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}

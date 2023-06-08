@@ -1,5 +1,9 @@
 import { Form, useLoaderData } from "@remix-run/react";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { startOfToday } from "date-fns";
@@ -10,6 +14,12 @@ import { SubmitButton } from "~/components/submit-button";
 import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => `Stop ${data.mesocycle.name}`,
+  links: [],
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -123,12 +133,11 @@ export default function StopMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading>Stop mesocycle</Heading>
-      <Paragraph>
-        Are you sure you want to stop the current mesocycle{" "}
-        <span className="font-bold text-zinc-900">{mesocycle.name}</span>? All
-        training you have performed up to this point during the mesocycle will
-        be saved.
+      <Heading className="hidden lg:block">Stop {mesocycle.name}</Heading>
+      <Paragraph className="lg:mt-2">
+        Are you sure you want to stop the current mesocycle? All training you
+        have performed up to this point during the mesocycle will be saved in
+        the mesocycle's history.
       </Paragraph>
       <Form method="post" className="mt-4 inline-flex">
         <SubmitButton text="Yes, stop mesocycle" />

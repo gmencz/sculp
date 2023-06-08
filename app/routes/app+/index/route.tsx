@@ -1,5 +1,9 @@
 import { useLoaderData } from "@remix-run/react";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import {
@@ -7,6 +11,9 @@ import {
   format,
   isAfter,
   isSameDay,
+  isToday,
+  isTomorrow,
+  isYesterday,
   startOfToday,
 } from "date-fns";
 import { CurrentMesocycleNotFound } from "./current-mesocycle-not-found";
@@ -34,16 +41,36 @@ import { commitSession } from "~/utils/session.server";
 import { generateId } from "~/utils/ids";
 import type { MatchWithHeader } from "~/utils/hooks";
 
-export const handle: MatchWithHeader = {
-  header: "Current mesocycle",
-  links: [],
-};
-
 export enum CurrentMesocycleState {
   NOT_FOUND,
   STARTS_IN_THE_FUTURE,
   STARTED,
 }
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => {
+    if (data.state !== CurrentMesocycleState.STARTED) {
+      return "Current mesocycle";
+    }
+
+    const date = new Date(data.date);
+    if (isToday(date)) {
+      return "Today";
+    }
+
+    if (isTomorrow(date)) {
+      return "Tomorrow";
+    }
+
+    if (isYesterday(date)) {
+      return "Yesterday";
+    }
+
+    return format(date, "MMMM' 'd' 'yyyy");
+  },
+
+  links: [],
+};
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -249,6 +276,7 @@ export const loader = async ({ request }: LoaderArgs) => {
         readOnly,
         trainingDaySessionUpdated,
         trainingDaySessionFinished,
+        date,
         day: {
           dayNumber: day.dayNumber,
           microcycleNumber: day.microcycleNumber,
@@ -272,6 +300,7 @@ export const loader = async ({ request }: LoaderArgs) => {
       readOnly: true,
       trainingDaySessionUpdated,
       trainingDaySessionFinished,
+      date,
       day: {
         dayNumber: day.dayNumber,
         microcycleNumber: day.microcycleNumber,

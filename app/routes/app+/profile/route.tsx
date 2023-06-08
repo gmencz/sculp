@@ -18,7 +18,7 @@ import { stripe } from "~/services/stripe/config.server";
 import type { MatchWithHeader } from "~/utils/hooks";
 
 export const handle: MatchWithHeader = {
-  header: "Profile",
+  header: () => "Profile",
   links: [],
 };
 
@@ -79,8 +79,17 @@ export default function Profile() {
   return (
     <>
       <AppPageLayout>
-        <dl className="divide-y divide-zinc-200">
-          <div className="pb-6 sm:grid sm:grid-cols-3 sm:gap-4">
+        <div className="hidden lg:block">
+          <h3 className="text-base font-semibold leading-7 text-zinc-900">
+            Profile
+          </h3>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
+            Your profile's details and subscription.
+          </p>
+        </div>
+
+        <dl className="divide-y divide-zinc-200 lg:mt-6 lg:border-t lg:border-zinc-200">
+          <div className="pb-6 pt-2 sm:grid sm:grid-cols-3 sm:gap-4 lg:pt-6">
             <dt className="text-sm font-medium leading-6 text-zinc-900">
               Email
             </dt>

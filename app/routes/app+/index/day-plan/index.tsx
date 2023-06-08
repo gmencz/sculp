@@ -19,6 +19,7 @@ export function DayPlan({ data }: DayPlanProps) {
         dayNumber={dayNumber}
         microcycleNumber={microcycleNumber}
         trainingDay={trainingDay}
+        date={new Date(data.date)}
       />
     );
   }

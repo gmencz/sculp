@@ -1,21 +1,29 @@
 import { useFieldList, useForm } from "@conform-to/react";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
-import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/utils/routes";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => data.exercise.name,
+  links: [],
+};
 
 export const action = async ({ request, params }: ActionArgs) => {
   const user = await requireUser(request);
@@ -163,30 +171,17 @@ export default function Exercise() {
 
   return (
     <AppPageLayout>
-      <div>
-        <Heading>Edit exercise</Heading>
-        <Paragraph>
-          On this page you can edit the exercise's name and the muscle groups
-          worked.
-        </Paragraph>
-      </div>
-
-      <Form
-        replace
-        method="post"
-        className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
-        {...form.props}
-      >
-        <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
+      <Form replace method="post" {...form.props}>
+        <div className="flex flex-col gap-6">
           <Input
             config={name}
-            label="How is this exercise called?"
+            label="Exercise name"
             autoComplete="exercise-name"
           />
 
           <Select
             config={muscleGroups}
-            label="Which muscle groups does this exercise work?"
+            label="Muscle groups worked"
             options={muscleGroupsOptions}
             helperText="You can select up to 10 muscle groups."
             multipleOptions={{
