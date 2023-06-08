@@ -127,3 +127,19 @@ export function useMatchesData(
   );
   return route?.data;
 }
+
+export type MatchWithHeader = {
+  header: string;
+  links: {
+    type: "new";
+    label: string;
+    to: string;
+  }[];
+};
+
+export function useMatchWithHeader() {
+  const matches = useMatches();
+  const match = matches.find((m) => m.handle?.header && m.handle.links);
+  const handle = match?.handle as MatchWithHeader | undefined;
+  return handle;
+}

@@ -50,7 +50,7 @@ export function PresetMesocycle() {
   )!;
 
   return (
-    <Form method="post" className="mt-6" {...form.props}>
+    <Form method="post" className="mt-4" {...form.props}>
       <Select
         config={presetName}
         options={mesocyclesPresets.map((preset) => preset.name)}

@@ -10,7 +10,7 @@ export function AppPageLayout({
   return (
     <div
       className={clsx(
-        "px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pb-10 lg:pt-10",
+        "px-4 pb-12 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-10",
         className
       )}
     >

@@ -6,15 +6,23 @@ import {
 import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import clsx from "clsx";
 import { AppPageLayout } from "~/components/app-page-layout";
-import { Heading } from "~/components/heading";
 import { MesocycleOverview } from "~/components/mesocycle-overview";
-import { Paragraph } from "~/components/paragraph";
 import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
-import { classes } from "~/utils/classes";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader = {
+  header: "Mesocycles",
+  links: [
+    {
+      type: "new",
+      label: "New mesocycle",
+      to: configRoutes.app.mesocycles.new.step1,
+    },
+  ],
+};
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -48,30 +56,7 @@ export default function Mesocycles() {
 
   return (
     <AppPageLayout>
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <Heading>Mesocycles</Heading>
-          {mesocycles.length > 0 ? (
-            <Paragraph className="mt-1">
-              A list of all your mesocycles.
-            </Paragraph>
-          ) : (
-            <Paragraph className="mt-1">
-              You don't have any mesocycles yet, go ahead and plan a new one!
-            </Paragraph>
-          )}
-        </div>
-        <div className="mb-6 mt-4 sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none">
-          <Link
-            to={configRoutes.app.mesocycles.new.step1}
-            className={clsx(classes.buttonOrLink.primary, "block w-full")}
-          >
-            New mesocycle
-          </Link>
-        </div>
-      </div>
-
-      <ul className="mt-6 flex flex-col gap-6">
+      <ul className="flex flex-col gap-6">
         {mesocycles.map((mesocycle) => (
           <li
             key={mesocycle.id}

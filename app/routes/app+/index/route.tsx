@@ -32,6 +32,12 @@ import {
 } from "~/utils/mesocycles.server";
 import { commitSession } from "~/utils/session.server";
 import { generateId } from "~/utils/ids";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader = {
+  header: "Current mesocycle",
+  links: [],
+};
 
 export enum CurrentMesocycleState {
   NOT_FOUND,
