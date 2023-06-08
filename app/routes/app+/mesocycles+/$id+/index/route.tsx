@@ -10,7 +10,6 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "~/components/error-message";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayFieldset } from "./training-day-fieldset";
-import { BackLink } from "~/components/back-link";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { configRoutes } from "~/utils/routes";
@@ -259,10 +258,6 @@ export default function Mesocycle() {
       className="flex min-h-full flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
       {...form.props}
     >
-      <div className="mb-4 sm:hidden">
-        <BackLink to={configRoutes.app.mesocycles.list}>Go back</BackLink>
-      </div>
-
       <div className="mx-auto w-full max-w-2xl">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:gap-0">
           <div>

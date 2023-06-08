@@ -5,10 +5,8 @@ import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { AppPageLayout } from "~/components/app-page-layout";
-import { BackLink } from "~/components/back-link";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
-import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { classes } from "~/utils/classes";
@@ -54,10 +52,6 @@ export default function MesocycleHistory() {
 
   return (
     <AppPageLayout>
-      <div className="mb-4 sm:hidden">
-        <BackLink to={configRoutes.app.mesocycles.list}>Go back</BackLink>
-      </div>
-
       <Heading>{mesocycle.name}</Heading>
       <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
 

@@ -17,7 +17,6 @@ import { ChevronUpIcon } from "@heroicons/react/20/solid";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Disclosure } from "@headlessui/react";
-import { BackLink } from "~/components/back-link";
 import { prisma } from "~/utils/db.server";
 import { addDays, startOfDay } from "date-fns";
 
@@ -225,10 +224,6 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
-      <div className="mb-4 sm:hidden">
-        <BackLink to={configRoutes.app.mesocycles.list}>Go back</BackLink>
-      </div>
-
       <Heading>{mesocycle.name}</Heading>
       <Paragraph className="mt-1">
         Review your mesocycle to make sure everything looks good before starting
