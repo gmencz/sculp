@@ -114,23 +114,24 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const formData = await request.formData();
   const submission = parse(formData, { schema });
+  const errorKeys = Object.keys(submission.error);
+
+  if (errorKeys.length > 0 && submission.intent === "submit") {
+    const updatedSession = await flashGlobalNotification(request, {
+      type: "error",
+      message:
+        "There's some errors in the mesocycle, double check the training days.",
+    });
+
+    return json(submission, {
+      status: 400,
+      headers: {
+        "Set-Cookie": await commitSession(updatedSession),
+      },
+    });
+  }
+
   if (!submission.value || submission.intent !== "submit") {
-    const errorKeys = Object.keys(submission.error);
-    if (errorKeys.length > 0) {
-      const updatedSession = await flashGlobalNotification(request, {
-        type: "error",
-        message:
-          "There's some errors in the mesocycle, double check the training days.",
-      });
-
-      return json(submission, {
-        status: 400,
-        headers: {
-          "Set-Cookie": await commitSession(updatedSession),
-        },
-      });
-    }
-
     return json(submission, { status: 400 });
   }
 
@@ -217,8 +218,10 @@ export default function Mesocycle() {
   const [form, { trainingDays }] = useForm<Schema>({
     id: "edit-mesocycle",
     lastSubmission,
-    noValidate: true,
     shouldRevalidate: "onSubmit",
+    onValidate({ formData }) {
+      return parse(formData, { schema });
+    },
     defaultValue: {
       trainingDays: mesocycle.trainingDays.map((trainingDay) => ({
         id: trainingDay.id,
