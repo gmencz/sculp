@@ -1,1 +1,1 @@
-
+- Redesign the mesocycle designer, make it more like strong template designer.
