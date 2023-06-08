@@ -6,8 +6,8 @@ import {
 } from "@heroicons/react/20/solid";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { Fragment, useMemo } from "react";
-import type { FinishSessionSchema } from "../schema";
-import { actionIntents, finishSessionSchema } from "../schema";
+import type { FinishOrUpdateSessionSchema } from "../schema";
+import { actionIntents, finishOrUpdateSessionSchema } from "../schema";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import type { CurrentMesocycleState, loader } from "../route";
@@ -18,7 +18,7 @@ import { classes } from "~/utils/classes";
 import clsx from "clsx";
 import { getSetPerformance } from "~/utils/sets";
 
-type FinishTrainingDayModalProps = {
+type FinishOrUpdateTrainingDayModalProps = {
   show: boolean;
   onClose: VoidFunction;
   trainingDay: NonNullable<
@@ -28,29 +28,32 @@ type FinishTrainingDayModalProps = {
   >;
 };
 
-export function FinishTrainingDayModal({
+export function FinishOrUpdateTrainingDayModal({
   show,
   onClose,
   trainingDay,
-}: FinishTrainingDayModalProps) {
+}: FinishOrUpdateTrainingDayModalProps) {
   const navigation = useNavigation();
+  const isUpdate = trainingDay.completed;
 
   const isSubmitting =
     navigation.state === "submitting" &&
     navigation.formData.get("actionIntent") === actionIntents[1];
 
   const lastSubmission = useActionData() as any;
-  const [form, { actionIntent, id, feedback }] = useForm<FinishSessionSchema>({
-    id: "finish-session",
-    lastSubmission,
-    defaultValue: {
-      actionIntent: actionIntents[1],
-      id: trainingDay.id,
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema: finishSessionSchema });
-    },
-  });
+  const [form, { actionIntent, id, feedback }] =
+    useForm<FinishOrUpdateSessionSchema>({
+      id: "finish-or-update-training-session",
+      lastSubmission,
+      defaultValue: {
+        feedback: trainingDay.feedback ?? "",
+        actionIntent: actionIntents[1],
+        id: trainingDay.id,
+      },
+      onValidate({ formData }) {
+        return parse(formData, { schema: finishOrUpdateSessionSchema });
+      },
+    });
 
   const totalStats = useMemo(() => {
     return {
@@ -125,7 +128,9 @@ export function FinishTrainingDayModal({
                     as="h3"
                     className="text-base font-semibold leading-6 text-zinc-900"
                   >
-                    Finish your training session
+                    {isUpdate
+                      ? "Update your training session"
+                      : "Finish your training session"}
                   </Dialog.Title>
 
                   <ul className="mt-3 flex flex-col gap-3">
@@ -147,7 +152,7 @@ export function FinishTrainingDayModal({
                   </ul>
                 </div>
 
-                <Form method="post" {...form.props}>
+                <Form preventScrollReset replace method="post" {...form.props}>
                   <div className="mt-4">
                     <Textarea
                       rows={4}
@@ -173,7 +178,7 @@ export function FinishTrainingDayModal({
                     <SubmitButton
                       isSubmitting={isSubmitting}
                       className="flex-1"
-                      text="Finish"
+                      text={isUpdate ? "Update" : "Finish"}
                     />
                   </div>
                 </Form>

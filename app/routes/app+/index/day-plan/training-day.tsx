@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { Heading } from "~/components/heading";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
@@ -10,10 +10,12 @@ import { format, isToday } from "date-fns";
 import type { CurrentMesocycleState, loader } from "../route";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
-import { FinishTrainingDayModal } from "./finish-training-day-modal";
 import { Disclosure } from "@headlessui/react";
-import { ChevronUpIcon } from "@heroicons/react/20/solid";
+import { CheckBadgeIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 import { Paragraph } from "~/components/paragraph";
+import { FinishOrUpdateTrainingDayModal } from "./finish-or-update-training-day-modal";
+import { SuccessToast } from "~/components/success-toast";
+import { toast } from "react-hot-toast";
 
 type TrainingDayProps = {
   trainingDay: NonNullable<
@@ -44,11 +46,12 @@ export function TrainingDay({
     return Array.from(set);
   }, [trainingDay]);
 
-  const { readOnly } = useLoaderData<
-    SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    }
-  >();
+  const { readOnly, trainingDaySessionFinished, trainingDaySessionUpdated } =
+    useLoaderData<
+      SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      }
+    >();
 
   const canFinishSession = useMemo(
     () =>
@@ -61,6 +64,34 @@ export function TrainingDay({
   const isDateToday = isToday(new Date(trainingDay.date));
 
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (trainingDaySessionFinished) {
+      toast.custom(
+        (t) => (
+          <SuccessToast
+            t={t}
+            title="Success!"
+            description="Training session complete! Great job! Keep it up!"
+          />
+        ),
+        { duration: 10000, id: trainingDaySessionFinished }
+      );
+      setShowModal(false);
+    } else if (trainingDaySessionUpdated) {
+      toast.custom(
+        (t) => (
+          <SuccessToast
+            t={t}
+            title="Success!"
+            description="The training session has been updated."
+          />
+        ),
+        { duration: 5000, id: trainingDaySessionUpdated }
+      );
+      setShowModal(false);
+    }
+  }, [trainingDaySessionFinished, trainingDaySessionUpdated]);
 
   return (
     <>
@@ -95,13 +126,20 @@ export function TrainingDay({
         </div>
       </div>
 
-      <div className="bg-zinc-50 pb-12 ">
+      <div className="bg-zinc-50 pb-12">
+        {trainingDay.completed ? (
+          <div className="mx-auto flex w-full max-w-2xl items-center gap-4 bg-green-100 px-4 py-2 text-sm font-semibold leading-6 text-green-900 sm:px-6 lg:px-8">
+            <span>Completed</span>
+            <CheckBadgeIcon className="h-5 w-5" />
+          </div>
+        ) : null}
+
         {trainingDay.feedback ? (
-          <div className="mx-auto w-full max-w-2xl rounded border-b border-b-zinc-200">
+          <div className="mx-auto w-full max-w-2xl rounded-b border-b border-b-zinc-200">
             <Disclosure>
               {({ open }) => (
                 <>
-                  <Disclosure.Button className="flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-zinc-900 hover:bg-orange-100 sm:px-6 lg:px-8">
+                  <Disclosure.Button className="flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 sm:px-6 lg:px-8">
                     <span>Your feedback</span>
 
                     <div>
@@ -142,9 +180,12 @@ export function TrainingDay({
                 type="button"
                 disabled={!canFinishSession}
                 onClick={() => setShowModal(true)}
-                className={clsx(classes.buttonOrLink.primary, "w-full")}
+                className={clsx(
+                  classes.buttonOrLink.primary,
+                  "w-full transition-all"
+                )}
               >
-                Finish session
+                {trainingDay.completed ? "Update session" : "Finish session"}
               </button>
             </div>
           </div>
@@ -152,7 +193,7 @@ export function TrainingDay({
       </div>
 
       {readOnly ? null : (
-        <FinishTrainingDayModal
+        <FinishOrUpdateTrainingDayModal
           show={showModal}
           onClose={() => setShowModal(false)}
           trainingDay={trainingDay}

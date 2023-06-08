@@ -253,6 +253,8 @@ export default function Mesocycle() {
 
   return (
     <Form
+      preventScrollReset
+      replace
       method="post"
       className="flex min-h-full flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
       {...form.props}
