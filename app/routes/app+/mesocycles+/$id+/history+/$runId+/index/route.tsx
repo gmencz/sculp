@@ -1,14 +1,37 @@
 import { useLoaderData } from "@remix-run/react";
-import type { LoaderArgs } from "@remix-run/server-runtime";
+import type { LoaderArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { RestDay } from "~/routes/app+/index/day-plan/rest-day";
 import { TrainingDay } from "~/routes/app+/index/day-plan/training-day";
 import { requireUser } from "~/services/auth/api/require-user";
 import { prisma } from "~/utils/db.server";
+import type { MatchWithHeader } from "~/utils/hooks";
 import {
   getMesocycleRunCalendarDays,
   getMesocycleRunDayByDate,
 } from "~/utils/mesocycles.server";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => {
+    const date = new Date(data.date);
+    if (isToday(date)) {
+      return "Today";
+    }
+
+    if (isTomorrow(date)) {
+      return "Tomorrow";
+    }
+
+    if (isYesterday(date)) {
+      return "Yesterday";
+    }
+
+    return format(date, "MMMM' 'd' 'yyyy");
+  },
+
+  links: [],
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -167,6 +190,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       microcycleLength,
       calendarDays,
       readOnly: true,
+      date,
       day: {
         dayNumber: day.dayNumber,
         microcycleNumber: day.microcycleNumber,
@@ -180,6 +204,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     microcycleLength,
     calendarDays,
     readOnly: true,
+    date,
     day: {
       dayNumber: day.dayNumber,
       microcycleNumber: day.microcycleNumber,
@@ -189,7 +214,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export default function MesocycleHistory() {
-  const { day, mesocycleName } = useLoaderData<typeof loader>();
+  const { day, mesocycleName, date } = useLoaderData<typeof loader>();
 
   if (day.trainingDay) {
     return (
@@ -198,6 +223,7 @@ export default function MesocycleHistory() {
         dayNumber={day.dayNumber}
         microcycleNumber={day.microcycleNumber}
         trainingDay={day.trainingDay}
+        date={new Date(date)}
       />
     );
   }

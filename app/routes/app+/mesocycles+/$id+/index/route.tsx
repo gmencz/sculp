@@ -1,7 +1,11 @@
 import type { FieldConfig } from "@conform-to/react";
 import { useFieldList, useForm } from "@conform-to/react";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { parse } from "@conform-to/zod";
@@ -13,7 +17,6 @@ import { TrainingDayFieldset } from "./training-day-fieldset";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { configRoutes } from "~/utils/routes";
-import { MesocycleOverview } from "~/components/mesocycle-overview";
 import { Fragment, useMemo, useState } from "react";
 import { Listbox, Tab, Transition } from "@headlessui/react";
 import clsx from "clsx";
@@ -21,6 +24,12 @@ import { prisma } from "~/utils/db.server";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { requireUser } from "~/services/auth/api/require-user";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => data.mesocycle.name,
+  links: [],
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -255,20 +264,13 @@ export default function Mesocycle() {
       preventScrollReset
       replace
       method="post"
-      className="flex min-h-full flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
+      className="flex min-h-full flex-col px-4 pb-12 sm:px-6 lg:px-8 lg:pt-10"
       {...form.props}
     >
       <div className="mx-auto w-full max-w-2xl">
-        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:gap-0">
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:gap-0">
           <div>
-            <Heading>{mesocycle.name}</Heading>
-
-            <MesocycleOverview
-              goal={mesocycle.goal}
-              microcycles={mesocycle.microcycles}
-              restDays={mesocycle.restDays.length}
-              trainingDays={mesocycle.trainingDays.length}
-            />
+            <Heading className="hidden lg:block">{mesocycle.name}</Heading>
 
             {lastSubmission?.error.form ? (
               <div className="mt-5">
@@ -277,16 +279,11 @@ export default function Mesocycle() {
             ) : null}
           </div>
 
-          <div className="mt-1 sm:ml-auto sm:mt-0">
-            <SubmitButton
-              className="w-full whitespace-nowrap"
-              text="Save changes"
-            />
-          </div>
+          <div className="lg:ml-auto"></div>
         </div>
 
         {/* Days tabs */}
-        <div className="mt-4">
+        <div className="lg:mt-2">
           <div className="block sm:hidden">
             <SmTabsSelect
               allDays={allDays}
@@ -371,6 +368,10 @@ export default function Mesocycle() {
             </Tab.Panels>
           </Tab.Group>
         </div>
+        <SubmitButton
+          className="w-full whitespace-nowrap"
+          text="Save changes"
+        />
       </div>
     </Form>
   );

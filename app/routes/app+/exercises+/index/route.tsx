@@ -33,9 +33,10 @@ import type { MatchWithHeader } from "~/utils/hooks";
 import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { Heading } from "~/components/heading";
 
 export const handle: MatchWithHeader = {
-  header: "Exercises",
+  header: () => "Exercises",
   links: [
     { type: "new", label: "New exercise", to: configRoutes.app.exercises.new },
   ],
@@ -233,17 +234,43 @@ export default function Exercises() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
+          <Heading className="hidden lg:block">Exercises</Heading>
+
+          {exercises.length > 0 || noResults ? (
+            <Paragraph className="mt-1 hidden lg:block">
+              A list of all exercises including their name and muscle groups
+              worked. There's some exercises that are read only because they are
+              shared by all Sculped users.
+            </Paragraph>
+          ) : (
+            <Paragraph className="mt-1 hidden lg:block">
+              You don't have any exercises yet, go ahead and add some!
+            </Paragraph>
+          )}
+
           {deleteExercisesIdsConfig.error ? (
-            <ErrorMessage className="mb-4">
-              {deleteExercisesIdsConfig.error}
-            </ErrorMessage>
+            <ErrorMessage>{deleteExercisesIdsConfig.error}</ErrorMessage>
           ) : null}
+        </div>
+        <div className="mb-6 mt-4 hidden sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none lg:block">
+          <Link
+            to={configRoutes.app.exercises.new}
+            className={clsx(classes.buttonOrLink.primary, "block w-full")}
+          >
+            New exercise
+          </Link>
         </div>
       </div>
 
+      {exercises.length === 0 && !noResults ? (
+        <h3 className="mb-4 mt-2 block text-sm font-semibold text-zinc-900 lg:hidden">
+          Nothing here yet
+        </h3>
+      ) : null}
+
       <>
         {exercises.length > 0 || noResults ? (
-          <Form method="get" {...searchForm.props}>
+          <Form className="lg:mt-4" method="get" {...searchForm.props}>
             <Input
               config={queryConfig}
               label="Quick search"

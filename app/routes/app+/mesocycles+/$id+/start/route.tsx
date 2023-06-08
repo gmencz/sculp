@@ -5,7 +5,11 @@ import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { requireUser } from "~/services/auth/api/require-user";
@@ -19,6 +23,12 @@ import { AppPageLayout } from "~/components/app-page-layout";
 import { Disclosure } from "@headlessui/react";
 import { prisma } from "~/utils/db.server";
 import { addDays, startOfDay } from "date-fns";
+import type { MatchWithHeader } from "~/utils/hooks";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => `Start ${data.mesocycle.name}`,
+  links: [],
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -224,18 +234,15 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading>{mesocycle.name}</Heading>
-      <Paragraph className="mt-1">
+      <Heading className="hidden lg:block">{mesocycle.name}</Heading>
+      <Paragraph className="hidden lg:mt-1 lg:block">
         Review your mesocycle to make sure everything looks good before starting
         your training. Keep in mind that the sets, weights and RIR (Reps In
         Reserve) shown here are your starting point and you can change them any
         time during your training.
       </Paragraph>
 
-      <nav
-        className="mt-6 divide-y divide-zinc-200 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl"
-        aria-label="Directory"
-      >
+      <nav className="divide-y divide-zinc-200 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl lg:mt-6">
         {mesocycle.trainingDays.map((trainingDay, index) => (
           <TrainingDay
             key={trainingDay.id}
@@ -321,7 +328,7 @@ function TrainingDay({ trainingDay, index }: TrainingDayProps) {
                 Training Day {trainingDay.number} - {trainingDay.label}
               </h3>
 
-              <ul className="flex gap-2">
+              <ul className="flex flex-wrap gap-2">
                 {muscleGroups.map((muscleGroup, index) => (
                   <li key={muscleGroup}>
                     <MuscleGroupBadge index={index}>

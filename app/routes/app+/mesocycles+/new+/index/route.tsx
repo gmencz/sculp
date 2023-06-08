@@ -12,7 +12,7 @@ import { createDraftMesocycle } from "~/utils/mesocycles.server";
 import type { MatchWithHeader } from "~/utils/hooks";
 
 export const handle: MatchWithHeader = {
-  header: "Plan a new mesocycle",
+  header: () => "Plan a new mesocycle",
   links: [],
 };
 

@@ -6,7 +6,7 @@ import { TrainingDayExercise } from "./training-day-exercise";
 import { Calendar } from "../calendar";
 import { TrainingDayExerciseReadOnly } from "./training-day-exercise-read-only";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { format, isToday } from "date-fns";
+import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import type { CurrentMesocycleState, loader } from "../route";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
@@ -26,6 +26,7 @@ type TrainingDayProps = {
   mesocycleName: string;
   microcycleNumber: number;
   dayNumber: number;
+  date: Date;
 };
 
 export function TrainingDay({
@@ -33,6 +34,7 @@ export function TrainingDay({
   mesocycleName,
   microcycleNumber,
   dayNumber,
+  date,
 }: TrainingDayProps) {
   const muscleGroups = useMemo(() => {
     const set = new Set<string>();
@@ -60,8 +62,6 @@ export function TrainingDay({
       ),
     [trainingDay.exercises]
   );
-
-  const isDateToday = isToday(new Date(trainingDay.date));
 
   const [showModal, setShowModal] = useState(false);
 
@@ -97,17 +97,31 @@ export function TrainingDay({
     <>
       <div className="bg-zinc-900 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto w-full max-w-2xl">
-          <div className="flex items-center justify-between">
-            {!isDateToday ? (
-              <h2 className="mb-1 font-medium text-zinc-200">
-                {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
-                {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
-              </h2>
-            ) : (
-              <h2 className="mb-1 font-medium text-zinc-200">
-                {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
-              </h2>
-            )}
+          <div className="mb-1 flex items-center justify-between">
+            <div className="hidden lg:block">
+              {isToday(date) ? (
+                <h2 className="mb-1 font-medium text-zinc-200">
+                  {mesocycleName} - M{microcycleNumber} D{dayNumber} - Today
+                </h2>
+              ) : isTomorrow(date) ? (
+                <h2 className="mb-1 font-medium text-zinc-200">
+                  {mesocycleName} - M{microcycleNumber} D{dayNumber} - Tomorrow
+                </h2>
+              ) : isYesterday(date) ? (
+                <h2 className="mb-1 font-medium text-zinc-200">
+                  {mesocycleName} - M{microcycleNumber} D{dayNumber} - Yesterday
+                </h2>
+              ) : (
+                <h2 className="mb-1 font-medium text-zinc-200">
+                  {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
+                  {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
+                </h2>
+              )}
+            </div>
+
+            <h2 className="mb-1 font-medium text-zinc-200 lg:hidden">
+              {mesocycleName} - M{microcycleNumber} D{dayNumber}
+            </h2>
 
             <Calendar />
           </div>

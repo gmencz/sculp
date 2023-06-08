@@ -6,15 +6,20 @@ import { requireUser } from "~/services/auth/api/require-user";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { Heading } from "~/components/heading";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { parse } from "@conform-to/zod";
 import { SubmitButton } from "~/components/submit-button";
-import { Paragraph } from "~/components/paragraph";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { prisma } from "~/utils/db.server";
 import { configRoutes } from "~/utils/routes";
+import type { MatchWithHeader } from "~/utils/hooks";
+import { Heading } from "~/components/heading";
+
+export const handle: MatchWithHeader = {
+  header: () => "Create a new exercise",
+  links: [],
+};
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
@@ -89,28 +94,20 @@ export default function Exercise() {
 
   return (
     <AppPageLayout>
-      <Heading>New exercise</Heading>
-      <Paragraph>
-        On this page you can create a new exercise which you will be able to add
-        to your mesocycles.
-      </Paragraph>
+      <Heading className="hidden lg:block">Create a new exercise</Heading>
 
-      <Form
-        method="post"
-        className="mt-4 bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
-        {...form.props}
-      >
-        <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
+      <Form method="post" className="lg:mt-4" {...form.props}>
+        <div className="flex flex-col gap-6">
           <Input
             config={name}
-            label="How is this exercise called?"
+            label="Exercise name"
             autoComplete="exercise-name"
             placeholder="Chest Press, Lateral Raise..."
           />
 
           <Select
             config={muscleGroups}
-            label="Which muscle groups does this exercise work?"
+            label="Muscle groups worked"
             options={muscleGroupsOptions}
             helperText="You can select up to 10 muscle groups."
             multipleOptions={{

@@ -12,9 +12,13 @@ import { configRoutes } from "~/utils/routes";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { Heading } from "~/components/heading";
+import { Paragraph } from "~/components/paragraph";
+import clsx from "clsx";
+import { classes } from "~/utils/classes";
 
 export const handle: MatchWithHeader = {
-  header: "Mesocycles",
+  header: () => "Mesocycles",
   links: [
     {
       type: "new",
@@ -56,7 +60,32 @@ export default function Mesocycles() {
 
   return (
     <AppPageLayout>
-      <ul className="flex flex-col gap-6">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <Heading className="hidden lg:block">Mesocycles</Heading>
+          {mesocycles.length > 0 ? (
+            <Paragraph className="mt-1 hidden lg:block">
+              A list of all your mesocycles.
+            </Paragraph>
+          ) : null}
+        </div>
+        <div className="mb-6 mt-4 hidden sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none lg:block">
+          <Link
+            to={configRoutes.app.mesocycles.new.step1}
+            className={clsx(classes.buttonOrLink.primary, "block w-full")}
+          >
+            New mesocycle
+          </Link>
+        </div>
+      </div>
+
+      {mesocycles.length === 0 ? (
+        <h3 className="mb-4 mt-2 block text-sm font-semibold text-zinc-900 lg:hidden">
+          Nothing here yet
+        </h3>
+      ) : null}
+
+      <ul className="flex flex-col gap-6 lg:mt-4">
         {mesocycles.map((mesocycle) => (
           <li
             key={mesocycle.id}

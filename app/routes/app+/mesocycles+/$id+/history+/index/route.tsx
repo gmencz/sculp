@@ -1,15 +1,21 @@
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Link, useLoaderData } from "@remix-run/react";
-import type { LoaderArgs } from "@remix-run/server-runtime";
+import type { LoaderArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { AppPageLayout } from "~/components/app-page-layout";
-import { Heading } from "~/components/heading";
-import { Paragraph } from "~/components/paragraph";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import { classes } from "~/utils/classes";
+import type { MatchWithHeader } from "~/utils/hooks";
+import { Heading } from "~/components/heading";
+import { Paragraph } from "~/components/paragraph";
+
+export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
+  header: (data) => `${data.mesocycle.name} history`,
+  links: [],
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -52,26 +58,28 @@ export default function MesocycleHistory() {
 
   return (
     <AppPageLayout>
-      <Heading>{mesocycle.name}</Heading>
-      <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
+      <div className="hidden lg:block">
+        <Heading>{mesocycle.name}</Heading>
+        <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
+      </div>
 
       {mesocycle.runs.length ? (
-        <table className="mt-4 min-w-full divide-y divide-zinc-300">
+        <table className="min-w-full divide-y divide-zinc-300 lg:mt-6">
           <thead>
             <tr>
               <th
                 scope="col"
-                className="py-3.5 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-4"
+                className="pb-3.5 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-4"
               >
                 Start date
               </th>
               <th
                 scope="col"
-                className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900"
+                className="px-3 pb-3.5 text-left text-sm font-semibold text-zinc-900"
               >
                 Finish date
               </th>
-              <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+              <th scope="col" className="relative pb-3.5 pl-3 pr-4 sm:pr-0">
                 <span className="sr-only">Edit</span>
               </th>
             </tr>
@@ -102,7 +110,11 @@ export default function MesocycleHistory() {
             ))}
           </tbody>
         </table>
-      ) : null}
+      ) : (
+        <h3 className="mt-2 text-sm font-semibold text-zinc-900">
+          Nothing here yet
+        </h3>
+      )}
     </AppPageLayout>
   );
 }
