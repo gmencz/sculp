@@ -1,50 +1,54 @@
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader } from "./route";
 import type { FormEvent } from "react";
-import { useRef } from "react";
-import { Fragment } from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useDebounce, useMediaQuery } from "~/utils/hooks";
 import {
   Form,
   useActionData,
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
-import type { AddSetSchema, UpdateExerciseSchema } from "../schema";
-import { addSetSchema } from "../schema";
-import { actionIntents, updateExerciseSchema } from "../schema";
 import { conform, useForm } from "@conform-to/react";
+import type {
+  AddSetSchema,
+  RemoveExerciseSchema,
+  UpdateExerciseSchema,
+} from "./schema";
+import {
+  actionIntents,
+  addSetSchema,
+  removeExerciseSchema,
+  updateExerciseSchema,
+} from "./schema";
 import { parse } from "@conform-to/zod";
+import { generateId } from "~/utils/ids";
+import { animated, useSpring } from "@react-spring/web";
+import { useDrag } from "@use-gesture/react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
-import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
-import { useDrag } from "@use-gesture/react";
-import { TrainingDayExerciseSetPerformance } from "./training-day-exercise-set-performance";
-import type { CurrentMesocycleState, loader } from "../route";
-import type { SerializeFrom } from "@remix-run/server-runtime";
-import { useDebounce, useMediaQuery } from "~/utils/hooks";
-import { generateId } from "~/utils/ids";
+import { SubmitButton } from "~/components/submit-button";
 
 type TrainingDayExerciseProps = {
-  exercise: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
-  >["exercises"][number];
+  exercise: SerializeFrom<typeof loader>["trainingDay"]["exercises"][number];
 };
 
 export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
   const [updateExerciseSubmitEvent, setUpdateExerciseSubmitEvent] =
     useState<FormEvent<HTMLFormElement>>();
+
   const debouncedUpdateExerciseSubmitEvent = useDebounce(
     updateExerciseSubmitEvent,
     3000
   );
+
   const submit = useSubmit();
+
   const lastSubmission = useActionData() as any;
+
   const [
     updateExerciseForm,
     {
@@ -74,7 +78,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     defaultValue: {
       id: exercise.id,
       setId: generateId(),
-      actionIntent: actionIntents[3],
+      actionIntent: actionIntents[2],
     },
     onValidate({ formData }) {
       return parse(formData, { schema: addSetSchema });
@@ -112,7 +116,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
   useEffect(() => {
     if (navigation.formData) {
       const actionIntent = navigation.formData.get("actionIntent");
-      if (actionIntent === actionIntents[3]) {
+      if (actionIntent === actionIntents[2]) {
         const id = navigation.formData.get("id");
         const setId = navigation.formData.get("setId");
         if (id === exercise.id && typeof setId === "string") {
@@ -128,8 +132,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
                 weight: lastSet?.weight || null,
                 rir: lastSet?.rir || 0,
-                completed: false,
-                repsCompleted: 0,
                 isNew: true,
               },
             ];
@@ -173,6 +175,21 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     }
   });
 
+  const [
+    removeExerciseForm,
+    { id: removeExerciseId, actionIntent: removeExerciseActionIntent },
+  ] = useForm<RemoveExerciseSchema>({
+    id: `remove-${exercise.id}`,
+    lastSubmission,
+    defaultValue: {
+      id: exercise.id,
+      actionIntent: actionIntents[3],
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema: removeExerciseSchema });
+    },
+  });
+
   const menuOptions = [
     {
       name: "Add notes",
@@ -199,10 +216,31 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         }
       },
     },
+    {
+      name: "Remove exercise",
+      onClick: () => {
+        submit(removeExerciseForm.ref.current, {
+          replace: true,
+          preventScrollReset: true,
+        });
+      },
+    },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
+    <div className="mx-auto w-full max-w-2xl">
+      <Form
+        preventScrollReset
+        replace
+        method="delete"
+        {...removeExerciseForm.props}
+      >
+        <input {...conform.input(removeExerciseId, { hidden: true })} />
+        <input
+          {...conform.input(removeExerciseActionIntent, { hidden: true })}
+        />
+      </Form>
+
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
@@ -269,6 +307,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         replace
         method="post"
         onChange={handleUpdateExerciseFormChange}
+        className="px-4 sm:px-6 lg:px-8"
         {...updateExerciseForm.props}
       >
         <input {...conform.input(updateExerciseId, { hidden: true })} />
@@ -293,7 +332,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
 
           <animated.div
             {...bind()}
-            className="relative cursor-grab touch-pan-y bg-white px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
+            className="relative cursor-grab touch-pan-y bg-zinc-50 py-1 sm:cursor-auto"
             style={{ x }}
           >
             <Textarea
@@ -313,11 +352,8 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
 
       {sets.length > 0 ? (
         <div role="table" className="mt-3">
-          <div role="rowgroup">
-            <div
-              role="row"
-              className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
-            >
+          <div role="rowgroup" className="px-4 sm:px-6 lg:px-8">
+            <div role="row" className="flex h-8 items-center gap-3">
               <div
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
@@ -336,14 +372,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
               >
                 RIR
               </div>
-              <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-              >
-                Reps
-              </div>
 
-              <div role="columnheader" className="h-8 w-8" />
               <div role="columnheader" className="hidden h-8 w-8 sm:block" />
             </div>
           </div>
@@ -367,7 +396,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         preventScrollReset
         replace
         method="post"
-        className="mt-4 px-4 pb-4 sm:px-6 lg:px-8"
+        className="mt-4 px-4 sm:px-6 lg:px-8"
         {...addSetForm.props}
       >
         <input {...conform.input(addSetId, { hidden: true })} />
@@ -381,18 +410,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           text="Add set"
         />
       </Form>
-
-      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-        <ol className="flex flex-col gap-4">
-          {sets.map((set) => (
-            <TrainingDayExerciseSetPerformance
-              previousRunSets={exercise.previousRun?.sets || []}
-              set={set}
-              key={`${set.id}-performance-change`}
-            />
-          ))}
-        </ol>
-      </div>
     </div>
   );
 }

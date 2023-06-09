@@ -97,7 +97,7 @@ function ErrorDoc({ children }: PropsWithChildren) {
         <title>Oh no...</title>
         <Links />
       </head>
-      <body className="h-full">
+      <body className="h-full bg-zinc-50">
         {children}
         <Scripts />
       </body>
