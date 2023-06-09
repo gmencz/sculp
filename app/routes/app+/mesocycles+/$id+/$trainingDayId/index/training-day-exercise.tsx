@@ -42,7 +42,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
 
   const debouncedUpdateExerciseSubmitEvent = useDebounce(
     updateExerciseSubmitEvent,
-    3000
+    1500
   );
 
   const submit = useSubmit();
@@ -190,6 +190,8 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     },
   });
 
+  const [isRemoved, setIsRemoved] = useState(false);
+
   const menuOptions = [
     {
       name: "Add notes",
@@ -219,16 +221,26 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     {
       name: "Remove exercise",
       onClick: () => {
-        submit(removeExerciseForm.ref.current, {
-          replace: true,
-          preventScrollReset: true,
-        });
+        setIsRemoved(true);
       },
     },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <Transition
+      show={!isRemoved}
+      as="div"
+      leave="transition-opacity duration-150"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+      className="mx-auto w-full max-w-2xl"
+      afterLeave={() => {
+        submit(removeExerciseForm.ref.current, {
+          replace: true,
+          preventScrollReset: true,
+        });
+      }}
+    >
       <Form
         preventScrollReset
         replace
@@ -410,6 +422,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           text="Add set"
         />
       </Form>
-    </div>
+    </Transition>
   );
 }

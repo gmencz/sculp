@@ -127,7 +127,7 @@ export function TrainingDayExerciseSetForm({
   const submit = useSubmit();
 
   const [submitEvent, setSubmitEvent] = useState<FormEvent<HTMLFormElement>>();
-  const debouncedSubmitEvent = useDebounce(submitEvent, 3000);
+  const debouncedSubmitEvent = useDebounce(submitEvent, 1500);
 
   const handleFormChange = (event: FormEvent<HTMLFormElement>) => {
     setSubmitEvent(event);

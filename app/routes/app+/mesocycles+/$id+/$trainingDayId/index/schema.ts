@@ -13,6 +13,7 @@ export const actionIntents = [
   "update-exercise",
   "add-set",
   "remove-exercise",
+  "update-training-day",
 ] as const;
 
 export const schema = z.object({
@@ -70,11 +71,17 @@ export const updateSetSchema = z.object({
 
 export type UpdateSetSchema = z.TypeOf<typeof updateSetSchema>;
 
-export const updateLabelSchema = z.object({
+export const updateTrainingDaySchema = z.object({
   label: trainingDayLabelSchema,
+  actionIntent: z
+    .literal(actionIntents[4], {
+      required_error: "The action intent is required",
+      invalid_type_error: "The action intent is not valid",
+    })
+    .default(actionIntents[4]),
 });
 
-export type UpdateLabelSchema = z.TypeOf<typeof updateLabelSchema>;
+export type UpdateTrainingDaySchema = z.TypeOf<typeof updateTrainingDaySchema>;
 
 export const removeExerciseSchema = z.object({
   id: idSchema,

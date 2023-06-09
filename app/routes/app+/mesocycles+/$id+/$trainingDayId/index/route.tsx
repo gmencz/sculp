@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { conform, useForm } from "@conform-to/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import {
   json,
@@ -7,15 +7,16 @@ import {
 } from "@remix-run/server-runtime";
 import { requireUser } from "~/services/auth/api/require-user";
 import { prisma } from "~/utils/db.server";
-import type { MatchWithHeader } from "~/utils/hooks";
-import type { UpdateLabelSchema } from "./schema";
+import { useDebounce, type MatchWithHeader } from "~/utils/hooks";
+import type { UpdateTrainingDaySchema } from "./schema";
 import {
+  actionIntents,
   addSetSchema,
   removeExerciseSchema,
   schema,
   updateExerciseSchema,
-  updateLabelSchema,
   updateSetSchema,
+  updateTrainingDaySchema,
 } from "./schema";
 import {
   Form,
@@ -26,7 +27,7 @@ import {
 import { parse } from "@conform-to/zod";
 import { Input } from "~/components/input";
 import { Heading } from "~/components/heading";
-import { useMemo, type FormEvent } from "react";
+import { useMemo, type FormEvent, useState, useEffect } from "react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { TrainingDayExercise } from "./training-day-exercise";
 import { classes } from "~/utils/classes";
@@ -104,7 +105,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ trainingDay });
 };
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
   await requireUser(request);
   const formData = await request.formData();
   const intentSubmission = parse(formData, { schema });
@@ -261,6 +262,29 @@ export const action = async ({ request }: ActionArgs) => {
       });
     }
 
+    case "update-training-day": {
+      const submission = parse(formData, { schema: updateTrainingDaySchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { label } = submission.value;
+
+      await prisma.mesocycleTrainingDay.update({
+        where: {
+          id: params.trainingDayId,
+        },
+        data: {
+          label,
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.mesocycles.list,
+      });
+    }
+
     default: {
       throw new Error("The action intent is not valid");
     }
@@ -271,20 +295,32 @@ export default function TrainingDay() {
   const { trainingDay } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const lastSubmission = useActionData() as any;
-  const [updateLabelForm, { label }] = useForm<UpdateLabelSchema>({
+  const [form, { label, actionIntent }] = useForm<UpdateTrainingDaySchema>({
     id: "update-label-form",
     lastSubmission,
     defaultValue: {
       label: trainingDay.label,
+      actionIntent: actionIntents[4],
     },
     onValidate({ formData }) {
-      return parse(formData, { schema: updateLabelSchema });
+      return parse(formData, { schema: updateTrainingDaySchema });
     },
   });
 
+  const [submitEvent, setSubmitEvent] = useState<FormEvent<HTMLFormElement>>();
+  const debouncedSubmitEvent = useDebounce(submitEvent, 1500);
+
   const handleFormChange = (event: FormEvent<HTMLFormElement>) => {
-    submit(event.currentTarget, { replace: true, preventScrollReset: true });
+    setSubmitEvent(event);
   };
+
+  useEffect(() => {
+    if (debouncedSubmitEvent) {
+      submit(form.ref.current, {
+        replace: true,
+      });
+    }
+  }, [submit, debouncedSubmitEvent, form.ref]);
 
   const muscleGroups = useMemo(() => {
     const set = new Set<string>();
@@ -328,10 +364,10 @@ export default function TrainingDay() {
             method="post"
             onChange={handleFormChange}
             replace
-            preventScrollReset
             className="px-4 sm:px-6 lg:px-8"
-            {...updateLabelForm.props}
+            {...form.props}
           >
+            <input {...conform.input(actionIntent, { hidden: true })} />
             <Input label="Label" config={label} />
           </Form>
 

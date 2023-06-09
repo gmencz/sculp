@@ -41,7 +41,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     useState<FormEvent<HTMLFormElement>>();
   const debouncedUpdateExerciseSubmitEvent = useDebounce(
     updateExerciseSubmitEvent,
-    3000
+    1500
   );
   const submit = useSubmit();
   const lastSubmission = useActionData() as any;
