@@ -20,6 +20,7 @@ import {
 } from "./schema";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useSubmit,
@@ -27,7 +28,7 @@ import {
 import { parse } from "@conform-to/zod";
 import { Input } from "~/components/input";
 import { Heading } from "~/components/heading";
-import { useMemo, type FormEvent, useState, useEffect } from "react";
+import { useMemo, type FormEvent, useState, useEffect, useRef } from "react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { TrainingDayExercise } from "./training-day-exercise";
 import { classes } from "~/utils/classes";
@@ -35,6 +36,7 @@ import clsx from "clsx";
 import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
+import { commitSession, getSessionFromCookie } from "~/utils/session.server";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) =>
@@ -102,7 +104,15 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
-  return json({ trainingDay });
+  const session = await getSessionFromCookie(request);
+  return json(
+    { trainingDay, scrollToBottom: Boolean(session.get("scrollToBottom")) },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 };
 
 export const action = async ({ request, params }: ActionArgs) => {
@@ -251,9 +261,25 @@ export const action = async ({ request, params }: ActionArgs) => {
 
       const { id } = submission.value;
 
-      await prisma.mesocycleTrainingDayExercise.delete({
+      const deleted = await prisma.mesocycleTrainingDayExercise.delete({
         where: {
           id,
+        },
+        select: {
+          number: true,
+        },
+      });
+
+      // Update the `number` value for the sets after the one we removed.
+      await prisma.mesocycleTrainingDayExercise.updateMany({
+        where: {
+          AND: [
+            { mesocycleTrainingDayId: params.trainingDayId },
+            { number: { gt: deleted.number } },
+          ],
+        },
+        data: {
+          number: { decrement: 1 },
         },
       });
 
@@ -292,7 +318,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 };
 
 export default function TrainingDay() {
-  const { trainingDay } = useLoaderData<typeof loader>();
+  const { trainingDay, scrollToBottom } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const lastSubmission = useActionData() as any;
   const [form, { label, actionIntent }] = useForm<UpdateTrainingDaySchema>({
@@ -333,6 +359,13 @@ export default function TrainingDay() {
 
     return Array.from(set);
   }, [trainingDay]);
+
+  const exercisesListEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollToBottom) {
+      exercisesListEndRef.current?.scrollIntoView();
+    }
+  }, [scrollToBottom]);
 
   return (
     <>
@@ -379,12 +412,15 @@ export default function TrainingDay() {
             ))}
           </ol>
 
+          <div ref={exercisesListEndRef} />
+
           <div className="px-4 sm:px-6 lg:px-8">
-            <button
+            <Link
+              to="./add-exercise"
               className={clsx(classes.buttonOrLink.secondary, "mt-4 w-full")}
             >
               Add exercise
-            </button>
+            </Link>
           </div>
         </div>
       </div>

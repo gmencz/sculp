@@ -34,6 +34,7 @@ import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { Heading } from "~/components/heading";
+import { toPostgresQuery } from "~/utils/strings";
 
 export const handle: MatchWithHeader = {
   header: () => "Exercises",
@@ -61,11 +62,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   let formattedQuery;
   if (query) {
-    formattedQuery = query
-      .split(/\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join(" | ");
+    formattedQuery = toPostgresQuery(query);
   }
 
   const exercises = await prisma.exercise.findMany({

@@ -436,7 +436,7 @@ export const action = async ({ request }: ActionArgs) => {
         data: {
           id: setId,
           exercise: { connect: { id } },
-          number: lastSet?.number ? lastSet.number + 1 : 1,
+          number: lastSet ? lastSet.number + 1 : 1,
           repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
           repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
           weight: lastSet?.weight,
