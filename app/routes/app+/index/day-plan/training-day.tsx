@@ -16,6 +16,7 @@ import { Paragraph } from "~/components/paragraph";
 import { FinishOrUpdateTrainingDayModal } from "./finish-or-update-training-day-modal";
 import { SuccessToast } from "~/components/success-toast";
 import { toast } from "react-hot-toast";
+import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 type TrainingDayProps = {
   trainingDay: NonNullable<
@@ -36,17 +37,10 @@ export function TrainingDay({
   dayNumber,
   date,
 }: TrainingDayProps) {
-  const muscleGroups = useMemo(() => {
-    const set = new Set<string>();
-
-    trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
-        set.add(muscleGroup.name);
-      });
-    });
-
-    return Array.from(set);
-  }, [trainingDay]);
+  const muscleGroups = useMemo(
+    () => getUniqueMuscleGroups(trainingDay),
+    [trainingDay]
+  );
 
   const { readOnly, trainingDaySessionFinished, trainingDaySessionUpdated } =
     useLoaderData<

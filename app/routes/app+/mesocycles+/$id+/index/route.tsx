@@ -8,6 +8,7 @@ import type { MatchWithHeader } from "~/utils/hooks";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { useMemo } from "react";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
+import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.mesocycle.name,
@@ -94,17 +95,7 @@ type TrainingDayCardProps = {
 };
 
 function TrainingDayCard({ data }: TrainingDayCardProps) {
-  const muscleGroups = useMemo(() => {
-    const set = new Set<string>();
-
-    data.exercises.forEach((exercise) => {
-      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
-        set.add(muscleGroup.name);
-      });
-    });
-
-    return Array.from(set);
-  }, [data]);
+  const muscleGroups = useMemo(() => getUniqueMuscleGroups(data), [data]);
 
   return (
     <Link

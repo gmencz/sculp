@@ -37,6 +37,7 @@ import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { commitSession, getSessionFromCookie } from "~/utils/session.server";
+import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) =>
@@ -348,17 +349,10 @@ export default function TrainingDay() {
     }
   }, [submit, debouncedSubmitEvent, form.ref]);
 
-  const muscleGroups = useMemo(() => {
-    const set = new Set<string>();
-
-    trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
-        set.add(muscleGroup.name);
-      });
-    });
-
-    return Array.from(set);
-  }, [trainingDay]);
+  const muscleGroups = useMemo(
+    () => getUniqueMuscleGroups(trainingDay),
+    [trainingDay]
+  );
 
   const exercisesListEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

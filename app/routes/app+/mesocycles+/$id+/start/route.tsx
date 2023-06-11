@@ -24,6 +24,8 @@ import { Disclosure } from "@headlessui/react";
 import { prisma } from "~/utils/db.server";
 import { addDays, startOfDay } from "date-fns";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { useMemo } from "react";
+import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => `Start ${data.mesocycle.name}`,
@@ -299,19 +301,10 @@ type TrainingDayProps = {
 };
 
 function TrainingDay({ trainingDay, index }: TrainingDayProps) {
-  const getUniqueMuscleGroups = () => {
-    const set = new Set<string>();
-
-    trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
-        set.add(muscleGroup.name);
-      });
-    });
-
-    return Array.from(set);
-  };
-
-  const muscleGroups = getUniqueMuscleGroups();
+  const muscleGroups = useMemo(
+    () => getUniqueMuscleGroups(trainingDay),
+    [trainingDay]
+  );
 
   return (
     <Disclosure>
