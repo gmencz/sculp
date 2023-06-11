@@ -233,7 +233,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
       leave="transition-opacity duration-150"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
-      className="mx-auto w-full max-w-2xl"
       afterLeave={() => {
         submit(removeExerciseForm.ref.current, {
           replace: true,
@@ -253,65 +252,69 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         />
       </Form>
 
-      <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
-        <ul className="flex flex-wrap gap-2">
-          {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
-            <li key={muscleGroup.name}>
-              <MuscleGroupBadge index={index}>
-                {muscleGroup.name}
-              </MuscleGroupBadge>
-            </li>
-          ))}
-        </ul>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-2xl items-center gap-8">
+          <ul className="flex flex-wrap gap-2">
+            {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
+              <li key={muscleGroup.name}>
+                <MuscleGroupBadge index={index}>
+                  {muscleGroup.name}
+                </MuscleGroupBadge>
+              </li>
+            ))}
+          </ul>
 
-        <div className="ml-auto flex items-center gap-4">
-          <Popover className="relative flex items-center">
-            <Popover.Button
-              type="button"
-              className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
-            >
-              <EllipsisVerticalIcon className="h-6 w-6" />
-              <span className="sr-only">Options</span>
-            </Popover.Button>
+          <div className="ml-auto flex items-center gap-4">
+            <Popover className="relative flex items-center">
+              <Popover.Button
+                type="button"
+                className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
+              >
+                <EllipsisVerticalIcon className="h-6 w-6" />
+                <span className="sr-only">Options</span>
+              </Popover.Button>
 
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
-                {({ close }) => (
-                  <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
-                    {menuOptions.map((option) => (
-                      <li key={option.name}>
-                        <button
-                          onClick={() => {
-                            close();
-                            option.onClick();
-                          }}
-                          type="button"
-                          className="block w-full text-left text-zinc-900 hover:text-orange-600"
-                        >
-                          {option.name}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Popover.Panel>
-            </Transition>
-          </Popover>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-200"
+                enterFrom="opacity-0 translate-y-1"
+                enterTo="opacity-100 translate-y-0"
+                leave="transition ease-in duration-150"
+                leaveFrom="opacity-100 translate-y-0"
+                leaveTo="opacity-0 translate-y-1"
+              >
+                <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
+                  {({ close }) => (
+                    <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
+                      {menuOptions.map((option) => (
+                        <li key={option.name}>
+                          <button
+                            onClick={() => {
+                              close();
+                              option.onClick();
+                            }}
+                            type="button"
+                            className="block w-full text-left text-zinc-900 hover:text-orange-600"
+                          >
+                            {option.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Popover.Panel>
+              </Transition>
+            </Popover>
+          </div>
         </div>
       </div>
 
       <div className="mt-3 px-4 sm:px-6 lg:px-8">
-        <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
-          {exercise.exercise?.name}
-        </h3>
+        <div className="mx-auto w-full max-w-2xl">
+          <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+            {exercise.exercise?.name}
+          </h3>
+        </div>
       </div>
 
       <Form
@@ -322,50 +325,55 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         className="px-4 sm:px-6 lg:px-8"
         {...updateExerciseForm.props}
       >
-        <input {...conform.input(updateExerciseId, { hidden: true })} />
-        <input
-          {...conform.input(updateExerciseActionIntent, { hidden: true })}
-        />
+        <div className="mx-auto w-full max-w-2xl">
+          <input {...conform.input(updateExerciseId, { hidden: true })} />
+          <input
+            {...conform.input(updateExerciseActionIntent, { hidden: true })}
+          />
 
-        <Transition
-          show={showNotes}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="transition-opacity duration-150"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="relative"
-        >
-          <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
-            <TrashIcon className="h-5 w-5 text-white" />
-            <span className="sr-only">Remove</span>
-          </div>
-
-          <animated.div
-            {...bind()}
-            className="relative cursor-grab touch-pan-y bg-zinc-50 py-1 sm:cursor-auto"
-            style={{ x }}
+          <Transition
+            show={showNotes}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="transition-opacity duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+            className="relative"
           >
-            <Textarea
-              ref={notesRef}
-              autoSize
-              hideLabel
-              hideErrorMessage
-              config={updateExerciseNotes}
-              label="Notes"
-              onChangeValue={setNotesValue}
-              placeholder="Notes"
-              className="mt-2"
-            />
-          </animated.div>
-        </Transition>
+            <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
+              <TrashIcon className="h-5 w-5 text-white" />
+              <span className="sr-only">Remove</span>
+            </div>
+
+            <animated.div
+              {...bind()}
+              className="relative cursor-grab touch-pan-y bg-zinc-50 py-1 sm:cursor-auto"
+              style={{ x }}
+            >
+              <Textarea
+                ref={notesRef}
+                autoSize
+                hideLabel
+                hideErrorMessage
+                config={updateExerciseNotes}
+                label="Notes"
+                onChangeValue={setNotesValue}
+                placeholder="Notes"
+                className="mt-2"
+              />
+            </animated.div>
+          </Transition>
+        </div>
       </Form>
 
       {sets.length > 0 ? (
         <div role="table" className="mt-3">
           <div role="rowgroup" className="px-4 sm:px-6 lg:px-8">
-            <div role="row" className="flex h-8 items-center gap-3">
+            <div
+              role="row"
+              className="mx-auto flex h-8 w-full max-w-2xl items-center gap-3"
+            >
               <div
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
@@ -411,16 +419,18 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         className="mt-4 px-4 sm:px-6 lg:px-8"
         {...addSetForm.props}
       >
-        <input {...conform.input(addSetId, { hidden: true })} />
-        <input {...conform.input(addSetActionintent, { hidden: true })} />
-        <input {...conform.input(addSetSetId, { hidden: true })} />
+        <div className="mx-auto w-full max-w-2xl">
+          <input {...conform.input(addSetId, { hidden: true })} />
+          <input {...conform.input(addSetActionintent, { hidden: true })} />
+          <input {...conform.input(addSetSetId, { hidden: true })} />
 
-        <SubmitButton
-          isSubmitting={false}
-          secondary
-          className="w-full ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
-          text="Add set"
-        />
+          <SubmitButton
+            isSubmitting={false}
+            secondary
+            className="w-full ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
+            text="Add set"
+          />
+        </div>
       </Form>
     </Transition>
   );

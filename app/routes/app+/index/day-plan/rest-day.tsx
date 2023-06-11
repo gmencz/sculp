@@ -23,7 +23,7 @@ export function RestDay({
         <Calendar darkButton />
       </div>
 
-      <Heading>Rest day</Heading>
+      <Heading className="text-zinc-900">Rest day</Heading>
 
       <p className="mt-2 text-zinc-600">
         It's time to rest! Remember, your body repairs and rebuilds during rest,

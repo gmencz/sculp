@@ -82,7 +82,7 @@ export function TrainingDayExerciseSet({
         {...bind()}
         role="row"
         aria-rowindex={index}
-        className="relative cursor-grab touch-pan-y bg-zinc-50 py-1 sm:cursor-auto"
+        className="relative cursor-grab touch-pan-y bg-zinc-50 px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
         style={{ x }}
       >
         <TrainingDayExerciseSetForm

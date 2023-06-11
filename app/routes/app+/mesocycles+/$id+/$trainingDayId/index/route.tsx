@@ -1,4 +1,3 @@
-import { conform, useForm } from "@conform-to/react";
 import type { ActionArgs } from "@remix-run/server-runtime";
 import {
   json,
@@ -7,10 +6,8 @@ import {
 } from "@remix-run/server-runtime";
 import { requireUser } from "~/services/auth/api/require-user";
 import { prisma } from "~/utils/db.server";
-import { useDebounce, type MatchWithHeader } from "~/utils/hooks";
-import type { UpdateTrainingDaySchema } from "./schema";
+import { type MatchWithHeader } from "~/utils/hooks";
 import {
-  actionIntents,
   addSetSchema,
   removeExerciseSchema,
   schema,
@@ -18,30 +15,15 @@ import {
   updateSetSchema,
   updateTrainingDaySchema,
 } from "./schema";
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
 import { parse } from "@conform-to/zod";
-import { Input } from "~/components/input";
-import { Heading } from "~/components/heading";
-import { useMemo, type FormEvent, useState, useEffect, useRef } from "react";
-import { MuscleGroupBadge } from "~/components/muscle-group-badge";
-import { TrainingDayExercise } from "./training-day-exercise";
-import { classes } from "~/utils/classes";
-import clsx from "clsx";
 import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { commitSession, getSessionFromCookie } from "~/utils/session.server";
-import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
+import { TrainingDay } from "./training-day";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
-  header: (data) =>
-    `${data.trainingDay.mesocycle?.name} - Day ${data.trainingDay.number}`,
+  header: (data) => data.trainingDay.mesocycle!.name,
   links: [],
 };
 
@@ -318,106 +300,6 @@ export const action = async ({ request, params }: ActionArgs) => {
   }
 };
 
-export default function TrainingDay() {
-  const { trainingDay, scrollToBottom } = useLoaderData<typeof loader>();
-  const submit = useSubmit();
-  const lastSubmission = useActionData() as any;
-  const [form, { label, actionIntent }] = useForm<UpdateTrainingDaySchema>({
-    id: "update-label-form",
-    lastSubmission,
-    defaultValue: {
-      label: trainingDay.label,
-      actionIntent: actionIntents[4],
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema: updateTrainingDaySchema });
-    },
-  });
-
-  const [submitEvent, setSubmitEvent] = useState<FormEvent<HTMLFormElement>>();
-  const debouncedSubmitEvent = useDebounce(submitEvent, 1500);
-
-  const handleFormChange = (event: FormEvent<HTMLFormElement>) => {
-    setSubmitEvent(event);
-  };
-
-  useEffect(() => {
-    if (debouncedSubmitEvent) {
-      submit(form.ref.current, {
-        replace: true,
-      });
-    }
-  }, [submit, debouncedSubmitEvent, form.ref]);
-
-  const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
-  );
-
-  const exercisesListEndRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (scrollToBottom) {
-      exercisesListEndRef.current?.scrollIntoView();
-    }
-  }, [scrollToBottom]);
-
-  return (
-    <>
-      <div className="bg-zinc-900 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-        <div className="mx-auto w-full max-w-2xl">
-          <div className="mb-1 hidden items-center justify-between lg:flex">
-            <h2 className="font-medium text-zinc-200">
-              {trainingDay.mesocycle?.name} - Day {trainingDay.number}
-            </h2>
-          </div>
-
-          <Heading white>{trainingDay.label}</Heading>
-
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {muscleGroups.map((muscleGroup, index) => (
-              <li key={muscleGroup}>
-                <MuscleGroupBadge white index={index}>
-                  {muscleGroup}
-                </MuscleGroupBadge>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className="mt-4 pb-8">
-        <div className="mx-auto w-full max-w-2xl">
-          <Form
-            method="post"
-            onChange={handleFormChange}
-            replace
-            className="px-4 sm:px-6 lg:px-8"
-            {...form.props}
-          >
-            <input {...conform.input(actionIntent, { hidden: true })} />
-            <Input label="Label" config={label} />
-          </Form>
-
-          <ol className="mt-6 flex flex-col gap-6">
-            {trainingDay.exercises.map((exercise) => (
-              <li key={exercise.id}>
-                <TrainingDayExercise exercise={exercise} />
-              </li>
-            ))}
-          </ol>
-
-          <div ref={exercisesListEndRef} />
-
-          <div className="px-4 sm:px-6 lg:px-8">
-            <Link
-              to="./add-exercise"
-              className={clsx(classes.buttonOrLink.secondary, "mt-4 w-full")}
-            >
-              Add exercise
-            </Link>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+export default function TrainingDayRoute() {
+  return <TrainingDay />;
 }

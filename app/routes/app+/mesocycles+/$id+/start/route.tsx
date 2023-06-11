@@ -236,7 +236,9 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">{mesocycle.name}</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">
+        {mesocycle.name}
+      </Heading>
       <Paragraph className="hidden lg:mt-1 lg:block">
         Review your mesocycle to make sure everything looks good before starting
         your training. Keep in mind that the sets, weights and RIR (Reps In

@@ -7,8 +7,10 @@ import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { useMemo } from "react";
-import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
+import { MuscleGroupBadge } from "~/components/muscle-group-badge";
+import { classes } from "~/utils/classes";
+import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.mesocycle.name,
@@ -30,6 +32,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     select: {
       id: true,
       name: true,
+      restDays: true,
       trainingDays: {
         orderBy: { number: "asc" },
         select: {
@@ -75,55 +78,100 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
 
+  const allDays = useMemo(
+    () =>
+      [...mesocycle.trainingDays, ...mesocycle.restDays].sort((dayA, dayB) => {
+        let numberA = typeof dayA === "number" ? dayA : Number(dayA.number);
+
+        let numberB = typeof dayB === "number" ? dayB : Number(dayB.number);
+
+        return numberA - numberB;
+      }),
+    [mesocycle.restDays, mesocycle.trainingDays]
+  );
+
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">{mesocycle.name}</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">
+        {mesocycle.name}
+      </Heading>
 
       <ul className="flex flex-col gap-6 lg:mt-4">
-        {mesocycle.trainingDays.map((trainingDay) => (
-          <li key={trainingDay.id}>
-            <TrainingDayCard data={trainingDay} />
-          </li>
-        ))}
+        {allDays.map((day) =>
+          typeof day === "number" ? (
+            <li key={day}>
+              <div className="block rounded-lg bg-zinc-50 px-4 py-4 ring-1 ring-zinc-200 sm:px-6">
+                <h3 className="truncate font-semibold text-zinc-900">
+                  Day {day} - Rest
+                </h3>
+              </div>
+            </li>
+          ) : (
+            <li key={day.id}>
+              <TrainingDayCard trainingDay={day} />
+            </li>
+          )
+        )}
       </ul>
     </AppPageLayout>
   );
 }
 
 type TrainingDayCardProps = {
-  data: SerializeFrom<typeof loader>["mesocycle"]["trainingDays"][number];
+  trainingDay: SerializeFrom<
+    typeof loader
+  >["mesocycle"]["trainingDays"][number];
 };
 
-function TrainingDayCard({ data }: TrainingDayCardProps) {
-  const muscleGroups = useMemo(() => getUniqueMuscleGroups(data), [data]);
+function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
+  const muscleGroups = useMemo(
+    () => getUniqueMuscleGroups(trainingDay),
+    [trainingDay]
+  );
 
   return (
     <Link
-      to={`./${data.id}`}
+      to={`./${trainingDay.id}`}
       className="block divide-y divide-zinc-200 rounded-lg bg-zinc-50 ring-1 ring-zinc-200 transition-all hover:bg-orange-50"
     >
       <div className="px-4 py-4 sm:px-6">
-        <h3 className="truncate font-semibold text-zinc-900">
-          Day {data.number} - {data.label}
-        </h3>
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="truncate font-semibold text-zinc-900">
+            {trainingDay.label
+              ? `Day ${trainingDay.number} - ${trainingDay.label}`
+              : `Day ${trainingDay.number} - Unlabelled`}
+          </h3>
 
-        <ul className="mt-2 flex flex-wrap gap-2">
-          {muscleGroups.map((muscleGroup, index) => (
-            <li key={muscleGroup}>
-              <MuscleGroupBadge index={index}>{muscleGroup}</MuscleGroupBadge>
-            </li>
-          ))}
-        </ul>
+          <Link
+            to={`./${trainingDay.id}`}
+            className={classes.buttonOrLink.textOnly}
+          >
+            <span className="sr-only">Edit</span>
+            <ArrowLongRightIcon className="h-5 w-5" />
+          </Link>
+        </div>
 
-        <ol className="mt-4 flex flex-col gap-1">
-          {data.exercises.map((exercise) => (
-            <li key={exercise.id}>
-              <p className="text-sm text-zinc-700">
-                {exercise.sets.length} x {exercise.exercise!.name}
-              </p>
-            </li>
-          ))}
-        </ol>
+        {muscleGroups.length > 0 ? (
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {muscleGroups.map((muscleGroup, index) => (
+              <li key={muscleGroup}>
+                <MuscleGroupBadge index={index}>{muscleGroup}</MuscleGroupBadge>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        {trainingDay.exercises.length > 0 ? (
+          <ol className="mt-4 flex flex-col gap-1">
+            {trainingDay.exercises.map((exercise) => (
+              <li key={exercise.id}>
+                <p className="text-sm text-zinc-700">
+                  {exercise.sets.length} x {exercise.exercise?.name}
+                </p>
+              </li>
+            ))}
+          </ol>
+        ) : null}
       </div>
     </Link>
   );

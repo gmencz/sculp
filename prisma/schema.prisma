@@ -113,7 +113,7 @@ model MesocycleTrainingDay {
   id                String                         @id @default(cuid())
   mesocycle         Mesocycle?                     @relation(fields: [mesocycleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mesocycleId       String?                        @map("mesocycle_id")
-  label             String // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
+  label             String? // The label of the training day, it could be "Day 1" or "Monday" or "Push Day 1" for example.
   number            Int // The number of the day.
   exercises         MesocycleTrainingDayExercise[]
   mesocyclePreset   MesocyclePreset?               @relation(fields: [mesocyclePresetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -176,7 +176,7 @@ model MesocycleRunMicrocycle {
 model MesocycleRunMicrocycleTrainingDay {
   id           String                                      @id @default(cuid())
   number       Int
-  label        String
+  label        String?
   completed    Boolean                                     @default(false) // Whether the user completed this training day.
   exercises    MesocycleRunMicrocycleTrainingDayExercise[]
   microcycle   MesocycleRunMicrocycle?                     @relation(fields: [microcycleId], references: [id], onDelete: Cascade, onUpdate: Cascade)

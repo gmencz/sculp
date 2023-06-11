@@ -195,7 +195,7 @@ export default function AddExercise() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">Add exercise</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">Add exercise</Heading>
 
       <>
         {exercises.length > 0 || noResults ? (

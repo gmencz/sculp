@@ -26,6 +26,7 @@ export function PresetMesocycle() {
   ] = useForm<Schema>({
     id: "new-mesocycle",
     lastSubmission,
+    shouldRevalidate: "onBlur",
     defaultValue: {
       durationInMicrocycles: mesocyclesPresets[0].microcycles.toString(),
       presetName: mesocyclesPresets[0].name,

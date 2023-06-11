@@ -231,7 +231,7 @@ export default function Exercises() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden lg:block">Exercises</Heading>
+          <Heading className="hidden text-zinc-900 lg:block">Exercises</Heading>
 
           {exercises.length > 0 || noResults ? (
             <Paragraph className="mt-1 hidden lg:block">

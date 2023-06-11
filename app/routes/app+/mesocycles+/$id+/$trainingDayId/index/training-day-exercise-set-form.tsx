@@ -147,7 +147,7 @@ export function TrainingDayExerciseSetForm({
       preventScrollReset
       replace
       method="post"
-      className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
+      className="mx-auto flex w-full max-w-2xl items-center gap-3"
       onChange={handleFormChange}
       {...form.props}
     >

@@ -120,7 +120,7 @@ export function TrainingDay({
             <Calendar />
           </div>
 
-          <Heading white>{trainingDay.label}</Heading>
+          <Heading className="text-white">{trainingDay.label}</Heading>
 
           <ul className="mt-3 flex flex-wrap gap-2">
             {muscleGroups.map((muscleGroup, index) => (

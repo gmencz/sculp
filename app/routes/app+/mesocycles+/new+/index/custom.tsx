@@ -27,6 +27,7 @@ export function CustomMesocycle() {
   ] = useForm<Schema>({
     id: "new-mesocycle",
     lastSubmission,
+    shouldRevalidate: "onBlur",
     defaultValue: {
       durationInMicrocycles: "Select microcycles",
       trainingDaysPerMicrocycle: [],

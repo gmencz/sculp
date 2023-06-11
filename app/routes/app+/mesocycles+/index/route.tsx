@@ -62,7 +62,9 @@ export default function Mesocycles() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden lg:block">Mesocycles</Heading>
+          <Heading className="hidden text-zinc-900 lg:block">
+            Mesocycles
+          </Heading>
           {mesocycles.length > 0 ? (
             <Paragraph className="mt-1 hidden lg:block">
               A list of all your mesocycles.
