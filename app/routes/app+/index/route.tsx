@@ -264,16 +264,13 @@ export const loader = async ({ request }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
-    // Read only if it's a day in the future (doesn't make sense to update/finish a day you haven't done yet).
-    const readOnly = isAfter(trainingDayData.date, today);
-
     return json(
       {
         state,
         mesocycleName: currentMesocycle.mesocycle.name,
         microcycleLength,
         calendarDays,
-        readOnly,
+        readOnly: false,
         trainingDaySessionUpdated,
         trainingDaySessionFinished,
         date,

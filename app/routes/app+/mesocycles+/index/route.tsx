@@ -43,6 +43,9 @@ export const loader = async ({ request }: LoaderArgs) => {
       restDays: true,
       _count: { select: { trainingDays: true } },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   const currentMesocycle = await prisma.mesocycleRun.findFirst({
