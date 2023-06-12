@@ -297,7 +297,7 @@ export default function Exercises() {
                     type="submit"
                     className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                   >
-                    Delete selected
+                    Delete selected ({selectedExercisesIds.length})
                   </button>
                 </div>
               ) : null}

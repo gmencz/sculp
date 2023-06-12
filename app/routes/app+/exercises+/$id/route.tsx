@@ -361,7 +361,7 @@ export default function Exercise() {
 
         <div className="mt-12">
           <h3 className="text-base font-semibold leading-6 text-zinc-900">
-            Total volume over time
+            Volume graph
           </h3>
 
           {exercise.performances.length > 0 ? (
