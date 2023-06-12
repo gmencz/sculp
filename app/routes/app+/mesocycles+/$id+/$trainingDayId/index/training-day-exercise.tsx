@@ -77,7 +77,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     lastSubmission,
     defaultValue: {
       id: exercise.id,
-      setId: generateId(),
       actionIntent: actionIntents[2],
     },
     onValidate({ formData }) {
@@ -422,7 +421,11 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         <div className="mx-auto w-full max-w-2xl">
           <input {...conform.input(addSetId, { hidden: true })} />
           <input {...conform.input(addSetActionintent, { hidden: true })} />
-          <input {...conform.input(addSetSetId, { hidden: true })} />
+          <input
+            {...conform.input(addSetSetId, { hidden: true })}
+            readOnly
+            value={generateId()}
+          />
 
           <SubmitButton
             isSubmitting={false}

@@ -73,7 +73,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     lastSubmission,
     defaultValue: {
       id: exercise.id,
-      setId: generateId(),
       actionIntent: actionIntents[3],
     },
     onValidate({ formData }) {
@@ -372,7 +371,11 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
       >
         <input {...conform.input(addSetId, { hidden: true })} />
         <input {...conform.input(addSetActionintent, { hidden: true })} />
-        <input {...conform.input(addSetSetId, { hidden: true })} />
+        <input
+          {...conform.input(addSetSetId, { hidden: true })}
+          readOnly
+          value={generateId()}
+        />
 
         <SubmitButton
           isSubmitting={false}
