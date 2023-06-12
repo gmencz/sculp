@@ -273,32 +273,9 @@ export default function StartMesocycle() {
 }
 
 type TrainingDayProps = {
-  trainingDay: {
-    number: number;
-    id: string;
-    label: string;
-    exercises: {
-      number: number;
-      id: string;
-      notes: string | null;
-      exercise: {
-        id: string;
-        name: string;
-        muscleGroups: {
-          name: string;
-        }[];
-      } | null;
-      sets: {
-        number: number;
-        id: string;
-        repRangeLowerBound: number;
-        repRangeUpperBound: number;
-        weight: number | null;
-        rir: number;
-      }[];
-    }[];
-  };
-
+  trainingDay: SerializeFrom<
+    typeof loader
+  >["mesocycle"]["trainingDays"][number];
   index: number;
 };
 
