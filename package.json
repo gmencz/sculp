@@ -70,6 +70,7 @@
     "react-contenteditable": "^3.3.7",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
+    "recharts": "^2.6.2",
     "remix-flat-routes": "^0.5.8",
     "resend": "^0.15.1",
     "stripe": "^12.9.0",

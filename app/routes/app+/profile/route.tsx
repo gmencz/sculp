@@ -16,6 +16,8 @@ import { signOut } from "~/services/auth/api/sign-out";
 import { requireUserId } from "~/services/auth/api/require-user-id";
 import { stripe } from "~/services/stripe/config.server";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { Heading } from "~/components/heading";
+import { Paragraph } from "~/components/paragraph";
 
 export const handle: MatchWithHeader = {
   header: () => "Profile",
@@ -80,12 +82,10 @@ export default function Profile() {
     <>
       <AppPageLayout>
         <div className="hidden lg:block">
-          <h3 className="text-base font-semibold leading-7 text-zinc-900">
-            Profile
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
+          <Heading className="text-zinc-900">Profile</Heading>
+          <Paragraph className="mt-1">
             Your profile's details and subscription.
-          </p>
+          </Paragraph>
         </div>
 
         <dl className="divide-y divide-zinc-200 lg:mt-6 lg:border-t lg:border-zinc-200">

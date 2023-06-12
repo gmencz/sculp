@@ -32,7 +32,7 @@ import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
-import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { ArrowLongRightIcon, LockClosedIcon } from "@heroicons/react/20/solid";
 import { Heading } from "~/components/heading";
 import { toPostgresQuery } from "~/utils/strings";
 
@@ -236,8 +236,7 @@ export default function Exercises() {
           {exercises.length > 0 || noResults ? (
             <Paragraph className="mt-1 hidden lg:block">
               A list of all exercises including their name and muscle groups
-              worked. There's some exercises that are read only because they are
-              shared by all Sculped users.
+              worked.
             </Paragraph>
           ) : (
             <Paragraph className="mt-1 hidden lg:block">
@@ -452,20 +451,18 @@ function ExerciseRow({
         {formattedMuscleGroups}
       </td>
 
-      {exercise.shared ? (
-        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium text-zinc-600 sm:pr-0">
-          Read only
-        </td>
-      ) : (
-        <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-          <Link
-            to={`./${exercise.id}`}
-            className={classes.buttonOrLink.textOnly}
-          >
-            Edit<span className="sr-only">, {exercise.name}</span>
-          </Link>
-        </td>
-      )}
+      <td className="text-right text-sm font-medium">
+        <Link
+          to={`./${exercise.id}`}
+          className={clsx(
+            classes.buttonOrLink.textOnly,
+            "block py-4 pl-3 pr-4 sm:pr-0"
+          )}
+        >
+          <ArrowLongRightIcon className="h-5 w-5" />
+          <span className="sr-only">View</span>
+        </Link>
+      </td>
     </tr>
   );
 }
