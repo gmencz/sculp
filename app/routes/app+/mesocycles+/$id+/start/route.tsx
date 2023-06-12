@@ -24,6 +24,8 @@ import { Disclosure } from "@headlessui/react";
 import { prisma } from "~/utils/db.server";
 import { addDays, startOfDay } from "date-fns";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { useMemo } from "react";
+import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => `Start ${data.mesocycle.name}`,
@@ -234,7 +236,9 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">{mesocycle.name}</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">
+        {mesocycle.name}
+      </Heading>
       <Paragraph className="hidden lg:mt-1 lg:block">
         Review your mesocycle to make sure everything looks good before starting
         your training. Keep in mind that the sets, weights and RIR (Reps In
@@ -269,49 +273,17 @@ export default function StartMesocycle() {
 }
 
 type TrainingDayProps = {
-  trainingDay: {
-    number: number;
-    id: string;
-    label: string;
-    exercises: {
-      number: number;
-      id: string;
-      notes: string | null;
-      exercise: {
-        id: string;
-        name: string;
-        muscleGroups: {
-          name: string;
-        }[];
-      } | null;
-      sets: {
-        number: number;
-        id: string;
-        repRangeLowerBound: number;
-        repRangeUpperBound: number;
-        weight: number | null;
-        rir: number;
-      }[];
-    }[];
-  };
-
+  trainingDay: SerializeFrom<
+    typeof loader
+  >["mesocycle"]["trainingDays"][number];
   index: number;
 };
 
 function TrainingDay({ trainingDay, index }: TrainingDayProps) {
-  const getUniqueMuscleGroups = () => {
-    const set = new Set<string>();
-
-    trainingDay.exercises.forEach((exercise) => {
-      exercise.exercise?.muscleGroups.forEach((muscleGroup) => {
-        set.add(muscleGroup.name);
-      });
-    });
-
-    return Array.from(set);
-  };
-
-  const muscleGroups = getUniqueMuscleGroups();
+  const muscleGroups = useMemo(
+    () => getUniqueMuscleGroups(trainingDay),
+    [trainingDay]
+  );
 
   return (
     <Disclosure>

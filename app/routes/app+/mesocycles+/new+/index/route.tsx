@@ -1,6 +1,6 @@
 import { parse } from "@conform-to/zod";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import { schema } from "./schema";
 import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
@@ -8,8 +8,8 @@ import { PresetMesocycle } from "./preset";
 import clsx from "clsx";
 import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
-import { createDraftMesocycle } from "~/utils/mesocycles.server";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { configRoutes } from "~/utils/routes";
 
 export const handle: MatchWithHeader = {
   header: () => "Plan a new mesocycle",
@@ -79,7 +79,32 @@ export const action = async ({ request }: ActionArgs) => {
       where: {
         name: presetName,
       },
-      select: { name: true },
+      select: {
+        restDays: true,
+        microcycles: true,
+        trainingDays: {
+          select: {
+            label: true,
+            number: true,
+            exercises: {
+              select: {
+                number: true,
+                notes: true,
+                exerciseId: true,
+                sets: {
+                  select: {
+                    number: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                    rir: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!preset) {
@@ -88,16 +113,42 @@ export const action = async ({ request }: ActionArgs) => {
       );
     }
 
-    return createDraftMesocycle(request, {
-      durationInMicrocycles,
-      goal,
-      name,
-      trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort(
-        (a, b) => a - b
-      ),
-      restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
-      presetName: preset.name,
+    const newMesocycle = await prisma.mesocycle.create({
+      data: {
+        goal,
+        name,
+        microcycles: preset.microcycles,
+        user: { connect: { id: user.id } },
+        restDays: { set: preset.restDays },
+        trainingDays: {
+          create: preset.trainingDays.map((trainingDay) => ({
+            label: trainingDay.label,
+            number: trainingDay.number,
+            exercises: {
+              create: trainingDay.exercises.map((exercise) => ({
+                number: exercise.number,
+                notes: exercise.notes,
+                exerciseId: exercise.exerciseId,
+                sets: {
+                  create: exercise.sets.map((set) => ({
+                    number: set.number,
+                    repRangeLowerBound: set.repRangeLowerBound,
+                    repRangeUpperBound: set.repRangeUpperBound,
+                    rir: set.rir,
+                    weight: set.weight,
+                  })),
+                },
+              })),
+            },
+          })),
+        },
+      },
+      select: {
+        id: true,
+      },
     });
+
+    return redirect(configRoutes.app.mesocycles.view(newMesocycle.id));
   }
 
   const invalidRestDays = restDaysPerMicrocycle.some((restDay) =>
@@ -110,13 +161,27 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  return createDraftMesocycle(request, {
-    durationInMicrocycles,
-    goal,
-    name,
-    restDaysPerMicrocycle: restDaysPerMicrocycle.sort((a, b) => a - b),
-    trainingDaysPerMicrocycle: trainingDaysPerMicrocycle.sort((a, b) => a - b),
+  const newMesocycle = await prisma.mesocycle.create({
+    data: {
+      goal,
+      name,
+      microcycles: durationInMicrocycles,
+      user: { connect: { id: user.id } },
+      restDays: { set: restDaysPerMicrocycle.sort((a, b) => a - b) },
+      trainingDays: {
+        create: trainingDaysPerMicrocycle
+          .sort((a, b) => a - b)
+          .map((number) => ({
+            number,
+          })),
+      },
+    },
+    select: {
+      id: true,
+    },
   });
+
+  return redirect(configRoutes.app.mesocycles.view(newMesocycle.id));
 };
 
 const tabs = ["Preset", "Custom"];

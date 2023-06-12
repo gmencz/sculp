@@ -59,7 +59,7 @@ export default function MesocycleHistory() {
   return (
     <AppPageLayout>
       <div className="hidden lg:block">
-        <Heading>{mesocycle.name}</Heading>
+        <Heading className="text-zinc-900">{mesocycle.name}</Heading>
         <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
       </div>
 

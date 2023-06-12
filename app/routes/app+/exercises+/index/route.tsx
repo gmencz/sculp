@@ -32,8 +32,9 @@ import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { useDebounce } from "~/utils/hooks";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
-import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { ArrowLongRightIcon, LockClosedIcon } from "@heroicons/react/20/solid";
 import { Heading } from "~/components/heading";
+import { toPostgresQuery } from "~/utils/strings";
 
 export const handle: MatchWithHeader = {
   header: () => "Exercises",
@@ -61,11 +62,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   let formattedQuery;
   if (query) {
-    formattedQuery = query
-      .split(/\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join(" | ");
+    formattedQuery = toPostgresQuery(query);
   }
 
   const exercises = await prisma.exercise.findMany({
@@ -234,13 +231,12 @@ export default function Exercises() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden lg:block">Exercises</Heading>
+          <Heading className="hidden text-zinc-900 lg:block">Exercises</Heading>
 
           {exercises.length > 0 || noResults ? (
             <Paragraph className="mt-1 hidden lg:block">
               A list of all exercises including their name and muscle groups
-              worked. There's some exercises that are read only because they are
-              shared by all Sculped users.
+              worked.
             </Paragraph>
           ) : (
             <Paragraph className="mt-1 hidden lg:block">
@@ -301,7 +297,7 @@ export default function Exercises() {
                     type="submit"
                     className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                   >
-                    Delete selected
+                    Delete selected ({selectedExercisesIds.length})
                   </button>
                 </div>
               ) : null}
@@ -455,20 +451,18 @@ function ExerciseRow({
         {formattedMuscleGroups}
       </td>
 
-      {exercise.shared ? (
-        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium text-zinc-600 sm:pr-0">
-          Read only
-        </td>
-      ) : (
-        <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-          <Link
-            to={`./${exercise.id}`}
-            className={classes.buttonOrLink.textOnly}
-          >
-            Edit<span className="sr-only">, {exercise.name}</span>
-          </Link>
-        </td>
-      )}
+      <td className="text-right text-sm font-medium">
+        <Link
+          to={`./${exercise.id}`}
+          className={clsx(
+            classes.buttonOrLink.textOnly,
+            "block py-4 pl-3 pr-4 sm:pr-0"
+          )}
+        >
+          <ArrowLongRightIcon className="h-5 w-5" />
+          <span className="sr-only">View</span>
+        </Link>
+      </td>
     </tr>
   );
 }

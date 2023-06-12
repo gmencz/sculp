@@ -133,7 +133,9 @@ export default function StopMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">Stop {mesocycle.name}</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">
+        Stop {mesocycle.name}
+      </Heading>
       <Paragraph className="lg:mt-2">
         Are you sure you want to stop the current mesocycle? All training you
         have performed up to this point during the mesocycle will be saved in

@@ -50,7 +50,7 @@ const features = [
   {
     name: "Exercises",
     description:
-      "Perform any exercise you can think of, you can either pick one from our extensive directory of preset exercises or create your own.",
+      "Perform any exercise you can think of, you can either pick one from our extensive directory of exercises or create your own. Every exercise includes analytics.",
     icon: (props: SVGAttributes<SVGElement>) => (
       <svg
         fill="currentColor"
@@ -87,7 +87,7 @@ const features = [
   {
     name: "Performance tracking",
     description:
-      "Track and analyze your performance each training session to make sure you're consistently making progress.",
+      "Track and analyze your performance each training session to make sure you're consistently making progress and staying away from plateaus.",
     icon: ArrowTrendingUpIcon,
   },
   {

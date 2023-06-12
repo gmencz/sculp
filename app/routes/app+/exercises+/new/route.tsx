@@ -94,7 +94,9 @@ export default function Exercise() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden lg:block">Create a new exercise</Heading>
+      <Heading className="hidden text-zinc-900 lg:block">
+        Create a new exercise
+      </Heading>
 
       <Form method="post" className="lg:mt-4" {...form.props}>
         <div className="flex flex-col gap-6">
