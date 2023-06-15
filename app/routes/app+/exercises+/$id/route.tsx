@@ -8,7 +8,7 @@ import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { parse } from "@conform-to/zod";
