@@ -8,7 +8,7 @@ import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { Schema } from "./schema";
 import { schema } from "./schema";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { Input } from "~/components/input";
 import { Select } from "~/components/select";
 import { parse } from "@conform-to/zod";
@@ -328,8 +328,6 @@ export default function Exercise() {
                   list: muscleGroupsList,
                 }}
               />
-
-              <SubmitButton text="Save changes" />
             </div>
           </Form>
         </>
@@ -455,6 +453,16 @@ export default function Exercise() {
           )}
         </div>
       </div>
+
+      {exercise.shared ? null : (
+        <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 sm:justify-start">
+          <SubmitButton
+            form={form.id}
+            text="Save changes"
+            className="w-full sm:w-auto"
+          />
+        </div>
+      )}
     </AppPageLayout>
   );
 }
