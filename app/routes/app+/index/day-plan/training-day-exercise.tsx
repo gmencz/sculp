@@ -201,7 +201,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
+    <li className="mx-auto block w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
@@ -396,6 +396,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           ))}
         </ol>
       </div>
-    </div>
+    </li>
   );
 }

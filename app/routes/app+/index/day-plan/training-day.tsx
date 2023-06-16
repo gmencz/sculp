@@ -170,15 +170,16 @@ export function TrainingDay({
         ) : null}
 
         <ol className="flex flex-col gap-6 sm:mt-6">
-          {trainingDay.exercises.map((exercise) => (
-            <li key={exercise.id}>
-              {readOnly ? (
-                <TrainingDayExerciseReadOnly exercise={exercise} />
-              ) : (
-                <TrainingDayExercise exercise={exercise} />
-              )}
-            </li>
-          ))}
+          {trainingDay.exercises.map((exercise) =>
+            readOnly ? (
+              <TrainingDayExerciseReadOnly
+                key={exercise.id}
+                exercise={exercise}
+              />
+            ) : (
+              <TrainingDayExercise key={exercise.id} exercise={exercise} />
+            )
+          )}
         </ol>
 
         {readOnly ? null : (

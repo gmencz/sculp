@@ -109,9 +109,7 @@ export function TrainingDay() {
 
         <ol className="mt-6 flex flex-col gap-6">
           {trainingDay.exercises.map((exercise) => (
-            <li key={exercise.id}>
-              <TrainingDayExercise exercise={exercise} />
-            </li>
+            <TrainingDayExercise key={exercise.id} exercise={exercise} />
           ))}
         </ol>
 
