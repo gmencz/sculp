@@ -7,5 +7,5 @@ export function toPostgresQuery(str: string) {
     .split(/\s+/)
     .map((s) => s.trim())
     .filter(Boolean)
-    .join(" | ");
+    .join(" & ");
 }
