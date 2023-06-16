@@ -328,8 +328,6 @@ export default function Exercise() {
                   list: muscleGroupsList,
                 }}
               />
-
-              <SubmitButton text="Save changes" />
             </div>
           </Form>
         </>
@@ -455,6 +453,16 @@ export default function Exercise() {
           )}
         </div>
       </div>
+
+      {exercise.shared ? null : (
+        <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 sm:justify-start">
+          <SubmitButton
+            form={form.id}
+            text="Save changes"
+            className="w-full sm:w-auto"
+          />
+        </div>
+      )}
     </AppPageLayout>
   );
 }
