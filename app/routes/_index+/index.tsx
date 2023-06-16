@@ -21,7 +21,7 @@ const faqs = [
   {
     question: "Is there a free trial?",
     answer:
-      "Absolutely! We offer a 30-day free trial you can cancel at any time, allowing you to explore every feature of the app in depth. It's a wonderful opportunity to experience the full capabilities of Sculped before committing. Following the trial period, our subscription is priced at $4.99 per month. We believe this combination of a free trial and affordable pricing provides excellent value for your muscle-building journey.",
+      "Absolutely! We offer a 14-day free trial you can cancel at any time, allowing you to explore every feature of the app in depth. It's a wonderful opportunity to experience the full capabilities of Sculped before committing. Following the trial period, our subscription is priced at $4.99 per month. We believe this combination of a free trial and affordable pricing provides excellent value for your muscle-building journey.",
   },
   {
     question: "What is a mesocycle and why do I need one?",

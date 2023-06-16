@@ -22,7 +22,7 @@ export async function createStripeCheckoutSession(
     success_url: `${env.HOST_URL}${configRoutes.auth.stripeCheckoutSuccess}`,
     cancel_url: `${env.HOST_URL}${cancelUrl}`,
     subscription_data: {
-      trial_period_days: isEligibleForFreeTrial ? 30 : undefined,
+      trial_period_days: isEligibleForFreeTrial ? 14 : undefined,
       metadata: {
         userId,
       },

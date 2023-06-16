@@ -172,7 +172,7 @@ export default function SignIn() {
             to={configRoutes.auth.getStarted}
             className="font-semibold text-orange-600 hover:text-orange-500"
           >
-            Start a 30-day free trial
+            Start a 14-day free trial
           </Link>
         </p>
       </div>

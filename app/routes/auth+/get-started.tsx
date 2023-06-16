@@ -152,7 +152,7 @@ export default function GetStarted() {
         </Link>
         <div>
           <h2 className=" text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
-            Start your 30-day free trial
+            Start your 14-day free trial
           </h2>
           <Paragraph className="mt-2 text-center">
             Take your hypertrophy training to the next level for free the first
