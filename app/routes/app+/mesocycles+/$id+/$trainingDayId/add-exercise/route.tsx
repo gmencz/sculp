@@ -11,6 +11,7 @@ import {
   Form,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -286,6 +287,12 @@ function ExerciseRow({ exercise, index, config }: ExerciseRowProps) {
     .map((m) => m.name)
     .join(", ");
 
+  const navigation = useNavigation();
+
+  const isSubmitting =
+    navigation.state === "submitting" &&
+    navigation.formData.get("id") === exercise.id;
+
   return (
     <tr>
       <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 sm:w-auto sm:max-w-none sm:pl-0">
@@ -302,7 +309,12 @@ function ExerciseRow({ exercise, index, config }: ExerciseRowProps) {
       </td>
 
       <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-        <SubmitButton name={config.name} value={exercise.id} text="Add" />
+        <SubmitButton
+          isSubmitting={isSubmitting}
+          name={config.name}
+          value={exercise.id}
+          text={isSubmitting ? "Adding..." : "Add"}
+        />
       </td>
     </tr>
   );
