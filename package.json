@@ -38,6 +38,9 @@
   "dependencies": {
     "@conform-to/react": "^0.6.3",
     "@conform-to/zod": "^0.6.3",
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/modifiers": "^6.0.1",
+    "@dnd-kit/sortable": "^7.0.2",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@isaacs/express-prometheus-middleware": "^1.2.1",

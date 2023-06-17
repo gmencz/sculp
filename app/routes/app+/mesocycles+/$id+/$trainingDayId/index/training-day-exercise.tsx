@@ -111,7 +111,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     exercise.sets.map((s) => ({ ...s, isNew: false }))
   );
 
-  // Optimistic UI to add a set.
   useEffect(() => {
     if (navigation.formData) {
       const actionIntent = navigation.formData.get("actionIntent");

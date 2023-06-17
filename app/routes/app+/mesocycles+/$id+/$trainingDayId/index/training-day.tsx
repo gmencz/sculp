@@ -3,6 +3,7 @@ import {
   Link,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSubmit,
 } from "@remix-run/react";
 import type { action } from "./route";
@@ -12,7 +13,7 @@ import type { UpdateTrainingDaySchema } from "./schema";
 import { actionIntents, updateTrainingDaySchema } from "./schema";
 import { parse } from "@conform-to/zod";
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "~/utils/hooks";
 import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 import { Heading } from "~/components/heading";
@@ -53,17 +54,32 @@ export function TrainingDay() {
     }
   }, [submit, debouncedSubmitEvent, form.ref]);
 
-  const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
-  );
-
   const exercisesListEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollToBottom) {
       exercisesListEndRef.current?.scrollIntoView();
     }
   }, [scrollToBottom]);
+
+  const [exercises, setExercises] = useState(trainingDay.exercises);
+  const navigation = useNavigation();
+  useEffect(() => {
+    if (navigation.formData) {
+      const actionIntent = navigation.formData.get("actionIntent");
+      if (actionIntent === actionIntents[3]) {
+        const id = navigation.formData.get("id");
+        setExercises((prev) => prev.filter((exercise) => exercise.id !== id));
+      }
+    }
+  }, [navigation.formData]);
+
+  const [muscleGroups, setMuscleGroups] = useState(() =>
+    getUniqueMuscleGroups(exercises)
+  );
+
+  useEffect(() => {
+    setMuscleGroups(getUniqueMuscleGroups(exercises));
+  }, [exercises]);
 
   return (
     <>
@@ -108,7 +124,7 @@ export function TrainingDay() {
         </Form>
 
         <ol className="mt-6 flex flex-col gap-6">
-          {trainingDay.exercises.map((exercise) => (
+          {exercises.map((exercise) => (
             <TrainingDayExercise key={exercise.id} exercise={exercise} />
           ))}
         </ol>
@@ -118,7 +134,7 @@ export function TrainingDay() {
         <div
           className={clsx(
             "px-4 sm:px-6 lg:px-8",
-            trainingDay.exercises.length > 0 && "mt-4"
+            exercises.length > 0 && "mt-4"
           )}
         >
           <div className="mx-auto w-full max-w-2xl">

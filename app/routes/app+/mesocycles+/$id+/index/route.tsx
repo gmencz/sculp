@@ -125,8 +125,8 @@ type TrainingDayCardProps = {
 
 function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
   const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
+    () => getUniqueMuscleGroups(trainingDay.exercises),
+    [trainingDay.exercises]
   );
 
   return (

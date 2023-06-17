@@ -38,8 +38,8 @@ export function TrainingDay({
   date,
 }: TrainingDayProps) {
   const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
+    () => getUniqueMuscleGroups(trainingDay.exercises),
+    [trainingDay.exercises]
   );
 
   const { readOnly, trainingDaySessionFinished, trainingDaySessionUpdated } =

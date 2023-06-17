@@ -1,13 +1,13 @@
-export function getUniqueMuscleGroups(trainingDay: {
+export function getUniqueMuscleGroups(
   exercises: {
     exercise: {
       muscleGroups: { name: string }[];
     } | null;
-  }[];
-}) {
+  }[]
+) {
   return Array.from(
     new Set(
-      trainingDay.exercises.flatMap(({ exercise }) =>
+      exercises.flatMap(({ exercise }) =>
         exercise?.muscleGroups.map((muscleGroup) => muscleGroup.name)
       )
     )
