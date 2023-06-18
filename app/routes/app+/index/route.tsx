@@ -177,10 +177,6 @@ export const loader = async ({ request }: LoaderArgs) => {
     date
   );
 
-  if (!day) {
-    throw new Error("day is null, this should never happen");
-  }
-
   const session = await getSessionFromCookie(request);
 
   const trainingDaySessionUpdated = ((await session.get(
@@ -191,8 +187,9 @@ export const loader = async ({ request }: LoaderArgs) => {
     "trainingDaySessionFinished"
   )) || null) as string | null;
 
+  const isFutureSession = isAfter(date, today);
   state = CurrentMesocycleState.STARTED;
-  if (day.trainingDay?.id) {
+  if (day?.trainingDay?.id) {
     const trainingDayData =
       await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
         where: { id: day.trainingDay.id },
@@ -271,6 +268,7 @@ export const loader = async ({ request }: LoaderArgs) => {
         microcycleLength,
         calendarDays,
         readOnly: false,
+        isFutureSession,
         trainingDaySessionUpdated,
         trainingDaySessionFinished,
         date,
@@ -295,14 +293,11 @@ export const loader = async ({ request }: LoaderArgs) => {
       microcycleLength,
       calendarDays,
       readOnly: true,
+      isFutureSession,
       trainingDaySessionUpdated,
       trainingDaySessionFinished,
       date,
-      day: {
-        dayNumber: day.dayNumber,
-        microcycleNumber: day.microcycleNumber,
-        trainingDay: null,
-      },
+      day: null,
     },
     {
       headers: {

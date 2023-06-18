@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const durationInMicrocyclesArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+export const durationInMicrocyclesArray = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const trainingDaysPerMicrocycleArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 

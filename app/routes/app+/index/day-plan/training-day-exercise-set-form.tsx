@@ -1,4 +1,9 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import type { Set } from "./training-day-exercise-set";
 import { conform, useForm } from "@conform-to/react";
 import type { UpdateSetSchema } from "../schema";
@@ -8,8 +13,14 @@ import type { ChangeEvent } from "react";
 import { useEffect, useState } from "react";
 import { Input } from "~/components/input";
 import clsx from "clsx";
-import { CheckIcon, TrashIcon } from "@heroicons/react/20/solid";
+import {
+  CheckIcon,
+  LockClosedIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { CurrentMesocycleState, loader } from "../route";
 
 type TrainingDayExerciseSetFormProps = {
   set: Set;
@@ -155,6 +166,12 @@ export function TrainingDayExerciseSetForm({
     navigation.formData.get("actionIntent") === actionIntents[3] &&
     navigation.formData.get("id") === exerciseId;
 
+  const { isFutureSession } = useLoaderData<
+    SerializeFrom<typeof loader> & {
+      state: CurrentMesocycleState.STARTED;
+    }
+  >();
+
   return (
     <Form
       preventScrollReset
@@ -163,11 +180,23 @@ export function TrainingDayExerciseSetForm({
       className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
       {...form.props}
     >
-      <div role="cell" className="flex-1">
-        <input {...conform.input(id, { hidden: true })} />
-        <input {...conform.input(completed, { hidden: true })} />
-        <input {...conform.input(actionIntent, { hidden: true })} />
+      <input {...conform.input(id, { hidden: true })} />
+      <input {...conform.input(completed, { hidden: true })} />
+      <input {...conform.input(actionIntent, { hidden: true })} />
 
+      <div role="cell" className="flex-1">
+        <Input
+          hideErrorMessage
+          hideLabel
+          config={repRange}
+          label="Rep range"
+          className="text-center"
+          onChange={(e) => handleValueChange(e, "repRange")}
+          readOnly={Boolean(values.completed)}
+        />
+      </div>
+
+      <div role="cell" className="flex-1">
         <Input
           hideErrorMessage
           hideLabel
@@ -186,10 +215,12 @@ export function TrainingDayExerciseSetForm({
         <Input
           hideErrorMessage
           hideLabel
-          config={repRange}
-          label="Rep range"
+          config={repsCompleted}
+          label="Reps"
+          type="number"
           className="text-center"
-          onChange={(e) => handleValueChange(e, "repRange")}
+          onChange={(e) => handleValueChange(e, "repsCompleted")}
+          min={0}
           readOnly={Boolean(values.completed)}
         />
       </div>
@@ -208,40 +239,37 @@ export function TrainingDayExerciseSetForm({
         />
       </div>
 
-      <div role="cell" className="flex-1">
-        <Input
-          hideErrorMessage
-          hideLabel
-          config={repsCompleted}
-          label="Reps"
-          type="number"
-          className="text-center"
-          onChange={(e) => handleValueChange(e, "repsCompleted")}
-          min={0}
-          readOnly={Boolean(values.completed)}
-        />
-      </div>
-
       <div role="cell">
-        <button
-          type="submit"
-          name={wantsToComplete.name}
-          value={values.completed ? "" : "true"}
-          disabled={
-            isBeingCreated ? true : values.completed ? false : !canCompleteSet
-          }
-          className={clsx(
-            "flex h-8 w-8 items-center justify-center rounded transition-all",
-            values.completed
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200"
-          )}
-        >
-          <CheckIcon className="h-5 w-5" />
-          <span className="sr-only">
-            {values.completed ? "Mark as complete" : "Mark as uncomplete"}
-          </span>
-        </button>
+        {isFutureSession ? (
+          <button
+            type="submit"
+            disabled
+            className="flex h-8 w-8 items-center justify-center rounded text-zinc-400"
+          >
+            <LockClosedIcon className="h-5 w-5" />
+            <span className="sr-only">Locked</span>
+          </button>
+        ) : (
+          <button
+            type="submit"
+            name={wantsToComplete.name}
+            value={values.completed ? "" : "true"}
+            disabled={
+              isBeingCreated ? true : values.completed ? false : !canCompleteSet
+            }
+            className={clsx(
+              "flex h-8 w-8 items-center justify-center rounded transition-all",
+              values.completed
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200"
+            )}
+          >
+            <CheckIcon className="h-5 w-5" />
+            <span className="sr-only">
+              {values.completed ? "Mark as complete" : "Mark as uncomplete"}
+            </span>
+          </button>
+        )}
       </div>
 
       <div className="hidden sm:block" role="cell">

@@ -10,6 +10,12 @@ type DayPlanProps = {
 };
 
 export function DayPlan({ data }: DayPlanProps) {
+  if (!data.day) {
+    return (
+      <RestDay date={new Date(data.date)} mesocycleName={data.mesocycleName} />
+    );
+  }
+
   const { trainingDay, dayNumber, microcycleNumber } = data.day;
 
   if (trainingDay) {
@@ -23,12 +29,4 @@ export function DayPlan({ data }: DayPlanProps) {
       />
     );
   }
-
-  return (
-    <RestDay
-      dayNumber={dayNumber}
-      mesocycleName={data.mesocycleName}
-      microcycleNumber={microcycleNumber}
-    />
-  );
 }

@@ -20,9 +20,11 @@ import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 type TrainingDayProps = {
   trainingDay: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
   >;
   mesocycleName: string;
   microcycleNumber: number;
@@ -38,16 +40,20 @@ export function TrainingDay({
   date,
 }: TrainingDayProps) {
   const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
+    () => getUniqueMuscleGroups(trainingDay.exercises),
+    [trainingDay.exercises]
   );
 
-  const { readOnly, trainingDaySessionFinished, trainingDaySessionUpdated } =
-    useLoaderData<
-      SerializeFrom<typeof loader> & {
-        state: CurrentMesocycleState.STARTED;
-      }
-    >();
+  const {
+    readOnly,
+    trainingDaySessionFinished,
+    trainingDaySessionUpdated,
+    isFutureSession,
+  } = useLoaderData<
+    SerializeFrom<typeof loader> & {
+      state: CurrentMesocycleState.STARTED;
+    }
+  >();
 
   const canFinishSession = useMemo(
     () =>
@@ -108,7 +114,7 @@ export function TrainingDay({
               ) : (
                 <h2 className="mb-1 font-medium text-zinc-200">
                   {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
-                  {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
+                  {format(date, "MMMM' 'd' 'yyyy")}
                 </h2>
               )}
             </div>
@@ -182,7 +188,7 @@ export function TrainingDay({
           )}
         </ol>
 
-        {readOnly ? null : (
+        {readOnly || isFutureSession ? null : (
           <div className="mt-6 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto w-full max-w-2xl">
               <button
@@ -201,7 +207,7 @@ export function TrainingDay({
         )}
       </div>
 
-      {readOnly ? null : (
+      {readOnly || isFutureSession ? null : (
         <FinishOrUpdateTrainingDayModal
           show={showModal}
           onClose={() => setShowModal(false)}

@@ -92,8 +92,8 @@ export function PresetMesocycle() {
 
         <Select
           config={durationInMicrocycles}
-          options={durationInMicrocyclesArray}
-          controlledValue={selectedPreset.microcycles}
+          options={durationInMicrocyclesArray.map((o) => o.toString())}
+          controlledValue={selectedPreset.microcycles.toString()}
           label="How many microcycles?"
           helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
         />

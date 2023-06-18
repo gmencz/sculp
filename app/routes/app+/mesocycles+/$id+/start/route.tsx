@@ -281,8 +281,8 @@ type TrainingDayProps = {
 
 function TrainingDay({ trainingDay, index }: TrainingDayProps) {
   const muscleGroups = useMemo(
-    () => getUniqueMuscleGroups(trainingDay),
-    [trainingDay]
+    () => getUniqueMuscleGroups(trainingDay.exercises),
+    [trainingDay.exercises]
   );
 
   return (

@@ -22,9 +22,11 @@ type FinishOrUpdateTrainingDayModalProps = {
   show: boolean;
   onClose: VoidFunction;
   trainingDay: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
   >;
 };
 

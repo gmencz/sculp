@@ -15,9 +15,11 @@ import { getSetPerformance } from "~/utils/sets";
 type TrainingDayExerciseSetPerformanceProps = {
   previousRunSets: NonNullable<
     NonNullable<
-      (SerializeFrom<typeof loader> & {
-        state: CurrentMesocycleState.STARTED;
-      })["day"]["trainingDay"]
+      NonNullable<
+        (SerializeFrom<typeof loader> & {
+          state: CurrentMesocycleState.STARTED;
+        })["day"]
+      >["trainingDay"]
     >["exercises"][number]["previousRun"]
   >["sets"];
 

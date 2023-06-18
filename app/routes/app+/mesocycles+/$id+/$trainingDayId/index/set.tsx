@@ -3,7 +3,8 @@ import { TrashIcon } from "@heroicons/react/20/solid";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { useRef, useState } from "react";
-import { TrainingDayExerciseSetForm } from "./training-day-exercise-set-form";
+import { useSubmit } from "@remix-run/react";
+import { TrainingDayExerciseSetForm } from "./set-form";
 
 export type Set = {
   isNew: boolean;
@@ -50,7 +51,8 @@ export function TrainingDayExerciseSet({
     }
   });
 
-  const removeSetButtonRef = useRef<HTMLButtonElement>(null);
+  const submit = useSubmit();
+  const removeFormRef = useRef<HTMLFormElement>(null);
 
   return (
     <Transition
@@ -60,7 +62,10 @@ export function TrainingDayExerciseSet({
       afterLeave={() => {
         if (isXs) {
           // If XS screen, we need to submit the form to delete the set, on XS+ we don't because this button is visible.
-          removeSetButtonRef.current?.click();
+          submit(removeFormRef.current, {
+            replace: true,
+            preventScrollReset: true,
+          });
         }
 
         setSets((prevSets) => prevSets.filter(({ id }) => id !== set.id));
@@ -82,12 +87,12 @@ export function TrainingDayExerciseSet({
         {...bind()}
         role="row"
         aria-rowindex={index}
-        className="relative cursor-grab touch-pan-y bg-zinc-50 px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
+        className="relative cursor-grab touch-pan-y bg-white px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
         style={{ x }}
       >
         <TrainingDayExerciseSetForm
           exerciseId={exerciseId}
-          removeSetButtonRef={removeSetButtonRef}
+          removeFormRef={removeFormRef}
           set={set}
           isRemoved={isRemoved}
           setIsRemoved={setIsRemoved}
