@@ -27,7 +27,6 @@ export function CustomMesocycle() {
   ] = useForm<Schema>({
     id: "new-mesocycle",
     lastSubmission,
-    shouldRevalidate: "onBlur",
     defaultValue: {
       durationInMicrocycles: "Select microcycles",
       trainingDaysPerMicrocycle: [],
@@ -65,14 +64,14 @@ export function CustomMesocycle() {
 
         <Select
           config={durationInMicrocycles}
-          options={durationInMicrocyclesArray}
+          options={durationInMicrocyclesArray.map((o) => o.toString())}
           label="How many microcycles?"
           helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
         />
 
         <Select
           config={trainingDaysPerMicrocycle}
-          options={trainingDaysPerMicrocycleArray}
+          options={trainingDaysPerMicrocycleArray.map((d) => d.toString())}
           multipleOptions={{
             formRef: form.ref,
             list: trainingDaysPerMicrocycleList,
@@ -104,7 +103,7 @@ export function CustomMesocycle() {
 
         <Select
           config={restDaysPerMicrocycle}
-          options={restDaysOptions}
+          options={restDaysOptions.map((d) => d.toString())}
           disabled={restDaysOptions.length === 0}
           multipleOptions={{
             formRef: form.ref,

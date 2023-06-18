@@ -228,11 +228,5 @@ export default function MesocycleHistory() {
     );
   }
 
-  return (
-    <RestDay
-      dayNumber={day.dayNumber}
-      mesocycleName={mesocycleName}
-      microcycleNumber={day.microcycleNumber}
-    />
-  );
+  return <RestDay mesocycleName={mesocycleName} date={new Date(date)} />;
 }

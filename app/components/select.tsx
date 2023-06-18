@@ -15,12 +15,12 @@ import { capitalize } from "~/utils/strings";
 type SelectProps = {
   config: FieldConfig<any>;
   label: string;
-  options: (string | number)[];
+  options: string[];
   helperText?: string;
   disabled?: boolean;
   capitalizeOptions?: boolean;
   onChange?: (value: any) => void;
-  controlledValue?: string | number;
+  controlledValue?: string;
   multipleOptions?: {
     formRef: RefObject<HTMLFormElement>;
     min: number;
@@ -28,7 +28,7 @@ type SelectProps = {
     emptyOption?: string;
     list: ({
       key: string;
-    } & FieldConfig<string | number>)[];
+    } & FieldConfig<string>)[];
   };
 };
 

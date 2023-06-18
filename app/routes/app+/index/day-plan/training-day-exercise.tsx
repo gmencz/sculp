@@ -30,9 +30,11 @@ import { generateId } from "~/utils/ids";
 
 type TrainingDayExerciseProps = {
   exercise: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
   >["exercises"][number];
 };
 

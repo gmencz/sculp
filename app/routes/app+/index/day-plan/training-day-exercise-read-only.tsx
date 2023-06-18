@@ -6,9 +6,11 @@ import { Paragraph } from "~/components/paragraph";
 
 type TrainingDayExerciseReadOnlyProps = {
   exercise: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
   >["exercises"][number];
 };
 
