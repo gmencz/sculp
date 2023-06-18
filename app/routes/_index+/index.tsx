@@ -11,6 +11,7 @@ import { configRoutes } from "~/utils/routes";
 import { useOptionalUser } from "~/utils/hooks";
 import { Disclosure } from "@headlessui/react";
 import type { SVGAttributes } from "react";
+import { classes } from "~/utils/classes";
 
 const faqs = [
   {
@@ -37,6 +38,23 @@ const faqs = [
     question: "What mesocycle presets are there?",
     answer:
       "We currently have 5 presets which are the most popular. 3 Push pull legs presets, 1 upper lower preset and 1 bro split. You can of course customize each of them however you'd like or create your own from scratch.",
+  },
+  {
+    question: "Is there an official Discord?",
+    answer: () => (
+      <>
+        Yes! There is an official discord where you can directly talk to the
+        developers, give feedback, request new features, talk with the rest of
+        the community and more!{" "}
+        <a
+          className={classes.buttonOrLink.textOnly}
+          href="https://discord.gg/t2vhvjrK"
+        >
+          Click here to join
+        </a>
+        .
+      </>
+    ),
   },
 ];
 
@@ -251,7 +269,9 @@ export default function Index() {
                   </dt>
                   <Disclosure.Panel as="dd" className="mt-2 pr-12">
                     <p className="text-base leading-7 text-zinc-600">
-                      {faq.answer}
+                      {typeof faq.answer === "function"
+                        ? faq.answer()
+                        : faq.answer}
                     </p>
                   </Disclosure.Panel>
                 </>
@@ -274,6 +294,15 @@ export default function Index() {
         >
           Terms Of Service
         </Link>
+
+        <div className="ml-auto">
+          <Link
+            to="https://discord.gg/t2vhvjrK"
+            className="text-zinc-600 hover:text-zinc-900"
+          >
+            <img className="h-10 w-10" src="/discord.png" alt="Discord" />
+          </Link>
+        </div>
       </footer>
     </div>
   );
