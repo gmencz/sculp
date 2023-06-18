@@ -82,64 +82,36 @@ export function Calendar({ darkButton }: CalendarProps) {
               }}
               className="isolate m-2 grid flex-1 gap-px rounded-lg bg-zinc-200 text-sm shadow ring-1 ring-zinc-200"
             >
-              {calendarDays.map((day, dayIdx) =>
-                day.isPlannedTrainingDay ? (
-                  <Link
-                    to={`.?date=${encodeURIComponent(day.date)}`}
-                    key={day.date}
+              {calendarDays.map((day, dayIdx) => (
+                <Link
+                  to={`.?date=${encodeURIComponent(day.date)}`}
+                  key={day.date}
+                  className={clsx(
+                    day.isPlannedTrainingDay
+                      ? "bg-white text-zinc-900"
+                      : "bg-zinc-50 text-zinc-400",
+                    dayIdx === 0 && "rounded-tl-lg",
+                    dayIdx === microcycleLength - 1 && "rounded-tr-lg",
+                    lastMicrocycleStartDay &&
+                      day.date === lastMicrocycleStartDay.date &&
+                      "rounded-bl-lg",
+                    lastMicrocycleEndDate &&
+                      day.date === lastMicrocycleEndDate &&
+                      "rounded-br-lg",
+                    "py-1.5 hover:bg-zinc-100 focus:z-10"
+                  )}
+                >
+                  <time
+                    dateTime={day.date}
                     className={clsx(
-                      "bg-white text-zinc-900",
-                      dayIdx === 0 && "rounded-tl-lg",
-                      dayIdx === microcycleLength - 1 && "rounded-tr-lg",
-                      lastMicrocycleStartDay &&
-                        day.date === lastMicrocycleStartDay.date &&
-                        "rounded-bl-lg",
-                      lastMicrocycleEndDate &&
-                        day.date === lastMicrocycleEndDate &&
-                        "rounded-br-lg",
-                      "py-1.5 hover:bg-zinc-100 focus:z-10"
+                      day.isCurrent && "bg-orange-600 font-semibold text-white",
+                      "mx-auto flex h-7 w-7 items-center justify-center rounded-full"
                     )}
                   >
-                    <time
-                      dateTime={day.date}
-                      className={clsx(
-                        day.isCurrent &&
-                          "bg-orange-600 font-semibold text-white",
-                        "mx-auto flex h-7 w-7 items-center justify-center rounded-full"
-                      )}
-                    >
-                      {new Date(day.date).getDate()}
-                    </time>
-                  </Link>
-                ) : (
-                  <span
-                    key={day.date}
-                    className={clsx(
-                      "bg-zinc-50 text-zinc-400",
-                      dayIdx === 0 && "rounded-tl-lg",
-                      dayIdx === microcycleLength - 1 && "rounded-tr-lg",
-                      lastMicrocycleStartDay &&
-                        day.date === lastMicrocycleStartDay.date &&
-                        "rounded-bl-lg",
-                      lastMicrocycleEndDate &&
-                        day.date === lastMicrocycleEndDate &&
-                        "rounded-br-lg",
-                      "py-1.5 hover:bg-zinc-100 focus:z-10"
-                    )}
-                  >
-                    <time
-                      dateTime={day.date}
-                      className={clsx(
-                        day.isCurrent &&
-                          "bg-orange-600 font-semibold text-white",
-                        "mx-auto flex h-7 w-7 items-center justify-center rounded-full"
-                      )}
-                    >
-                      {new Date(day.date).getDate()}
-                    </time>
-                  </span>
-                )
-              )}
+                    {new Date(day.date).getDate()}
+                  </time>
+                </Link>
+              ))}
             </div>
           </div>
         </Popover.Panel>

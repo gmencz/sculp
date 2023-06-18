@@ -20,9 +20,11 @@ import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 
 type TrainingDayProps = {
   trainingDay: NonNullable<
-    (SerializeFrom<typeof loader> & {
-      state: CurrentMesocycleState.STARTED;
-    })["day"]["trainingDay"]
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
   >;
   mesocycleName: string;
   microcycleNumber: number;
@@ -108,7 +110,7 @@ export function TrainingDay({
               ) : (
                 <h2 className="mb-1 font-medium text-zinc-200">
                   {mesocycleName} - M{microcycleNumber} D{dayNumber} -{" "}
-                  {format(new Date(trainingDay.date), "MMMM' 'd' 'yyyy")}
+                  {format(date, "MMMM' 'd' 'yyyy")}
                 </h2>
               )}
             </div>

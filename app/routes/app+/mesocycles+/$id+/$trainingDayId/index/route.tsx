@@ -7,19 +7,22 @@ import {
 import { requireUser } from "~/services/auth/api/require-user";
 import { prisma } from "~/utils/db.server";
 import { type MatchWithHeader } from "~/utils/hooks";
-import {
-  addSetSchema,
-  removeExerciseSchema,
-  schema,
-  updateExerciseSchema,
-  updateSetSchema,
-  updateTrainingDaySchema,
-} from "./schema";
 import { parse } from "@conform-to/zod";
 import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
 import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { commitSession, getSessionFromCookie } from "~/utils/session.server";
+import {
+  ActionIntents,
+  addSetSchema,
+  intentSchema,
+  removeExerciseSchema,
+  removeSetSchema,
+  reorderExercisesSchema,
+  updateExerciseNotesSchema,
+  updateSetSchema,
+  updateTrainingDayLabelSchema,
+} from "./schema";
 import { TrainingDay } from "./training-day";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
@@ -57,6 +60,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
           notes: true,
           exercise: {
             select: {
+              id: true,
               name: true,
               muscleGroups: {
                 select: {
@@ -101,7 +105,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export const action = async ({ request, params }: ActionArgs) => {
   await requireUser(request);
   const formData = await request.formData();
-  const intentSubmission = parse(formData, { schema });
+  const intentSubmission = parse(formData, { schema: intentSchema });
 
   if (!intentSubmission.value || intentSubmission.intent !== "submit") {
     return json(intentSubmission, { status: 400 });
@@ -110,52 +114,14 @@ export const action = async ({ request, params }: ActionArgs) => {
   const { actionIntent } = intentSubmission.value;
 
   switch (actionIntent) {
-    case "update-set": {
+    case ActionIntents.UpdateSet: {
       const submission = parse(formData, { schema: updateSetSchema });
 
       if (!submission.value || submission.intent !== "submit") {
         return json(submission, { status: 400 });
       }
 
-      const {
-        id: setId,
-        repRange,
-        rir,
-        weight,
-        wantsToRemove,
-      } = submission.value;
-
-      if (wantsToRemove) {
-        const deleted = await prisma.mesocycleTrainingDayExerciseSet.delete({
-          where: {
-            id: setId,
-          },
-          select: {
-            mesocycleTrainingDayExerciseId: true,
-            number: true,
-          },
-        });
-
-        // Update the `number` value for the sets after the one we removed.
-        await prisma.mesocycleTrainingDayExerciseSet.updateMany({
-          where: {
-            AND: [
-              {
-                mesocycleTrainingDayExerciseId:
-                  deleted.mesocycleTrainingDayExerciseId,
-              },
-              { number: { gt: deleted.number } },
-            ],
-          },
-          data: {
-            number: { decrement: 1 },
-          },
-        });
-
-        return redirectBack(request, {
-          fallback: configRoutes.app.mesocycles.list,
-        });
-      }
+      const { id: setId, repRange, rir, weight } = submission.value;
 
       const [repRangeLowerBound, repRangeUpperBound] =
         getRepRangeBounds(repRange);
@@ -177,7 +143,47 @@ export const action = async ({ request, params }: ActionArgs) => {
       });
     }
 
-    case "add-set": {
+    case ActionIntents.RemoveSet: {
+      const submission = parse(formData, { schema: removeSetSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id: setId } = submission.value;
+
+      const deleted = await prisma.mesocycleTrainingDayExerciseSet.delete({
+        where: {
+          id: setId,
+        },
+        select: {
+          mesocycleTrainingDayExerciseId: true,
+          number: true,
+        },
+      });
+
+      // Update the `number` value for the sets after the one we removed.
+      await prisma.mesocycleTrainingDayExerciseSet.updateMany({
+        where: {
+          AND: [
+            {
+              mesocycleTrainingDayExerciseId:
+                deleted.mesocycleTrainingDayExerciseId,
+            },
+            { number: { gt: deleted.number } },
+          ],
+        },
+        data: {
+          number: { decrement: 1 },
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.mesocycles.list,
+      });
+    }
+
+    case ActionIntents.AddSet: {
       const submission = parse(formData, { schema: addSetSchema });
 
       if (!submission.value || submission.intent !== "submit") {
@@ -212,8 +218,8 @@ export const action = async ({ request, params }: ActionArgs) => {
       });
     }
 
-    case "update-exercise": {
-      const submission = parse(formData, { schema: updateExerciseSchema });
+    case ActionIntents.UpdateExerciseNotes: {
+      const submission = parse(formData, { schema: updateExerciseNotesSchema });
 
       if (!submission.value || submission.intent !== "submit") {
         return json(submission, { status: 400 });
@@ -235,7 +241,7 @@ export const action = async ({ request, params }: ActionArgs) => {
       });
     }
 
-    case "remove-exercise": {
+    case ActionIntents.RemoveExercise: {
       const submission = parse(formData, { schema: removeExerciseSchema });
 
       if (!submission.value || submission.intent !== "submit") {
@@ -253,7 +259,6 @@ export const action = async ({ request, params }: ActionArgs) => {
         },
       });
 
-      // Update the `number` value for the sets after the one we removed.
       await prisma.mesocycleTrainingDayExercise.updateMany({
         where: {
           AND: [
@@ -271,8 +276,10 @@ export const action = async ({ request, params }: ActionArgs) => {
       });
     }
 
-    case "update-training-day": {
-      const submission = parse(formData, { schema: updateTrainingDaySchema });
+    case ActionIntents.UpdateTrainingDayLabel: {
+      const submission = parse(formData, {
+        schema: updateTrainingDayLabelSchema,
+      });
 
       if (!submission.value || submission.intent !== "submit") {
         return json(submission, { status: 400 });
@@ -288,6 +295,59 @@ export const action = async ({ request, params }: ActionArgs) => {
           label,
         },
       });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.mesocycles.list,
+      });
+    }
+
+    case ActionIntents.ReorderExercises: {
+      const submission = parse(formData, {
+        schema: reorderExercisesSchema,
+      });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { orderedExercisesIds } = submission.value;
+      const orderedExercisesIdsWithNumbers = orderedExercisesIds.map(
+        (exerciseId, index) => ({ id: exerciseId, number: index + 1 })
+      );
+
+      const currentOrderedExercises =
+        await prisma.mesocycleTrainingDayExercise.findMany({
+          where: {
+            mesocycleTrainingDayId: params.trainingDayId,
+          },
+          orderBy: { number: "asc" },
+          select: {
+            id: true,
+          },
+        });
+
+      const exercisesToUpdate = orderedExercisesIdsWithNumbers.filter(
+        ({ id }, index) => currentOrderedExercises[index]?.id !== id
+      );
+
+      if (!exercisesToUpdate.length) {
+        return redirectBack(request, {
+          fallback: configRoutes.app.mesocycles.list,
+        });
+      }
+
+      await prisma.$transaction(
+        exercisesToUpdate.map(({ id, number }) =>
+          prisma.mesocycleTrainingDayExercise.update({
+            where: {
+              id,
+            },
+            data: {
+              number,
+            },
+          })
+        )
+      );
 
       return redirectBack(request, {
         fallback: configRoutes.app.mesocycles.list,

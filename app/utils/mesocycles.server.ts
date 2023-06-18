@@ -76,14 +76,12 @@ export function getMesocycleRunDayByDate(
 
     const microcycle = mesocycleRun.microcycles[microcycleIndex];
     for (let dayNumber = 1; dayNumber < microcycleDays.length; dayNumber++) {
-      const isDate = isSameDay(
-        date,
-        addDays(
-          mesocycleRun.startDate,
-          microcycleIndex * mesocycleRun.microcycleLength + dayNumber - 1
-        )
+      const dayDate = addDays(
+        mesocycleRun.startDate,
+        microcycleIndex * mesocycleRun.microcycleLength + dayNumber - 1
       );
 
+      const isDate = isSameDay(date, dayDate);
       if (isDate) {
         const trainingDay =
           microcycle.trainingDays.find(({ number }) => number === dayNumber) ||
@@ -94,11 +92,14 @@ export function getMesocycleRunDayByDate(
           dayNumber,
           microcycleNumber: microcycleIndex + 1,
         };
+
+        return day;
       }
     }
   }
 
-  return day;
+  // If we get here, it's a rest day
+  return null;
 }
 
 export function getMesocycleRunCalendarDays(
