@@ -210,8 +210,6 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                 role="row"
                 className="mx-auto flex h-8 w-full max-w-2xl items-center gap-3"
               >
-                <div role="columnheader" className="h-8 w-8" />
-
                 <div
                   role="columnheader"
                   className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"

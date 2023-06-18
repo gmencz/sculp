@@ -24,6 +24,9 @@ export function SortableExercise({ exercise }: SortableExerciseProps) {
       style={style}
       {...attributes}
       {...listeners}
+      // DndKit is not using the provided id for the aria-describedby attribute so we are setting it
+      // ourselves to avoid SSR issues, see more at https://github.com/clauderic/dnd-kit/issues/926.
+      aria-describedby={`DndDescribedBy-${exercise.id}`}
     />
   );
 }

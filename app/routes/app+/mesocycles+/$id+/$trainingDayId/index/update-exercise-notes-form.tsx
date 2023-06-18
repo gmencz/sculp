@@ -15,7 +15,6 @@ import type { action, loader } from "./route";
 import type { UpdateExerciseNotesSchema } from "./schema";
 import { ActionIntents, updateExerciseNotesSchema } from "./schema";
 import { generateId } from "~/utils/ids";
-import clsx from "clsx";
 
 type UpdateExerciseNotesFormProps = {
   exercise: SerializeFrom<typeof loader>["trainingDay"]["exercises"][number];
@@ -86,6 +85,7 @@ export const UpdateExerciseNotesForm = forwardRef<
     if (debouncedShouldUpdate) {
       submit(form.ref.current, {
         replace: true,
+        preventScrollReset: true,
       });
     }
   }, [submit, form.ref, debouncedShouldUpdate]);

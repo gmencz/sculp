@@ -53,13 +53,6 @@ export function UpdateSetForm({ set }: UpdateSetFormProps) {
       className="flex items-center gap-3"
       {...form.props}
     >
-      <div
-        role="cell"
-        className="flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-1 ring-zinc-300"
-      >
-        S{set.number}
-      </div>
-
       <div role="cell" className="flex-1">
         <input {...conform.input(id, { hidden: true })} />
         <input {...conform.input(actionIntent, { hidden: true })} />
