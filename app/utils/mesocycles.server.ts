@@ -2,7 +2,7 @@ import { redirect } from "@remix-run/node";
 import { nanoid } from "nanoid";
 import { getSessionFromCookie, sessionStorage } from "./session.server";
 import { configRoutes } from "./routes";
-import { addDays, eachDayOfInterval, isSameDay } from "date-fns";
+import { addDays, eachDayOfInterval, isSameDay, subDays } from "date-fns";
 
 export type DraftMesocycle = {
   name: string;
@@ -117,13 +117,15 @@ export function getMesocycleRunCalendarDays(
   },
   date: Date
 ) {
-  const mesocycleDaysInterval = eachDayOfInterval({
-    start: mesocycleRun.startDate,
-    end: addDays(
-      mesocycleRun.startDate,
-      mesocycleRun.microcycles.length * mesocycleRun.microcycleLength - 1
-    ),
-  });
+  let mesocycleDaysInterval;
+  if (isSameDay(mesocycleRun.startDate, mesocycleRun.endDate)) {
+    mesocycleDaysInterval = [mesocycleRun.startDate];
+  } else {
+    mesocycleDaysInterval = eachDayOfInterval({
+      start: mesocycleRun.startDate,
+      end: subDays(mesocycleRun.endDate, 1),
+    });
+  }
 
   const calendarDays = mesocycleDaysInterval.map((intervalDate) => {
     const isPlannedTrainingDay = mesocycleRun.microcycles.some((microcycle) =>
