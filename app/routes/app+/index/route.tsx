@@ -187,6 +187,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     "trainingDaySessionFinished"
   )) || null) as string | null;
 
+  const isFutureSession = isAfter(date, today);
   state = CurrentMesocycleState.STARTED;
   if (day?.trainingDay?.id) {
     const trainingDayData =
@@ -267,6 +268,7 @@ export const loader = async ({ request }: LoaderArgs) => {
         microcycleLength,
         calendarDays,
         readOnly: false,
+        isFutureSession,
         trainingDaySessionUpdated,
         trainingDaySessionFinished,
         date,
@@ -291,6 +293,7 @@ export const loader = async ({ request }: LoaderArgs) => {
       microcycleLength,
       calendarDays,
       readOnly: true,
+      isFutureSession,
       trainingDaySessionUpdated,
       trainingDaySessionFinished,
       date,

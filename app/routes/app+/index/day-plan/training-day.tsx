@@ -44,12 +44,16 @@ export function TrainingDay({
     [trainingDay.exercises]
   );
 
-  const { readOnly, trainingDaySessionFinished, trainingDaySessionUpdated } =
-    useLoaderData<
-      SerializeFrom<typeof loader> & {
-        state: CurrentMesocycleState.STARTED;
-      }
-    >();
+  const {
+    readOnly,
+    trainingDaySessionFinished,
+    trainingDaySessionUpdated,
+    isFutureSession,
+  } = useLoaderData<
+    SerializeFrom<typeof loader> & {
+      state: CurrentMesocycleState.STARTED;
+    }
+  >();
 
   const canFinishSession = useMemo(
     () =>
@@ -184,7 +188,7 @@ export function TrainingDay({
           )}
         </ol>
 
-        {readOnly ? null : (
+        {readOnly || isFutureSession ? null : (
           <div className="mt-6 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto w-full max-w-2xl">
               <button
@@ -203,7 +207,7 @@ export function TrainingDay({
         )}
       </div>
 
-      {readOnly ? null : (
+      {readOnly || isFutureSession ? null : (
         <FinishOrUpdateTrainingDayModal
           show={showModal}
           onClose={() => setShowModal(false)}

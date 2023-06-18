@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Form,
   useActionData,
+  useLoaderData,
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
@@ -202,6 +203,12 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     },
   ];
 
+  const { isFutureSession } = useLoaderData<
+    SerializeFrom<typeof loader> & {
+      state: CurrentMesocycleState.STARTED;
+    }
+  >();
+
   return (
     <li className="mx-auto block w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
@@ -323,25 +330,25 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
               >
-                Weight
-              </div>
-              <div
-                role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
-              >
                 Rep range
               </div>
               <div
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
               >
-                RIR
+                Weight
               </div>
               <div
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
               >
                 Reps
+              </div>
+              <div
+                role="columnheader"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+              >
+                RIR
               </div>
 
               <div role="columnheader" className="h-8 w-8" />
@@ -387,17 +394,19 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         />
       </Form>
 
-      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-        <ol className="flex flex-col gap-4">
-          {sets.map((set) => (
-            <TrainingDayExerciseSetPerformance
-              previousRunSets={exercise.previousRun?.sets || []}
-              set={set}
-              key={`${set.id}-performance-change`}
-            />
-          ))}
-        </ol>
-      </div>
+      {isFutureSession ? null : (
+        <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
+          <ol className="flex flex-col gap-4">
+            {sets.map((set) => (
+              <TrainingDayExerciseSetPerformance
+                previousRunSets={exercise.previousRun?.sets || []}
+                set={set}
+                key={`${set.id}-performance-change`}
+              />
+            ))}
+          </ol>
+        </div>
+      )}
     </li>
   );
 }
