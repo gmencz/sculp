@@ -58,10 +58,10 @@ export default function SubscriptionError() {
         </a>{" "}
         and below or reach out to us at{" "}
         <a
-          href="mailto:support@sculped.app"
+          href="mailto:hello@sculped.app"
           className="text-orange-500 hover:text-orange-600"
         >
-          support@sculped.app
+          hello@sculped.app
         </a>{" "}
         if you need further assistance.
       </p>

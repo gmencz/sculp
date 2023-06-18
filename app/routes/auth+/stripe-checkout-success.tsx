@@ -150,10 +150,10 @@ export default function Checkout() {
           <p className="max-w-md text-center font-medium text-zinc-500">
             Something went wrong. Please contact us directly at{" "}
             <a
-              href="mailto:support@sculped.app"
+              href="mailto:hello@sculped.app"
               className="text-orange-500 hover:text-orange-600"
             >
-              support@sculped.app
+              hello@sculped.app
             </a>{" "}
             and we will solve it for you.
           </p>

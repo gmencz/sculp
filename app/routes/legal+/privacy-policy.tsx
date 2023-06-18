@@ -562,9 +562,9 @@ export default function PrivacyPolicy() {
           By email:{" "}
           <a
             className="text-orange-400 underline"
-            href="mailto:info@sculped.app"
+            href="mailto:hello@sculped.app"
           >
-            info@sculped.app
+            hello@sculped.app
           </a>
         </li>
       </ul>

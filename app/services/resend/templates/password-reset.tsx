@@ -58,8 +58,8 @@ export function PasswordResetEmailTemplate({
       <p>
         If you need further assistance or have any questions, feel free to reach
         out to our support team at{" "}
-        <a style={linkStyle} href="mailto:support@sculped.app">
-          support@sculped.app
+        <a style={linkStyle} href="mailto:hello@sculped.app">
+          hello@sculped.app
         </a>
         .
       </p>
