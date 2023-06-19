@@ -48,6 +48,11 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     select: {
       startDate: true,
       endDate: true,
+      previousRun: {
+        select: {
+          id: true,
+        },
+      },
       microcycles: {
         select: {
           trainingDays: {
@@ -123,6 +128,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
           label: true,
           date: true,
           feedback: true,
+          number: true,
           exercises: {
             orderBy: {
               number: "asc",
@@ -131,27 +137,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
               id: true,
               notes: true,
               number: true,
-              previousRun: {
-                select: {
-                  sets: {
-                    orderBy: {
-                      number: "asc",
-                    },
-                    select: {
-                      id: true,
-                      number: true,
-                      completed: true,
-                      repRangeLowerBound: true,
-                      repRangeUpperBound: true,
-                      repsCompleted: true,
-                      rir: true,
-                      weight: true,
-                    },
-                  },
-                },
-              },
               exercise: {
                 select: {
+                  id: true,
                   name: true,
                   notes: true,
                   muscleGroups: {
@@ -185,6 +173,72 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
+    if (mesocycleRun.previousRun) {
+      const previousTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            microcycle: {
+              mesocycleRunId: mesocycleRun.previousRun.id,
+            },
+            number: trainingDayData.number,
+            completed: true,
+          },
+          orderBy: {
+            date: "desc",
+          },
+          select: {
+            exercises: {
+              select: {
+                exerciseId: true,
+                number: true,
+                sets: {
+                  orderBy: {
+                    number: "asc",
+                  },
+                  select: {
+                    id: true,
+                    number: true,
+                    completed: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                    repsCompleted: true,
+                    rir: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      return json({
+        mesocycleName: mesocycleRun.mesocycle.name,
+        microcycleLength,
+        calendarDays,
+        readOnly: true,
+        date,
+        day: {
+          dayNumber: day.dayNumber,
+          microcycleNumber: day.microcycleNumber,
+          trainingDay: {
+            ...trainingDayData,
+            exercises: trainingDayData.exercises.map((exercise) => {
+              const previous = previousTrainingDay?.exercises.find(
+                (previousExercise) =>
+                  previousExercise.exerciseId === exercise.exercise!.id &&
+                  previousExercise.number === exercise.number
+              );
+
+              return {
+                ...exercise,
+                previousSets: previous?.sets || [],
+              };
+            }),
+          },
+        },
+      });
+    }
+
     return json({
       mesocycleName: mesocycleRun.mesocycle.name,
       microcycleLength,
@@ -194,7 +248,13 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       day: {
         dayNumber: day.dayNumber,
         microcycleNumber: day.microcycleNumber,
-        trainingDay: trainingDayData,
+        trainingDay: {
+          ...trainingDayData,
+          exercises: trainingDayData.exercises.map((exercise) => ({
+            ...exercise,
+            previousSets: [],
+          })),
+        },
       },
     });
   }
@@ -205,16 +265,16 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     calendarDays,
     readOnly: true,
     date,
-    day: {
-      dayNumber: day.dayNumber,
-      microcycleNumber: day.microcycleNumber,
-      trainingDay: null,
-    },
+    day: null,
   });
 };
 
 export default function MesocycleRunTraining() {
   const { day, mesocycleName, date } = useLoaderData<typeof loader>();
+
+  if (!day) {
+    return <RestDay mesocycleName={mesocycleName} date={new Date(date)} />;
+  }
 
   if (day.trainingDay) {
     return (
@@ -227,6 +287,4 @@ export default function MesocycleRunTraining() {
       />
     );
   }
-
-  return <RestDay mesocycleName={mesocycleName} date={new Date(date)} />;
 }

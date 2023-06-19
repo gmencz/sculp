@@ -181,7 +181,7 @@ const renderLegend = (props: LegendProps) => {
       {payload?.map((entry, index) => (
         <li
           key={`item-${index}`}
-          className="text-sm"
+          className="text-sm font-semibold"
           style={{ color: entry.color }}
         >
           {entry.value}

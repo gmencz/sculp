@@ -95,9 +95,10 @@ export function TrainingDayExerciseReadOnly({
 
       <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
         <ol className="flex flex-col gap-4">
-          {exercise.sets.map((set) => (
+          {exercise.sets.map((set, index) => (
             <TrainingDayExerciseSetPerformance
-              previousRunSets={exercise.previousRun?.sets || []}
+              index={index}
+              previousSets={exercise.previousSets}
               set={{ ...set, isNew: false }}
               key={`${set.id}-performance-change`}
             />

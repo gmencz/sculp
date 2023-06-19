@@ -397,9 +397,10 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
       {isFutureSession ? null : (
         <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
           <ol className="flex flex-col gap-4">
-            {sets.map((set) => (
+            {sets.map((set, index) => (
               <TrainingDayExerciseSetPerformance
-                previousRunSets={exercise.previousRun?.sets || []}
+                index={index}
+                previousSets={exercise.previousSets}
                 set={set}
                 key={`${set.id}-performance-change`}
               />

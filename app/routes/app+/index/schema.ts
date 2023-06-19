@@ -2,7 +2,6 @@ import { z } from "zod";
 import {
   idSchema,
   notesSchema,
-  repRangeSchema,
   rirSchema,
   weightSchema,
 } from "~/utils/schemas";
@@ -53,7 +52,6 @@ export const updateSetSchema = z.object({
   id: idSchema,
   rir: rirSchema,
   weight: weightSchema,
-  repRange: repRangeSchema,
 
   completed: z.coerce.boolean({
     invalid_type_error: "The completed value is not valid.",

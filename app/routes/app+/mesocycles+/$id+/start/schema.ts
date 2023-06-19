@@ -16,6 +16,11 @@ export const schema = z.object({
       const today = endOfToday();
       return isToday(date) || isAfter(date, today);
     }, "The start date must be today or later."),
+
+  linkPreviousRun: z
+    .string()
+    .transform((value) => value === "on")
+    .default("off"),
 });
 
 export type Schema = z.TypeOf<typeof schema>;
