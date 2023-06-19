@@ -28,7 +28,7 @@ export const schema = z.object({
     )
     .max(
       durationInMicrocyclesArray[durationInMicrocyclesArray.length - 1],
-      `The selected weeks must be at most ${
+      `The selected microcycles must be at most ${
         durationInMicrocyclesArray[durationInMicrocyclesArray.length - 1]
       }.`
     ),

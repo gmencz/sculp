@@ -86,7 +86,6 @@ export function PresetMesocycle() {
           config={name}
           label="How do you want to name the mesocycle?"
           placeholder="My New Mesocycle"
-          helperText="This cannot be changed later."
           autoComplete="mesocycle-name"
         />
 
@@ -102,7 +101,6 @@ export function PresetMesocycle() {
           config={goal}
           label="What is the main goal of the mesocycle?"
           placeholder="Overall hypertrophy, bringing up legs..."
-          helperText="This cannot be changed later."
         />
 
         <SubmitButton text="Save and continue" />

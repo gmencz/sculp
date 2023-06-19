@@ -16,7 +16,8 @@ import { SubmitButton } from "~/components/submit-button";
 import { Textarea } from "~/components/textarea";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
-import { getSetPerformance } from "~/utils/sets";
+import { SetPerformance, getSetPerformance } from "~/utils/sets";
+import { Paragraph } from "~/components/paragraph";
 
 type FinishOrUpdateTrainingDayModalProps = {
   show: boolean;
@@ -79,13 +80,13 @@ export function FinishOrUpdateTrainingDayModal({
           return (
             exerciseAccCount +
             exercise.sets.reduce((setAccCount, set) => {
-              const previousRunSet = exercise.previousRun?.sets.find(
+              const previousRunSet = exercise.previousSets.find(
                 (previousSet) => previousSet.number === set.number
               );
 
               const performance = getSetPerformance(previousRunSet, set);
 
-              if (performance === "increased") {
+              if (performance === SetPerformance.INCREASED) {
                 return setAccCount + 1;
               }
 
@@ -135,7 +136,12 @@ export function FinishOrUpdateTrainingDayModal({
                       : "Finish your training session"}
                   </Dialog.Title>
 
-                  <ul className="mt-3 flex flex-col gap-3">
+                  <Paragraph className="mt-2">
+                    If you added any new sets or removed existing ones, those
+                    changes will carry over to the next microcycle.
+                  </Paragraph>
+
+                  <ul className="mt-4 flex flex-col gap-3">
                     <li className="flex items-center gap-1.5 text-sm text-zinc-500">
                       <ArrowPathIcon className="h-5 w-5 flex-shrink-0 text-orange-500" />
                       {totalStats.sets} total sets

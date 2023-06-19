@@ -30,7 +30,6 @@ import { prisma } from "~/utils/db.server";
 import { configRoutes } from "~/utils/routes";
 import { DayPlan } from "./day-plan";
 import { redirectBack } from "~/utils/responses.server";
-import { getRepRangeBounds } from "~/utils/rep-ranges";
 import { requireUser } from "~/services/auth/api/require-user";
 import { getSessionFromCookie } from "~/utils/session.server";
 import {
@@ -80,6 +79,12 @@ export const loader = async ({ request }: LoaderArgs) => {
       currentUserId: user.id,
     },
     select: {
+      id: true,
+      previousRun: {
+        select: {
+          id: true,
+        },
+      },
       startDate: true,
       endDate: true,
       mesocycle: {
@@ -187,7 +192,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     "trainingDaySessionFinished"
   )) || null) as string | null;
 
-  const isFutureSession = isAfter(date, today);
+  // const isFutureSession = isAfter(date, today);
+  const isFutureSession = false;
   state = CurrentMesocycleState.STARTED;
   if (day?.trainingDay?.id) {
     const trainingDayData =
@@ -197,6 +203,7 @@ export const loader = async ({ request }: LoaderArgs) => {
           id: true,
           completed: true,
           label: true,
+          number: true,
           date: true,
           feedback: true,
           exercises: {
@@ -207,27 +214,9 @@ export const loader = async ({ request }: LoaderArgs) => {
               id: true,
               notes: true,
               number: true,
-              previousRun: {
-                select: {
-                  sets: {
-                    orderBy: {
-                      number: "asc",
-                    },
-                    select: {
-                      id: true,
-                      number: true,
-                      completed: true,
-                      repRangeLowerBound: true,
-                      repRangeUpperBound: true,
-                      repsCompleted: true,
-                      rir: true,
-                      weight: true,
-                    },
-                  },
-                },
-              },
               exercise: {
                 select: {
+                  id: true,
                   name: true,
                   notes: true,
                   muscleGroups: {
@@ -261,6 +250,166 @@ export const loader = async ({ request }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
+    if (currentMesocycle.previousRun) {
+      const previousTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            microcycle: {
+              mesocycleRunId: currentMesocycle.id,
+            },
+            number: trainingDayData.number,
+            completed: true,
+            date: {
+              lt: trainingDayData.date,
+            },
+          },
+          orderBy: {
+            date: "desc",
+          },
+          select: {
+            exercises: {
+              select: {
+                exerciseId: true,
+                number: true,
+                sets: {
+                  orderBy: {
+                    number: "asc",
+                  },
+                  select: {
+                    id: true,
+                    number: true,
+                    completed: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                    repsCompleted: true,
+                    rir: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      if (previousTrainingDay) {
+        return json(
+          {
+            state,
+            mesocycleName: currentMesocycle.mesocycle.name,
+            microcycleLength,
+            calendarDays,
+            readOnly: false,
+            isFutureSession,
+            trainingDaySessionUpdated,
+            trainingDaySessionFinished,
+            date,
+            day: {
+              dayNumber: day.dayNumber,
+              microcycleNumber: day.microcycleNumber,
+              trainingDay: {
+                ...trainingDayData,
+                exercises: trainingDayData.exercises.map((exercise) => {
+                  const previous = previousTrainingDay.exercises.find(
+                    (previousExercise) =>
+                      previousExercise.exerciseId === exercise.exercise!.id &&
+                      previousExercise.number === exercise.number
+                  );
+
+                  return {
+                    ...exercise,
+                    previousSets: previous?.sets || [],
+                  };
+                }),
+              },
+            },
+          },
+          {
+            headers: {
+              "Set-Cookie": await commitSession(session),
+            },
+          }
+        );
+      }
+
+      const previousMesocycleRunTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            microcycle: {
+              mesocycleRunId: currentMesocycle.previousRun.id,
+            },
+            number: trainingDayData.number,
+            completed: true,
+          },
+          orderBy: {
+            date: "desc",
+          },
+          select: {
+            exercises: {
+              select: {
+                exerciseId: true,
+                number: true,
+                sets: {
+                  orderBy: {
+                    number: "asc",
+                  },
+                  select: {
+                    id: true,
+                    number: true,
+                    completed: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                    repsCompleted: true,
+                    rir: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      if (previousMesocycleRunTrainingDay) {
+        return json(
+          {
+            state,
+            mesocycleName: currentMesocycle.mesocycle.name,
+            microcycleLength,
+            calendarDays,
+            readOnly: false,
+            isFutureSession,
+            trainingDaySessionUpdated,
+            trainingDaySessionFinished,
+            date,
+            day: {
+              dayNumber: day.dayNumber,
+              microcycleNumber: day.microcycleNumber,
+              trainingDay: {
+                ...trainingDayData,
+                exercises: trainingDayData.exercises.map((exercise) => {
+                  const previous =
+                    previousMesocycleRunTrainingDay.exercises.find(
+                      (previousExercise) =>
+                        previousExercise.exerciseId === exercise.exercise!.id &&
+                        previousExercise.number === exercise.number
+                    );
+
+                  return {
+                    ...exercise,
+                    previousSets: previous?.sets || [],
+                  };
+                }),
+              },
+            },
+          },
+          {
+            headers: {
+              "Set-Cookie": await commitSession(session),
+            },
+          }
+        );
+      }
+    }
+
     return json(
       {
         state,
@@ -275,7 +424,13 @@ export const loader = async ({ request }: LoaderArgs) => {
         day: {
           dayNumber: day.dayNumber,
           microcycleNumber: day.microcycleNumber,
-          trainingDay: trainingDayData,
+          trainingDay: {
+            ...trainingDayData,
+            exercises: trainingDayData.exercises.map((exercise) => ({
+              ...exercise,
+              previousSets: [],
+            })),
+          },
         },
       },
       {
@@ -328,7 +483,6 @@ export const action = async ({ request }: ActionArgs) => {
 
       const {
         id: setId,
-        repRange,
         repsCompleted,
         rir,
         weight,
@@ -364,16 +518,11 @@ export const action = async ({ request }: ActionArgs) => {
         return redirectBack(request, { fallback: configRoutes.app.current });
       }
 
-      const [repRangeLowerBound, repRangeUpperBound] =
-        getRepRangeBounds(repRange);
-
       await prisma.mesocycleRunMicrocycleTrainingDayExerciseSet.update({
         where: {
           id: setId,
         },
         data: {
-          repRangeLowerBound: { set: repRangeLowerBound },
-          repRangeUpperBound: { set: repRangeUpperBound },
           completed: { set: wantsToComplete },
           repsCompleted: { set: repsCompleted },
           rir: { set: rir },
@@ -471,6 +620,7 @@ export const action = async ({ request }: ActionArgs) => {
               select: {
                 mesocycleRun: {
                   select: {
+                    id: true,
                     endDate: true,
                     mesocycleId: true,
                   },
@@ -479,11 +629,15 @@ export const action = async ({ request }: ActionArgs) => {
             },
             exercises: {
               select: {
+                exerciseId: true,
+                number: true,
                 sets: {
                   select: {
                     number: true,
+                    repRangeLowerBound: true,
                     repRangeUpperBound: true,
                     repsCompleted: true,
+                    rir: true,
                     weight: true,
                   },
                 },
@@ -496,21 +650,15 @@ export const action = async ({ request }: ActionArgs) => {
         throw new Error(`This training day can't be finished`);
       }
 
-      await prisma.mesocycleRunMicrocycleTrainingDay.update({
-        where: {
-          id: thisTrainingDay.id,
-        },
-        data: {
-          completed: true,
-          feedback,
-        },
-        select: {
-          id: true,
-        },
-      });
-
       const lastTrainingDay =
         await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            microcycle: {
+              mesocycleRun: {
+                id: thisTrainingDay.microcycle.mesocycleRun.id,
+              },
+            },
+          },
           select: {
             date: true,
           },
@@ -536,19 +684,33 @@ export const action = async ({ request }: ActionArgs) => {
       }
 
       if (isLastDayOfMesocycle) {
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            currentMesocycleRun: {
-              disconnect: true,
+        await prisma.$transaction([
+          prisma.mesocycleRunMicrocycleTrainingDay.update({
+            where: {
+              id: thisTrainingDay.id,
             },
-          },
-          select: {
-            id: true,
-          },
-        });
+            data: {
+              completed: true,
+              feedback,
+            },
+            select: {
+              id: true,
+            },
+          }),
+          prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              currentMesocycleRun: {
+                disconnect: true,
+              },
+            },
+            select: {
+              id: true,
+            },
+          }),
+        ]);
 
         return redirect(
           configRoutes.app.mesocycles.viewHistory(
@@ -560,6 +722,178 @@ export const action = async ({ request }: ActionArgs) => {
             },
           }
         );
+      }
+
+      // Find next training day and modify sets etc based on changes to this one.
+      const nextTrainingDay =
+        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+          where: {
+            microcycle: {
+              mesocycleRunId: thisTrainingDay.microcycle.mesocycleRun.id,
+            },
+            number: thisTrainingDay.number,
+            completed: false,
+            date: {
+              gt: thisTrainingDay.date,
+            },
+          },
+          orderBy: {
+            date: "asc",
+          },
+          select: {
+            exercises: {
+              select: {
+                id: true,
+                exerciseId: true,
+                number: true,
+                sets: {
+                  orderBy: {
+                    number: "asc",
+                  },
+                  select: {
+                    id: true,
+                    number: true,
+                    completed: true,
+                    repRangeLowerBound: true,
+                    repRangeUpperBound: true,
+                    repsCompleted: true,
+                    rir: true,
+                    weight: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      if (nextTrainingDay) {
+        const exercisesToUpdate = thisTrainingDay.exercises.reduce<
+          {
+            exerciseId: string;
+            setsToCreate: {
+              number: number;
+              repRangeLowerBound: number;
+              repRangeUpperBound: number;
+              rir: number;
+            }[];
+            setsToRemove: number[];
+          }[]
+        >((acc, thisExercise) => {
+          const nextTrainingDayExercise = nextTrainingDay.exercises.find(
+            (nextExercise) =>
+              nextExercise.exerciseId === thisExercise.exerciseId &&
+              nextExercise.number === thisExercise.number
+          );
+
+          if (nextTrainingDayExercise) {
+            const thisExerciseSetsCount = thisExercise.sets.length;
+            const nextTrainingDayExerciseSetsCount =
+              nextTrainingDayExercise.sets.length;
+
+            if (thisExerciseSetsCount > nextTrainingDayExerciseSetsCount) {
+              const lastSet = nextTrainingDayExercise.sets.at(-1);
+
+              return [
+                ...acc,
+                {
+                  exerciseId: nextTrainingDayExercise.id,
+                  setsToCreate: Array.from(
+                    {
+                      length:
+                        thisExerciseSetsCount -
+                        nextTrainingDayExerciseSetsCount,
+                    },
+                    (_, i) => {
+                      const number = (lastSet?.number || 0) + i + 1;
+                      const set = thisExercise.sets[number - 1];
+
+                      return {
+                        number,
+                        repRangeLowerBound: set.repRangeLowerBound,
+                        repRangeUpperBound: set.repRangeUpperBound,
+                        rir: set.rir,
+                      };
+                    }
+                  ),
+                  setsToRemove: [],
+                },
+              ];
+            } else if (
+              thisExerciseSetsCount < nextTrainingDayExerciseSetsCount
+            ) {
+              const lastSet = nextTrainingDayExercise.sets.at(-1)!;
+
+              return [
+                ...acc,
+                {
+                  exerciseId: nextTrainingDayExercise.id,
+                  lastSet,
+                  setsToCreate: [],
+                  setsToRemove: Array.from(
+                    {
+                      length:
+                        nextTrainingDayExerciseSetsCount -
+                        thisExerciseSetsCount,
+                    },
+                    (_, i) => lastSet.number - i
+                  ),
+                },
+              ];
+            }
+          }
+
+          return acc;
+        }, []);
+
+        await prisma.$transaction([
+          prisma.mesocycleRunMicrocycleTrainingDay.update({
+            where: {
+              id: thisTrainingDay.id,
+            },
+            data: {
+              completed: true,
+              feedback,
+            },
+            select: {
+              id: true,
+            },
+          }),
+
+          ...exercisesToUpdate.map((update) => {
+            if (update.setsToCreate.length > 0) {
+              return prisma.mesocycleRunMicrocycleTrainingDayExercise.update({
+                where: {
+                  id: update.exerciseId,
+                },
+                data: {
+                  sets: {
+                    createMany: {
+                      data: update.setsToCreate.map((set) => ({
+                        number: set.number,
+                        repRangeLowerBound: set.repRangeLowerBound,
+                        repRangeUpperBound: set.repRangeUpperBound,
+                        rir: set.rir,
+                      })),
+                    },
+                  },
+                },
+              });
+            }
+
+            return prisma.mesocycleRunMicrocycleTrainingDayExercise.update({
+              where: {
+                id: update.exerciseId,
+              },
+              data: {
+                sets: {
+                  deleteMany: update.setsToRemove.map((setNumber) => ({
+                    AND: [{ number: setNumber }, { completed: false }],
+                  })),
+                },
+              },
+            });
+          }),
+        ]);
       }
 
       return redirectBack(request, {

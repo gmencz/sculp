@@ -58,13 +58,6 @@ export function Calendar({ darkButton }: CalendarProps) {
       >
         <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen sm:-mx-6 lg:-mx-8">
           <div className="mx-auto w-full max-w-sm rounded-lg bg-white pb-2 shadow-lg ring-2 ring-zinc-400 sm:ml-auto sm:mr-0">
-            <div className="flex flex-col gap-1 border-b border-b-zinc-200 px-4 py-3 text-zinc-900">
-              <p className="text-base font-semibold">Mesocycle calendar</p>
-              <p className="text-sm text-zinc-600">
-                Greyed out days represent scheduled rest days.
-              </p>
-            </div>
-
             <div
               style={{
                 gridTemplateColumns: `repeat(${microcycleLength}, minmax(0, 1fr))`,

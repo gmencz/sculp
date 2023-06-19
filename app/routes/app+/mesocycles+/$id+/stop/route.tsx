@@ -101,13 +101,25 @@ export const action = async ({ request, params }: ActionArgs) => {
     return redirect(configRoutes.app.mesocycles.list);
   }
 
+  const today = startOfToday();
+
   await prisma.$transaction([
     prisma.mesocycleRun.update({
       where: {
         id: currentMesocycle.id,
       },
       data: {
-        endDate: { set: startOfToday() },
+        endDate: { set: today },
+      },
+    }),
+    prisma.mesocycleRunMicrocycleTrainingDay.deleteMany({
+      where: {
+        date: {
+          gt: today,
+        },
+        microcycle: {
+          mesocycleRunId: currentMesocycle.id,
+        },
       },
     }),
     prisma.user.update({

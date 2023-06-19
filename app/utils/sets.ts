@@ -5,65 +5,68 @@ type GetSetPerformanceSet = {
   completed: boolean;
 };
 
+export enum SetPerformance {
+  INCREASED,
+  DECLINED,
+  MAINTAINED,
+  UNKNOWN,
+}
+
 export function getSetPerformance(
-  previousRunSet: GetSetPerformanceSet | undefined,
-  thisRunSet: GetSetPerformanceSet
-) {
+  previousSet: GetSetPerformanceSet | undefined,
+  thisSet: GetSetPerformanceSet | undefined
+): SetPerformance {
   if (
-    !previousRunSet ||
-    !previousRunSet.repsCompleted ||
-    !previousRunSet.weight ||
-    !thisRunSet.repsCompleted ||
-    !thisRunSet.completed ||
-    !thisRunSet.weight
+    !previousSet ||
+    !previousSet.repsCompleted ||
+    !previousSet.weight ||
+    !thisSet ||
+    !thisSet.repsCompleted ||
+    !thisSet.completed ||
+    !thisSet.weight
   ) {
-    return "unknown";
+    return SetPerformance.UNKNOWN;
   }
 
   // If weight is the same and completed less reps, performance declined.
   if (
-    thisRunSet.weight === previousRunSet.weight &&
-    thisRunSet.repsCompleted < previousRunSet.repsCompleted
+    thisSet.weight === previousSet.weight &&
+    thisSet.repsCompleted < previousSet.repsCompleted
   ) {
-    return "declined";
+    return SetPerformance.DECLINED;
   }
 
   // If weight is the same, intensity is higher and completed same reps, performance declined.
   if (
-    thisRunSet.weight === previousRunSet.weight &&
-    thisRunSet.rir < previousRunSet.rir &&
-    thisRunSet.repsCompleted === previousRunSet.repsCompleted
+    thisSet.weight === previousSet.weight &&
+    thisSet.rir < previousSet.rir &&
+    thisSet.repsCompleted === previousSet.repsCompleted
   ) {
-    return "declined";
+    return SetPerformance.DECLINED;
   }
 
   // If weight is the same, intensity is the same or lower and completed more reps, performance increased.
   if (
-    thisRunSet.weight === previousRunSet.weight &&
-    thisRunSet.rir >= previousRunSet.rir &&
-    thisRunSet.repsCompleted > previousRunSet.repsCompleted
+    thisSet.weight === previousSet.weight &&
+    thisSet.rir >= previousSet.rir &&
+    thisSet.repsCompleted > previousSet.repsCompleted
   ) {
-    return "increased";
+    return SetPerformance.INCREASED;
   }
 
   // If weight is higher, intensity is the same or lower and completed the same or more reps, performance increased.
-  if (
-    thisRunSet.weight > previousRunSet.weight &&
-    thisRunSet.rir >= previousRunSet.rir &&
-    thisRunSet.repsCompleted >= previousRunSet.repsCompleted
-  ) {
-    return "increased";
+  if (thisSet.weight > previousSet.weight && thisSet.rir >= previousSet.rir) {
+    return SetPerformance.INCREASED;
   }
 
-  const setTotalVolume = thisRunSet.weight * thisRunSet.repsCompleted;
-  const previousRunSetTotalVolume =
-    previousRunSet.weight * previousRunSet.repsCompleted;
+  const setTotalVolume = thisSet.weight * thisSet.repsCompleted;
+  const previousSetTotalVolume = previousSet.weight * previousSet.repsCompleted;
 
-  if (setTotalVolume > previousRunSetTotalVolume) {
-    return "increased";
-  } else if (setTotalVolume < previousRunSetTotalVolume) {
-    return "declined";
+  if (setTotalVolume > previousSetTotalVolume) {
+    return SetPerformance.INCREASED;
+  } else if (setTotalVolume < previousSetTotalVolume) {
+    return SetPerformance.DECLINED;
   }
 
-  return "maintained";
+  return SetPerformance.MAINTAINED;
 }

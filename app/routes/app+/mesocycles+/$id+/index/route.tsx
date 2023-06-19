@@ -1,5 +1,9 @@
 import { Link, useLoaderData } from "@remix-run/react";
-import type { LoaderArgs, SerializeFrom } from "@remix-run/server-runtime";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  SerializeFrom,
+} from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Heading } from "~/components/heading";
 import { prisma } from "~/utils/db.server";
@@ -11,6 +15,11 @@ import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import { classes } from "~/utils/classes";
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
+import { UpdateMesocycleForm } from "./update-mesocycle-form";
+import { schema } from "./schema";
+import { parse } from "@conform-to/zod";
+import { redirectBack } from "~/utils/responses.server";
+import { configRoutes } from "~/utils/routes";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.mesocycle.name,
@@ -32,6 +41,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     select: {
       id: true,
       name: true,
+      goal: true,
       restDays: true,
       trainingDays: {
         orderBy: { number: "asc" },
@@ -75,6 +85,34 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json({ mesocycle });
 };
 
+export const action = async ({ request, params }: ActionArgs) => {
+  await requireUser(request);
+  const formData = await request.formData();
+  const intentSubmission = parse(formData, { schema });
+  const { id } = params;
+  if (!id) {
+    throw new Error("id param is falsy, this should never happen");
+  }
+
+  if (!intentSubmission.value || intentSubmission.intent !== "submit") {
+    return json(intentSubmission, { status: 400 });
+  }
+
+  const { name, goal } = intentSubmission.value;
+
+  await prisma.mesocycle.update({
+    where: { id },
+    data: {
+      goal,
+      name,
+    },
+  });
+
+  return redirectBack(request, {
+    fallback: configRoutes.app.mesocycles.view(id),
+  });
+};
+
 export default function Mesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
 
@@ -96,11 +134,13 @@ export default function Mesocycle() {
         {mesocycle.name}
       </Heading>
 
+      <UpdateMesocycleForm />
+
       <ul className="flex flex-col gap-6 lg:mt-4">
         {allDays.map((day) =>
           typeof day === "number" ? (
             <li key={day}>
-              <div className="block rounded-lg bg-zinc-50 px-4 py-4 ring-1 ring-zinc-200 sm:px-6">
+              <div className="block rounded-lg bg-white px-4 py-4 shadow sm:px-6">
                 <h3 className="truncate font-semibold text-zinc-900">
                   Day {day} - Rest
                 </h3>
@@ -132,7 +172,7 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
   return (
     <Link
       to={`./${trainingDay.id}`}
-      className="block divide-y divide-zinc-200 rounded-lg bg-zinc-50 ring-1 ring-zinc-200 transition-all hover:bg-orange-50"
+      className="group block divide-y divide-zinc-200 rounded-lg bg-white shadow transition-all hover:scale-[1.01]"
     >
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4">
@@ -142,13 +182,10 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
               : `Day ${trainingDay.number} - Unlabelled`}
           </h3>
 
-          <Link
-            to={`./${trainingDay.id}`}
-            className={classes.buttonOrLink.textOnly}
-          >
+          <div className={classes.buttonOrLink.textOnly}>
             <span className="sr-only">Edit</span>
-            <ArrowLongRightIcon className="h-5 w-5" />
-          </Link>
+            <ArrowLongRightIcon className="h-5 w-5 group-hover:text-orange-900" />
+          </div>
         </div>
 
         {muscleGroups.length > 0 ? (
