@@ -239,9 +239,7 @@ export default function Exercises() {
               worked.
             </Paragraph>
           ) : (
-            <Paragraph className="mt-1 hidden lg:block">
-              You don't have any exercises yet, go ahead and add some!
-            </Paragraph>
+            <Paragraph className="lg:mt-1">Nothing here yet.</Paragraph>
           )}
 
           {deleteExercisesIdsConfig.error ? (
@@ -257,12 +255,6 @@ export default function Exercises() {
           </Link>
         </div>
       </div>
-
-      {exercises.length === 0 && !noResults ? (
-        <h3 className="mb-4 mt-2 block text-sm font-semibold text-zinc-900 lg:hidden">
-          Nothing here yet
-        </h3>
-      ) : null}
 
       <>
         {exercises.length > 0 || noResults ? (

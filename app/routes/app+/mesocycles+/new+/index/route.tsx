@@ -1,7 +1,7 @@
 import { parse } from "@conform-to/zod";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { schema } from "./schema";
+import { WeightUnitPreference, schema } from "./schema";
 import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
 import { PresetMesocycle } from "./preset";
@@ -10,6 +10,7 @@ import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { configRoutes } from "~/utils/routes";
+import { WeightUnit } from "@prisma/client";
 
 export const handle: MatchWithHeader = {
   header: () => "Plan a new mesocycle",
@@ -35,7 +36,9 @@ export const loader = async ({ request }: LoaderArgs) => {
     },
   });
 
-  return json({ mesocyclesPresets });
+  return json({
+    mesocyclesPresets,
+  });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -54,6 +57,7 @@ export const action = async ({ request }: ActionArgs) => {
     name,
     trainingDaysPerMicrocycle,
     presetName,
+    weightUnitPreference,
   } = submission.value;
 
   const existingMesocycle = await prisma.mesocycle.findUnique({
@@ -120,6 +124,10 @@ export const action = async ({ request }: ActionArgs) => {
         microcycles: preset.microcycles,
         user: { connect: { id: user.id } },
         restDays: { set: preset.restDays },
+        weightUnitPreference:
+          weightUnitPreference === WeightUnitPreference.kgs
+            ? WeightUnit.KILOGRAM
+            : WeightUnit.POUND,
         trainingDays: {
           create: preset.trainingDays.map((trainingDay) => ({
             label: trainingDay.label,
@@ -168,6 +176,10 @@ export const action = async ({ request }: ActionArgs) => {
       microcycles: durationInMicrocycles,
       user: { connect: { id: user.id } },
       restDays: { set: restDaysPerMicrocycle.sort((a, b) => a - b) },
+      weightUnitPreference:
+        weightUnitPreference === WeightUnitPreference.kgs
+          ? WeightUnit.KILOGRAM
+          : WeightUnit.POUND,
       trainingDays: {
         create: trainingDaysPerMicrocycle
           .sort((a, b) => a - b)

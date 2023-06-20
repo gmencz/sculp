@@ -1,18 +1,19 @@
 import { useForm } from "@conform-to/react";
 import type { Schema } from "./schema";
-import { durationInMicrocyclesArray } from "./schema";
+import { WeightUnitPreference, durationInMicrocyclesArray } from "./schema";
 import { schema } from "./schema";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { parse } from "@conform-to/zod";
 import { Input } from "~/components/input";
 import { SubmitButton } from "~/components/submit-button";
 import { Select } from "~/components/select";
-import type { loader } from "./route";
+import type { action } from "./route";
+import { type loader } from "./route";
 import { Fragment, useState } from "react";
 
 export function PresetMesocycle() {
   const { mesocyclesPresets } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData() as any;
+  const lastSubmission = useActionData<typeof action>();
   const [
     form,
     {
@@ -22,6 +23,7 @@ export function PresetMesocycle() {
       trainingDaysPerMicrocycle,
       restDaysPerMicrocycle,
       presetName,
+      weightUnitPreference,
     },
   ] = useForm<Schema>({
     id: "new-mesocycle",
@@ -36,6 +38,7 @@ export function PresetMesocycle() {
       restDaysPerMicrocycle: mesocyclesPresets[0].restDays.map((day) =>
         day.toString()
       ),
+      weightUnitPreference: "Select weight unit",
     },
     onValidate({ formData }) {
       return parse(formData, { schema });
@@ -81,7 +84,7 @@ export function PresetMesocycle() {
         </Fragment>
       ))}
 
-      <div className="mt-6 flex flex-col gap-6 rounded bg-white px-4 py-6 shadow-sm  ring-1 ring-zinc-900/5 sm:p-8">
+      <div className="mt-6 flex flex-col gap-6 rounded-lg bg-white px-4 py-6 shadow-sm ring-1 ring-zinc-900/5 sm:p-8">
         <Input
           config={name}
           label="How do you want to name the mesocycle?"
@@ -90,11 +93,18 @@ export function PresetMesocycle() {
         />
 
         <Select
+          config={weightUnitPreference}
+          options={Object.keys(WeightUnitPreference)}
+          label="What is the prefered weight unit for this mesocycle?"
+          helperText="This cannot be changed later."
+        />
+
+        <Select
           config={durationInMicrocycles}
           options={durationInMicrocyclesArray.map((o) => o.toString())}
           controlledValue={selectedPreset.microcycles.toString()}
           label="How many microcycles?"
-          helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
+          helperText="This cannot be changed later."
         />
 
         <Input

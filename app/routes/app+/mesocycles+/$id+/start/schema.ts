@@ -21,6 +21,11 @@ export const schema = z.object({
     .string()
     .transform((value) => value === "on")
     .default("off"),
+
+  progressiveRir: z
+    .string()
+    .transform((value) => value === "on")
+    .default("off"),
 });
 
 export type Schema = z.TypeOf<typeof schema>;

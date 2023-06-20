@@ -3,6 +3,7 @@ import { Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 import type { Schema } from "./schema";
 import {
+  WeightUnitPreference,
   durationInMicrocyclesArray,
   trainingDaysPerMicrocycleArray,
 } from "./schema";
@@ -23,12 +24,14 @@ export function CustomMesocycle() {
       goal,
       trainingDaysPerMicrocycle,
       restDaysPerMicrocycle,
+      weightUnitPreference,
     },
   ] = useForm<Schema>({
     id: "new-mesocycle",
     lastSubmission,
     defaultValue: {
       durationInMicrocycles: "Select microcycles",
+      weightUnitPreference: "Select weight unit",
       trainingDaysPerMicrocycle: [],
       restDaysPerMicrocycle: [],
     },
@@ -50,7 +53,7 @@ export function CustomMesocycle() {
   return (
     <Form
       method="post"
-      className="mt-4 rounded bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
+      className="mt-4 rounded-lg bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
       {...form.props}
     >
       <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
@@ -62,10 +65,17 @@ export function CustomMesocycle() {
         />
 
         <Select
+          config={weightUnitPreference}
+          options={Object.keys(WeightUnitPreference)}
+          label="What is the prefered weight unit for this mesocycle?"
+          helperText="This cannot be changed later."
+        />
+
+        <Select
           config={durationInMicrocycles}
           options={durationInMicrocyclesArray.map((o) => o.toString())}
           label="How many microcycles?"
-          helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
+          helperText="This cannot be changed later."
         />
 
         <Select
@@ -76,7 +86,7 @@ export function CustomMesocycle() {
             list: trainingDaysPerMicrocycleList,
             min: 1,
             max: 7,
-            emptyOption: "Please select training days",
+            emptyOption: "Select training days",
           }}
           onChange={(selectedDays: number[]) => {
             restDaysPerMicrocycleList.forEach(({ defaultValue }, index) => {
@@ -111,8 +121,8 @@ export function CustomMesocycle() {
             max: 7,
             emptyOption:
               restDaysOptions.length === 0
-                ? "Please select training days first"
-                : "Please select rest days",
+                ? "Select training days first"
+                : "Select rest days",
           }}
           label="On which days of the microcycle will you rest?"
           helperText="This cannot be changed later."

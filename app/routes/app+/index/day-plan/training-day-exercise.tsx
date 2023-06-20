@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Fragment } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -16,8 +16,12 @@ import { actionIntents, updateExerciseSchema } from "../schema";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
-import { Popover, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { Disclosure, Popover, Transition } from "@headlessui/react";
+import {
+  ChevronUpIcon,
+  EllipsisVerticalIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { animated, useSpring } from "@react-spring/web";
 import { Textarea } from "~/components/textarea";
 import { SubmitButton } from "~/components/submit-button";
@@ -28,6 +32,9 @@ import type { CurrentMesocycleState, loader } from "../route";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useDebounce, useMediaQuery } from "~/utils/hooks";
 import { generateId } from "~/utils/ids";
+import { makeListString } from "~/utils/strings";
+import { Paragraph } from "~/components/paragraph";
+import clsx from "clsx";
 
 type TrainingDayExerciseProps = {
   exercise: NonNullable<
@@ -129,6 +136,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 repRangeLowerBound: lastSet?.repRangeLowerBound || 5,
                 repRangeUpperBound: lastSet?.repRangeUpperBound || 8,
                 weight: lastSet?.weight || null,
+                shouldIncreaseWeight: false,
                 rir: lastSet?.rir || 0,
                 completed: false,
                 repsCompleted: 0,
@@ -203,11 +211,22 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     },
   ];
 
-  const { isFutureSession } = useLoaderData<
+  const { isFutureSession, weightUnitPreference } = useLoaderData<
     SerializeFrom<typeof loader> & {
       state: CurrentMesocycleState.STARTED;
     }
   >();
+
+  const shouldIncreaseWeightInSets = useMemo(
+    () =>
+      sets.filter((set) => set.shouldIncreaseWeight).map((set) => set.number),
+    [sets]
+  );
+
+  const shouldIncreaseWeightInSetsString = useMemo(
+    () => makeListString(shouldIncreaseWeightInSets),
+    [shouldIncreaseWeightInSets]
+  );
 
   return (
     <li className="mx-auto block w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
@@ -271,6 +290,36 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           {exercise.exercise?.name}
         </h3>
       </div>
+
+      {shouldIncreaseWeightInSets.length > 0 ? (
+        <Disclosure>
+          {({ open }) => (
+            <>
+              <Disclosure.Button className="mt-3 flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 sm:px-6 lg:px-8">
+                <span>Recommendation</span>
+
+                <div>
+                  <ChevronUpIcon
+                    className={clsx(
+                      "h-5 w-5 transform text-orange-500",
+                      open ? "rotate-180" : "rotate-90"
+                    )}
+                  />
+                </div>
+              </Disclosure.Button>
+
+              <Disclosure.Panel className="border-b border-zinc-300 bg-white px-4 py-2 sm:px-6 lg:px-8">
+                <Paragraph>
+                  Increase weight in{" "}
+                  {shouldIncreaseWeightInSets.length === 1 ? "set" : "sets"}{" "}
+                  {shouldIncreaseWeightInSetsString} since you've previously
+                  achieved or surpassed the target rep range.
+                </Paragraph>
+              </Disclosure.Panel>
+            </>
+          )}
+        </Disclosure>
+      ) : null}
 
       <Form
         preventScrollReset
@@ -336,7 +385,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
               >
-                Weight
+                {weightUnitPreference === "KILOGRAM" ? "kgs" : "lbs"}
               </div>
               <div
                 role="columnheader"
