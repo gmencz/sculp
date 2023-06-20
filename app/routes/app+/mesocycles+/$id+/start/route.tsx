@@ -182,8 +182,6 @@ export const action = async ({ request, params }: ActionArgs) => {
         id: true,
       },
     });
-
-    console.log(previousMesocycleRun);
   }
 
   await prisma.mesocycleRun.create({
