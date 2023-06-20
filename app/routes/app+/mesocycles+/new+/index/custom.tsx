@@ -53,7 +53,7 @@ export function CustomMesocycle() {
   return (
     <Form
       method="post"
-      className="mt-4 rounded bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
+      className="mt-4 rounded-lg bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
       {...form.props}
     >
       <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
@@ -75,7 +75,7 @@ export function CustomMesocycle() {
           config={durationInMicrocycles}
           options={durationInMicrocyclesArray.map((o) => o.toString())}
           label="How many microcycles?"
-          helperText="A microcycle is similar to a week, representing a short period of time within your overall mesocycle. For example, 8 microcycles would approximately be 8 weeks depending on your training days and rest days. This cannot be changed later."
+          helperText="This cannot be changed later."
         />
 
         <Select

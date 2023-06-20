@@ -1,10 +1,8 @@
 import { Link } from "@remix-run/react";
 import {
   ArrowLongRightIcon,
-  ArrowTrendingUpIcon,
   BookOpenIcon,
   MinusSmallIcon,
-  PencilIcon,
   PlusSmallIcon,
 } from "@heroicons/react/24/solid";
 import { configRoutes } from "~/utils/routes";
@@ -61,14 +59,27 @@ const faqs = [
 const features = [
   {
     name: "Mesocycles",
+    pictures: [
+      "/app-features/new-mesocycle-1.png",
+      "/app-features/new-mesocycle-2.png",
+      "/app-features/view-mesocycle-1.png",
+      "/app-features/view-mesocycle-2.png",
+      "/app-preview.png",
+      "/app-features/view-mesocycle-3.png",
+    ],
     description:
-      "Structure your training with our powerful mesocycles. You can either use a preset created by a hypertrophy expert or design your own fully customizable mesocycle.",
+      "Structure your training with our powerful mesocycles. You can either use a preset or design your own from the ground up. We understand how many variables come into training which is why you can customize absolutely everything down to repetition ranges, RIR and more.",
     icon: BookOpenIcon,
   },
   {
     name: "Exercises",
+    pictures: [
+      "/app-features/list-exercises.png",
+      "/app-features/view-exercise-1.png",
+      "/app-features/new-exercise-1.png",
+    ],
     description:
-      "Perform any exercise you can think of, you can either pick one from our extensive directory of exercises or create your own. Every exercise includes analytics.",
+      "Perform any exercise you can think of, you can either pick one from our extensive directory of exercises or create your own. Every exercise includes stats and performance tracking.",
     icon: (props: SVGAttributes<SVGElement>) => (
       <svg
         fill="currentColor"
@@ -101,18 +112,6 @@ const features = [
         </g>
       </svg>
     ),
-  },
-  {
-    name: "Performance tracking",
-    description:
-      "Track and analyze your performance each training session to make sure you're consistently making progress and staying away from plateaus.",
-    icon: ArrowTrendingUpIcon,
-  },
-  {
-    name: "Customization",
-    description:
-      "We understand how many variables come into training and performance which is why you can customize absolutely everything down to repetition ranges, RIR and more.",
-    icon: PencilIcon,
   },
 ];
 
@@ -183,7 +182,7 @@ export default function Index() {
         <div className="flex-shrink-0">
           <img
             src="/app-preview.png"
-            className="w-auto rounded-3xl border-[6px] border-zinc-900 lg:h-[856px]"
+            className="w-auto rounded-3xl border-[6px] border-zinc-900"
             alt="App preview"
           />
         </div>
@@ -203,39 +202,34 @@ export default function Index() {
 
       <div className="mx-auto mt-32 max-w-7xl sm:mt-56">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-orange-600">
-            Train like a pro
+          <h2 className="text-lg font-semibold leading-7 text-orange-600">
+            Features
           </h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-            Everything you need to maximize results
-          </p>
-          <p className="mt-6 text-lg leading-8 text-zinc-600">
-            We've revolutionized the way you approach hypertrophy training. Our
-            app is packed with powerful features designed to improve your
-            training like nothing you've seen before and help you achieve
-            unparalleled muscle growth.
-          </p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-            {features.map((feature) => (
-              <div key={feature.name} className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-zinc-900">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-600">
-                    <feature.icon
-                      className="h-6 w-6 text-white"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  {feature.name}
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-zinc-600">
-                  {feature.description}
-                </dd>
+
+        <ul className="flex flex-col gap-16">
+          {features.map((feature) => (
+            <li className="lg:text-center" key={feature.name}>
+              <p className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
+                {feature.name}
+              </p>
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
+                {feature.description}
+              </p>
+
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-10">
+                {feature.pictures.map((picture, index) => (
+                  <img
+                    key={picture}
+                    src={picture}
+                    alt={`Preview ${index + 1}`}
+                    className="max-h-[700px] w-auto rounded-3xl border-[6px] border-zinc-900"
+                  />
+                ))}
               </div>
-            ))}
-          </dl>
-        </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="mt-32 divide-y divide-zinc-900/10 sm:mt-56">

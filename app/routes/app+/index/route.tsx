@@ -195,8 +195,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     "trainingDaySessionFinished"
   )) || null) as string | null;
 
-  // const isFutureSession = isAfter(date, today);
-  const isFutureSession = false;
+  const isFutureSession = isAfter(date, today);
   state = CurrentMesocycleState.STARTED;
   if (day?.trainingDay?.id) {
     const trainingDayData =
