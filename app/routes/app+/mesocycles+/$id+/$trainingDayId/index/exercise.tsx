@@ -3,7 +3,12 @@ import type { loader } from "./route";
 import type { CSSProperties } from "react";
 import { Fragment, forwardRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "~/utils/hooks";
-import { Link, useNavigation, useSubmit } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  useNavigation,
+  useSubmit,
+} from "@remix-run/react";
 import { ActionIntents } from "./schema";
 import { useSpring } from "@react-spring/web";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
@@ -23,6 +28,9 @@ type ExerciseProps = {
 
 export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
   ({ exercise, asDiv, ...props }, ref) => {
+    const {
+      trainingDay: { mesocycle },
+    } = useLoaderData<typeof loader>();
     const submit = useSubmit();
     const navigation = useNavigation();
     const isXs = useMediaQuery("(max-width: 600px)");
@@ -214,7 +222,9 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                   role="columnheader"
                   className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
                 >
-                  Weight
+                  {mesocycle!.weightUnitPreference === "KILOGRAM"
+                    ? "kgs"
+                    : "lbs"}
                 </div>
                 <div
                   role="columnheader"

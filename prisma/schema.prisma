@@ -93,20 +93,26 @@ model MesocyclePreset {
 }
 
 model Mesocycle {
-  id           String                 @id @default(cuid())
-  name         String
-  microcycles  Int
-  restDays     Int[]                  @map("rest_days")
-  goal         String
-  createdAt    DateTime               @default(now()) @map("created_at")
-  updatedAt    DateTime               @updatedAt @map("updated_at")
-  trainingDays MesocycleTrainingDay[]
-  user         User?                  @relation("ExistingMesocycles", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId       String?                @map("user_id")
-  runs         MesocycleRun[]
+  id                   String                 @id @default(cuid())
+  name                 String
+  microcycles          Int
+  restDays             Int[]                  @map("rest_days")
+  goal                 String
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  trainingDays         MesocycleTrainingDay[]
+  user                 User?                  @relation("ExistingMesocycles", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId               String?                @map("user_id")
+  runs                 MesocycleRun[]
+  weightUnitPreference WeightUnit             @default(KILOGRAM) @map("weight_unit_preference")
 
   @@unique([name, userId])
   @@map("mesocycles")
+}
+
+enum WeightUnit {
+  KILOGRAM
+  POUND
 }
 
 model MesocycleTrainingDay {
@@ -162,6 +168,7 @@ model MesocycleRun {
   previousRun      MesocycleRun?            @relation("MesocyclePreviousRun", fields: [previousRunId], references: [id])
   previousRunId    String?                  @unique @map("previous_run_id")
   previousRunOfRun MesocycleRun?            @relation("MesocyclePreviousRun")
+  progressiveRir   Boolean                  @default(false) @map("progressive_rir")
 
   @@map("mesocycles_runs")
 }

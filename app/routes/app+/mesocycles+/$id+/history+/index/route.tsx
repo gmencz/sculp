@@ -59,8 +59,16 @@ export default function MesocycleHistory() {
   return (
     <AppPageLayout>
       <div className="hidden lg:block">
-        <Heading className="text-zinc-900">{mesocycle.name}</Heading>
-        <Paragraph className="mt-1">A history of this mesocycle.</Paragraph>
+        <Heading className="hidden text-zinc-900 lg:block">
+          {mesocycle.name}
+        </Heading>
+        {mesocycle.runs.length > 0 ? (
+          <Paragraph className="mt-1 hidden lg:block">
+            A history of this mesocycle runs.
+          </Paragraph>
+        ) : (
+          <Paragraph className="lg:mt-1">Nothing here yet.</Paragraph>
+        )}
       </div>
 
       {mesocycle.runs.length ? (

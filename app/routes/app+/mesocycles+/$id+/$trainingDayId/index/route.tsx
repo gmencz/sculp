@@ -51,6 +51,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       mesocycle: {
         select: {
           name: true,
+          weightUnitPreference: true,
         },
       },
       exercises: {

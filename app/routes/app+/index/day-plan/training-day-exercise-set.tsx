@@ -13,6 +13,7 @@ export type Set = {
   rir: number;
   repRangeLowerBound: number;
   repRangeUpperBound: number;
+  shouldIncreaseWeight: boolean;
   completed: boolean;
   repsCompleted: number | null;
 };

@@ -72,7 +72,9 @@ export default function Mesocycles() {
             <Paragraph className="mt-1 hidden lg:block">
               A list of all your mesocycles.
             </Paragraph>
-          ) : null}
+          ) : (
+            <Paragraph className="lg:mt-1">Nothing here yet.</Paragraph>
+          )}
         </div>
         <div className="mb-6 mt-4 hidden sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none lg:block">
           <Link
@@ -83,12 +85,6 @@ export default function Mesocycles() {
           </Link>
         </div>
       </div>
-
-      {mesocycles.length === 0 ? (
-        <h3 className="mb-4 mt-2 block text-sm font-semibold text-zinc-900 lg:hidden">
-          Nothing here yet
-        </h3>
-      ) : null}
 
       <ul className="flex flex-col gap-6 lg:mt-4">
         {mesocycles.map((mesocycle) => (

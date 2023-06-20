@@ -182,6 +182,8 @@ export const action = async ({ request, params }: ActionArgs) => {
         id: true,
       },
     });
+
+    console.log(previousMesocycleRun);
   }
 
   await prisma.mesocycleRun.create({
@@ -192,6 +194,7 @@ export const action = async ({ request, params }: ActionArgs) => {
       previousRun: previousMesocycleRun
         ? { connect: { id: previousMesocycleRun.id } }
         : undefined,
+      progressiveRir: submission.value.progressiveRir,
       startDate,
       endDate,
       microcycles: {
@@ -239,16 +242,18 @@ export const action = async ({ request, params }: ActionArgs) => {
 export default function StartMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
   const lastSubmission = useActionData() as any as any;
-  const [form, { startDate, linkPreviousRun }] = useForm<Schema>({
-    id: "delete-exercises",
-    lastSubmission,
-    defaultValue: {
-      linkPreviousRun: "on",
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema });
-    },
-  });
+  const [form, { startDate, linkPreviousRun, progressiveRir }] =
+    useForm<Schema>({
+      id: "delete-exercises",
+      lastSubmission,
+      defaultValue: {
+        linkPreviousRun: "on",
+        progressiveRir: "off",
+      },
+      onValidate({ formData }) {
+        return parse(formData, { schema });
+      },
+    });
 
   return (
     <AppPageLayout>
@@ -279,8 +284,29 @@ export default function StartMesocycle() {
               Link with previous run
             </label>
             <p id="comments-description" className="text-gray-500">
-              If you did this mesocycle before, you can link this run to the
-              previous one and carry your performance over.
+              Link this run to the previous one and carry your performance over.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative mt-6 flex items-start">
+          <div className="flex h-6 items-center">
+            <input
+              {...conform.input(progressiveRir, { type: "checkbox" })}
+              className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div className="ml-3 text-sm leading-6">
+            <label
+              htmlFor={progressiveRir.id}
+              className="block text-sm font-medium leading-6 text-zinc-900"
+            >
+              Progressive RIR
+            </label>
+            <p id="comments-description" className="text-gray-500">
+              Progresses your RIR automatically every microcycle. For example if
+              your initial RIR for a set is 3, the next microcycle it will be 2,
+              the next 1 and so on.
             </p>
           </div>
         </div>

@@ -89,6 +89,8 @@ export const loader = async ({ request }: LoaderArgs) => {
       endDate: true,
       mesocycle: {
         select: {
+          id: true,
+          weightUnitPreference: true,
           name: true,
           microcycles: true,
           restDays: true,
@@ -145,6 +147,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json({
       state,
       formattedStartDate,
+      weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
       mesocycleName: currentMesocycle.mesocycle.name,
     });
   }
@@ -250,87 +253,107 @@ export const loader = async ({ request }: LoaderArgs) => {
       throw new Error("trainingDayData is null, this should never happen");
     }
 
-    if (currentMesocycle.previousRun) {
-      const previousTrainingDay =
-        await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
-          where: {
-            microcycle: {
-              mesocycleRunId: currentMesocycle.id,
-            },
-            number: trainingDayData.number,
-            completed: true,
-            date: {
-              lt: trainingDayData.date,
-            },
+    const previousTrainingDay =
+      await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
+        where: {
+          microcycle: {
+            mesocycleRunId: currentMesocycle.id,
           },
-          orderBy: {
-            date: "desc",
+          number: trainingDayData.number,
+          completed: true,
+          date: {
+            lt: trainingDayData.date,
           },
-          select: {
-            exercises: {
-              select: {
-                exerciseId: true,
-                number: true,
-                sets: {
-                  orderBy: {
-                    number: "asc",
-                  },
-                  select: {
-                    id: true,
-                    number: true,
-                    completed: true,
-                    repRangeLowerBound: true,
-                    repRangeUpperBound: true,
-                    repsCompleted: true,
-                    rir: true,
-                    weight: true,
-                  },
+        },
+        orderBy: {
+          date: "desc",
+        },
+        select: {
+          exercises: {
+            select: {
+              exerciseId: true,
+              number: true,
+              sets: {
+                orderBy: {
+                  number: "asc",
+                },
+                select: {
+                  id: true,
+                  number: true,
+                  completed: true,
+                  repRangeLowerBound: true,
+                  repRangeUpperBound: true,
+                  repsCompleted: true,
+                  rir: true,
+                  weight: true,
                 },
               },
             },
           },
-        });
+        },
+      });
 
-      if (previousTrainingDay) {
-        return json(
-          {
-            state,
-            mesocycleName: currentMesocycle.mesocycle.name,
-            microcycleLength,
-            calendarDays,
-            readOnly: false,
-            isFutureSession,
-            trainingDaySessionUpdated,
-            trainingDaySessionFinished,
-            date,
-            day: {
-              dayNumber: day.dayNumber,
-              microcycleNumber: day.microcycleNumber,
-              trainingDay: {
-                ...trainingDayData,
-                exercises: trainingDayData.exercises.map((exercise) => {
-                  const previous = previousTrainingDay.exercises.find(
-                    (previousExercise) =>
-                      previousExercise.exerciseId === exercise.exercise!.id &&
-                      previousExercise.number === exercise.number
-                  );
+    if (previousTrainingDay) {
+      return json(
+        {
+          state,
+          weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
+          mesocycleName: currentMesocycle.mesocycle.name,
+          microcycleLength,
+          calendarDays,
+          readOnly: false,
+          isFutureSession,
+          trainingDaySessionUpdated,
+          trainingDaySessionFinished,
+          date,
+          day: {
+            dayNumber: day.dayNumber,
+            microcycleNumber: day.microcycleNumber,
+            trainingDay: {
+              ...trainingDayData,
+              exercises: trainingDayData.exercises.map((exercise) => {
+                const previous = previousTrainingDay.exercises.find(
+                  (previousExercise) =>
+                    previousExercise.exerciseId === exercise.exercise!.id &&
+                    previousExercise.number === exercise.number
+                );
 
-                  return {
-                    ...exercise,
-                    previousSets: previous?.sets || [],
-                  };
-                }),
-              },
+                return {
+                  ...exercise,
+                  previousSets: previous?.sets ?? [],
+                  sets: exercise.sets.map((set) => {
+                    const previousSet = previous?.sets.find(
+                      ({ number }) => number === set.number
+                    );
+
+                    if (!previousSet) {
+                      return {
+                        ...set,
+                        shouldIncreaseWeight: false,
+                      };
+                    }
+
+                    return {
+                      ...set,
+                      shouldIncreaseWeight:
+                        (previousSet.repsCompleted || 0) >=
+                        set.repRangeUpperBound,
+                    };
+                  }),
+                };
+              }),
             },
           },
-          {
-            headers: {
-              "Set-Cookie": await commitSession(session),
-            },
-          }
-        );
-      }
+        },
+        {
+          headers: {
+            "Set-Cookie": await commitSession(session),
+          },
+        }
+      );
+    }
 
+    if (currentMesocycle.previousRun) {
       const previousMesocycleRunTrainingDay =
         await prisma.mesocycleRunMicrocycleTrainingDay.findFirst({
           where: {
@@ -339,11 +362,15 @@ export const loader = async ({ request }: LoaderArgs) => {
             },
             number: trainingDayData.number,
             completed: true,
+            date: {
+              lte: trainingDayData.date,
+            },
           },
           orderBy: {
             date: "desc",
           },
           select: {
+            microcycle: { select: { mesocycleRunId: true } },
             exercises: {
               select: {
                 exerciseId: true,
@@ -372,6 +399,8 @@ export const loader = async ({ request }: LoaderArgs) => {
         return json(
           {
             state,
+            weightUnitPreference:
+              currentMesocycle.mesocycle.weightUnitPreference,
             mesocycleName: currentMesocycle.mesocycle.name,
             microcycleLength,
             calendarDays,
@@ -395,7 +424,26 @@ export const loader = async ({ request }: LoaderArgs) => {
 
                   return {
                     ...exercise,
-                    previousSets: previous?.sets || [],
+                    previousSets: previous?.sets ?? [],
+                    sets: exercise.sets.map((set) => {
+                      const previousSet = previous?.sets.find(
+                        ({ number }) => number === set.number
+                      );
+
+                      if (!previousSet) {
+                        return {
+                          ...set,
+                          shouldIncreaseWeight: false,
+                        };
+                      }
+
+                      return {
+                        ...set,
+                        shouldIncreaseWeight:
+                          (previousSet.repsCompleted || 0) >=
+                          set.repRangeUpperBound,
+                      };
+                    }),
                   };
                 }),
               },
@@ -413,6 +461,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json(
       {
         state,
+        weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
         mesocycleName: currentMesocycle.mesocycle.name,
         microcycleLength,
         calendarDays,
@@ -428,6 +477,10 @@ export const loader = async ({ request }: LoaderArgs) => {
             ...trainingDayData,
             exercises: trainingDayData.exercises.map((exercise) => ({
               ...exercise,
+              sets: exercise.sets.map((set) => ({
+                ...set,
+                shouldIncreaseWeight: false,
+              })),
               previousSets: [],
             })),
           },
@@ -444,6 +497,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json(
     {
       state,
+      weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
       mesocycleName: currentMesocycle.mesocycle.name,
       microcycleLength,
       calendarDays,
@@ -623,6 +677,12 @@ export const action = async ({ request }: ActionArgs) => {
                     id: true,
                     endDate: true,
                     mesocycleId: true,
+                    progressiveRir: true,
+                    mesocycle: {
+                      select: {
+                        weightUnitPreference: true,
+                      },
+                    },
                   },
                 },
               },
@@ -777,6 +837,10 @@ export const action = async ({ request }: ActionArgs) => {
               rir: number;
             }[];
             setsToRemove: number[];
+            setsToUpdate: {
+              number: number;
+              rir: number;
+            }[];
           }[]
         >((acc, thisExercise) => {
           const nextTrainingDayExercise = nextTrainingDay.exercises.find(
@@ -784,6 +848,22 @@ export const action = async ({ request }: ActionArgs) => {
               nextExercise.exerciseId === thisExercise.exerciseId &&
               nextExercise.number === thisExercise.number
           );
+
+          const setsToUpdate = thisExercise.sets.reduce<
+            {
+              number: number;
+              rir: number;
+            }[]
+          >((acc, set) => {
+            if (
+              set.rir > 0 &&
+              thisTrainingDay.microcycle?.mesocycleRun?.progressiveRir
+            ) {
+              return [...acc, { number: set.number, rir: set.rir - 1 }];
+            }
+
+            return acc;
+          }, []);
 
           if (nextTrainingDayExercise) {
             const thisExerciseSetsCount = thisExercise.sets.length;
@@ -797,6 +877,7 @@ export const action = async ({ request }: ActionArgs) => {
                 ...acc,
                 {
                   exerciseId: nextTrainingDayExercise.id,
+                  setsToUpdate,
                   setsToCreate: Array.from(
                     {
                       length:
@@ -827,7 +908,7 @@ export const action = async ({ request }: ActionArgs) => {
                 ...acc,
                 {
                   exerciseId: nextTrainingDayExercise.id,
-                  lastSet,
+                  setsToUpdate,
                   setsToCreate: [],
                   setsToRemove: Array.from(
                     {
@@ -837,6 +918,16 @@ export const action = async ({ request }: ActionArgs) => {
                     },
                     (_, i) => lastSet.number - i
                   ),
+                },
+              ];
+            } else if (setsToUpdate.length > 0) {
+              return [
+                ...acc,
+                {
+                  exerciseId: nextTrainingDayExercise.id,
+                  setsToUpdate,
+                  setsToCreate: [],
+                  setsToRemove: [],
                 },
               ];
             }
