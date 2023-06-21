@@ -125,7 +125,7 @@ export const action = async ({ request }: ActionArgs) => {
         user: { connect: { id: user.id } },
         restDays: { set: preset.restDays },
         weightUnitPreference:
-          weightUnitPreference === WeightUnitPreference.kgs
+          weightUnitPreference === WeightUnitPreference.kg
             ? WeightUnit.KILOGRAM
             : WeightUnit.POUND,
         trainingDays: {
@@ -177,7 +177,7 @@ export const action = async ({ request }: ActionArgs) => {
       user: { connect: { id: user.id } },
       restDays: { set: restDaysPerMicrocycle.sort((a, b) => a - b) },
       weightUnitPreference:
-        weightUnitPreference === WeightUnitPreference.kgs
+        weightUnitPreference === WeightUnitPreference.kg
           ? WeightUnit.KILOGRAM
           : WeightUnit.POUND,
       trainingDays: {

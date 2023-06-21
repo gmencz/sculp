@@ -223,7 +223,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                   className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
                 >
                   {mesocycle!.weightUnitPreference === "KILOGRAM"
-                    ? "kgs"
+                    ? "kg"
                     : "lbs"}
                 </div>
                 <div
