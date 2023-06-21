@@ -24,10 +24,13 @@ import { Paragraph } from "~/components/paragraph";
 import { SubmitButton } from "~/components/submit-button";
 import { commitSession, getSessionFromCookie } from "~/utils/session.server";
 import { toPostgresQuery } from "~/utils/strings";
+import { configRoutes } from "~/utils/routes";
 
 export const handle = {
   header: () => "Add exercise",
-  links: [],
+  links: [
+    { type: "new", label: "New exercise", to: configRoutes.app.exercises.new },
+  ],
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
