@@ -52,7 +52,7 @@ export function UpdateMesocycleForm() {
   return (
     <Form
       method="post"
-      className="mb-6 flex flex-col gap-4 sm:mt-4"
+      className="flex flex-col gap-4 lg:mt-4"
       onChange={() => setShouldUpdate(generateId())}
       {...form.props}
     >

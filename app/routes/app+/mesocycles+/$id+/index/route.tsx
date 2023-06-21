@@ -22,6 +22,7 @@ import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
 import { WeightUnitPreference } from "../../new+/index/schema";
 import { WeightUnit } from "@prisma/client";
+import { Paragraph } from "~/components/paragraph";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.mesocycle.name,
@@ -143,7 +144,12 @@ export default function Mesocycle() {
 
       <UpdateMesocycleForm />
 
-      <ul className="flex flex-col gap-6 lg:mt-4">
+      <Paragraph className="my-4">
+        Changing the training days won't mess with the current mesocycle run,
+        just the next ones.
+      </Paragraph>
+
+      <ul className="flex flex-col gap-6">
         {allDays.map((day) =>
           typeof day === "number" ? (
             <li key={day}>
