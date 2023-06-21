@@ -96,7 +96,6 @@ export const UpdateExerciseNotesForm = forwardRef<
       replace
       method="post"
       onChange={() => setShouldUpdate(generateId())}
-      className="mb-3"
       {...form.props}
     >
       <input {...conform.input(id, { hidden: true })} />
@@ -110,7 +109,7 @@ export const UpdateExerciseNotesForm = forwardRef<
         leave="transition-opacity duration-150"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        className="relative"
+        className="relative mb-3"
       >
         <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
           <TrashIcon className="h-5 w-5 text-white" />
