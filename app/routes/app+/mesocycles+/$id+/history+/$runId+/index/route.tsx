@@ -43,6 +43,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       mesocycle: {
         select: {
           name: true,
+          weightUnitPreference: true,
         },
       },
       startDate: true,
@@ -201,7 +202,11 @@ export default function MesocycleRun() {
     },
     {
       name: "Total volume",
-      stat: mesocycleRun.totalVolume,
+      stat: `${mesocycleRun.totalVolume} ${
+        mesocycleRun.mesocycle.weightUnitPreference === "KILOGRAM"
+          ? "kg"
+          : "lbs"
+      }`,
     },
     {
       name: "Total sets",

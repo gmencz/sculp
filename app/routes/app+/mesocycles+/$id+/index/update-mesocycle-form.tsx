@@ -14,16 +14,22 @@ import { Input } from "~/components/input";
 import { useEffect, useState } from "react";
 import { useDebounce } from "~/utils/hooks";
 import { generateId } from "~/utils/ids";
+import { Select } from "~/components/select";
+import { WeightUnitPreference } from "../../new+/index/schema";
 
 export function UpdateMesocycleForm() {
   const lastSubmission = useActionData<typeof action>();
   const { mesocycle } = useLoaderData<typeof loader>();
-  const [form, { goal, name }] = useForm<Schema>({
+  const [form, { goal, name, weightUnitPreference }] = useForm<Schema>({
     id: "update-mesocycle",
     lastSubmission,
     defaultValue: {
       name: mesocycle.name,
       goal: mesocycle.goal,
+      weightUnitPreference:
+        mesocycle.weightUnitPreference === "KILOGRAM"
+          ? WeightUnitPreference.kg
+          : WeightUnitPreference.lbs,
     },
     onValidate({ formData }) {
       return parse(formData, { schema });
@@ -46,12 +52,17 @@ export function UpdateMesocycleForm() {
   return (
     <Form
       method="post"
-      className="mb-6 flex flex-col gap-3 sm:mt-4"
+      className="mb-6 flex flex-col gap-4 sm:mt-4"
       onChange={() => setShouldUpdate(generateId())}
       {...form.props}
     >
       <Input config={name} label="Name" autoComplete="mesocycle-name" />
       <Input config={goal} label="Goal" />
+      <Select
+        config={weightUnitPreference}
+        options={Object.keys(WeightUnitPreference)}
+        label="Weight unit"
+      />
     </Form>
   );
 }
