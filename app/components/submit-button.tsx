@@ -41,7 +41,7 @@ export function SubmitButton({
       )}
       {...rest}
     >
-      {isSubmitting ? <Spinner /> : null}
+      {isSubmitting ? <Spinner className="-ml-1 mr-3 h-5 w-5" /> : null}
       {text}
     </button>
   );

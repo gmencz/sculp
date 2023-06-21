@@ -1,4 +1,4 @@
-import { endOfToday, isAfter, isToday } from "date-fns";
+import { endOfToday, isAfter } from "date-fns";
 import { z } from "zod";
 
 export const schema = z.object({
@@ -14,8 +14,8 @@ export const schema = z.object({
     })
     .refine((date) => {
       const today = endOfToday();
-      return isToday(date) || isAfter(date, today);
-    }, "The start date must be today or later."),
+      return isAfter(date, today);
+    }, "The start date must be after today."),
 
   linkPreviousRun: z
     .string()

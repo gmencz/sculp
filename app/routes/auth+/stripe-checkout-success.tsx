@@ -96,7 +96,7 @@ export default function Checkout() {
       {/* Pending Message. */}
       {pending && retries < 3 && (
         <>
-          <Spinner className="h-20 w-20 text-orange-500" />
+          <Spinner className="h-10 w-10 text-orange-500" />
 
           <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-950">
             Completing your checkout...

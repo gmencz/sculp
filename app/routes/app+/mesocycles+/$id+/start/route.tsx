@@ -19,6 +19,7 @@ import { AppPageLayout } from "~/components/app-page-layout";
 import { prisma } from "~/utils/db.server";
 import { addDays, startOfDay } from "date-fns";
 import type { MatchWithHeader } from "~/utils/hooks";
+import { sleep } from "~/utils/sleep";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => `Start ${data.mesocycle.name}`,
@@ -184,7 +185,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     });
   }
 
-  await prisma.mesocycleRun.create({
+  const mesocycleRun = await prisma.mesocycleRun.create({
     data: {
       mesocycle: { connect: { id } },
       currentUser: { connect: { id: user.id } },
@@ -195,10 +196,26 @@ export const action = async ({ request, params }: ActionArgs) => {
       progressiveRir: submission.value.progressiveRir,
       startDate,
       endDate,
-      microcycles: {
-        // Create the microcycles with the values from the mesocycle.
-        create: Array.from({ length: mesocycle.microcycles }, (_, i) => i).map(
-          (microcycleIndex) => ({
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // Creating all the microcycles can take a long time so we are waiting only for 2 seconds.
+  await Promise.race([
+    sleep(2000),
+    prisma.mesocycleRun.update({
+      where: {
+        id: mesocycleRun.id,
+      },
+      data: {
+        microcycles: {
+          // Create the microcycles with the values from the mesocycle.
+          create: Array.from(
+            { length: mesocycle.microcycles },
+            (_, i) => i
+          ).map((microcycleIndex) => ({
             restDays: mesocycle.restDays,
             trainingDays: {
               create: mesocycle.trainingDays.map((trainingDay) => ({
@@ -228,18 +245,21 @@ export const action = async ({ request, params }: ActionArgs) => {
                 },
               })),
             },
-          })
-        ),
+          })),
+        },
       },
-    },
-  });
+      select: {
+        id: true,
+      },
+    }),
+  ]);
 
   return redirect(configRoutes.app.current);
 };
 
 export default function StartMesocycle() {
   const { mesocycle } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData() as any as any;
+  const lastSubmission = useActionData<typeof action>();
   const [form, { startDate, linkPreviousRun, progressiveRir }] =
     useForm<Schema>({
       id: "delete-exercises",
