@@ -9,6 +9,7 @@ import { parse } from "@conform-to/zod";
 import { prisma } from "~/utils/db.server";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -25,6 +26,8 @@ import { SubmitButton } from "~/components/submit-button";
 import { commitSession, getSessionFromCookie } from "~/utils/session.server";
 import { toPostgresQuery } from "~/utils/strings";
 import { configRoutes } from "~/utils/routes";
+import clsx from "clsx";
+import { classes } from "~/utils/classes";
 
 export const handle = {
   header: () => "Add exercise",
@@ -199,7 +202,21 @@ export default function AddExercise() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">Add exercise</Heading>
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <Heading className="hidden text-zinc-900 lg:block">
+            Add exercise
+          </Heading>
+        </div>
+        <div className="mb-6 mt-4 hidden sm:mb-0 sm:ml-16 sm:mt-0 sm:flex-none lg:block">
+          <Link
+            to={configRoutes.app.exercises.new}
+            className={clsx(classes.buttonOrLink.primary, "block w-full")}
+          >
+            New exercise
+          </Link>
+        </div>
+      </div>
 
       <>
         {exercises.length > 0 || noResults ? (
