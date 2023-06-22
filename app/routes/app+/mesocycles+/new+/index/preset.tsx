@@ -84,7 +84,7 @@ export function PresetMesocycle() {
         </Fragment>
       ))}
 
-      <div className="mt-6 flex flex-col gap-6 rounded-lg bg-white px-4 py-6 shadow-sm ring-1 ring-zinc-900/5 sm:p-8">
+      <div className="mt-6 flex flex-col gap-6 rounded-lg bg-white px-4 py-6  ring-1 ring-zinc-900/5 sm:p-8">
         <Input
           config={name}
           label="How do you want to name the mesocycle?"

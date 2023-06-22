@@ -53,7 +53,7 @@ export function CustomMesocycle() {
   return (
     <Form
       method="post"
-      className="mt-4 rounded-lg bg-white shadow-sm ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
+      className="mt-4 rounded-lg bg-white  ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
       {...form.props}
     >
       <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">

@@ -70,7 +70,7 @@ export const Textarea = forwardRef<
 
             <ContentEditable
               className={clsx(
-                "block w-full rounded-md border-0 px-3 py-1.5 text-sm shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600",
+                "block w-full rounded-md border-0 px-3 py-1.5 text-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600",
                 config.error
                   ? "text-red-300 ring-red-500 focus:ring-red-600"
                   : "ring-zinc-300 focus:ring-orange-600",
@@ -90,7 +90,7 @@ export const Textarea = forwardRef<
         ) : (
           <textarea
             className={clsx(
-              "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 shadow-sm ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
+              "block w-full rounded-md border-0 py-1.5 text-sm text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600",
               config.error
                 ? "text-red-300 ring-red-500 focus:ring-red-600"
                 : "ring-zinc-300 focus:ring-orange-600",

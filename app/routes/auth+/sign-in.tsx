@@ -102,7 +102,7 @@ export default function SignIn() {
           Sign in to your account
         </h2>
         <Form method="POST" {...form.props}>
-          <div className="relative mb-2 -space-y-px rounded-md shadow-sm">
+          <div className="relative mb-2 -space-y-px rounded-md ">
             <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-zinc-300" />
 
             <Input
