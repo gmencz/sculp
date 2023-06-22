@@ -82,7 +82,7 @@ function SelectSingleOption({
               <Listbox.Button
                 ref={buttonRef}
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-transparent py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
+                  "relative w-full cursor-default bg-white rounded-md bg-transparent py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "ring-zinc-300 focus:ring-orange-600"
@@ -265,7 +265,7 @@ function SelectMultipleOptions({
             <div className="relative mt-2">
               <Listbox.Button
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-zinc-50 py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
+                  "relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "ring-zinc-300 focus:ring-orange-600"
