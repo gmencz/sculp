@@ -8,7 +8,7 @@ export const loader = async () => {
       start_url: "/app",
       display: "standalone",
       background_color: "#fafafa",
-      theme_color: "#fafafa",
+      theme_color: "#ffffff",
       shortcuts: [
         {
           name: "Mesocycles",
