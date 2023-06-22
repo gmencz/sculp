@@ -13,8 +13,6 @@ import { AppPageLayout } from "~/components/app-page-layout";
 import { useMemo } from "react";
 import { getUniqueMuscleGroups } from "~/utils/muscle-groups";
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
-import { classes } from "~/utils/classes";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { UpdateMesocycleForm } from "./update-mesocycle-form";
 import { schema } from "./schema";
 import { parse } from "@conform-to/zod";

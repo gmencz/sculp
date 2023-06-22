@@ -41,10 +41,10 @@ export function Input({
       <div className="relative rounded-md">
         <input
           className={clsx(
-            "block w-full rounded-md border-0 bg-zinc-200/30 py-2 text-sm text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 read-only:cursor-not-allowed read-only:bg-zinc-50 read-only:text-zinc-500 read-only:ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-orange-600",
+            "block w-full rounded-md border-0 bg-zinc-50 py-2 text-sm text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 read-only:cursor-not-allowed read-only:bg-zinc-50 read-only:text-zinc-500 read-only:ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-orange-600",
             config.error
               ? "pr-10 text-red-300 ring-red-500 focus:ring-red-600"
-              : "ring-zinc-200/30 focus:ring-orange-600",
+              : "ring-zinc-300 focus:ring-orange-600",
             className
           )}
           {...conform.input(config, { type: type || "text" })}
