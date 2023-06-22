@@ -12,7 +12,7 @@ export enum ActionIntents {
   UpdateSet = "UPDATE_SET",
   AddSet = "ADD_SET",
   RemoveSet = "REMOVE_SET",
-  UpdateExerciseNotes = "UPDATE_EXERCISE_NOTEs",
+  UpdateExerciseNotes = "UPDATE_EXERCISE_NOTES",
   RemoveExercise = "REMOVE_EXERCISE",
   UpdateTrainingDayLabel = "UPDATE_TRAINING_DAY_LABEL",
   ReorderExercises = "REORDER_EXERCISES",
