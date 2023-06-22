@@ -76,7 +76,7 @@ export function ExercisesAutocomplete({
               ref={inputRef}
               id={searchInputId}
               autoComplete="off"
-              className="w-full border-none py-1.5 pl-3 pr-10 text-sm leading-5 text-zinc-900"
+              className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-zinc-900"
               onChange={(event) => setQuery(event.target.value)}
               displayValue={(exerciseId: string) =>
                 exercises.find((e) => e.id === exerciseId)?.name ?? ""
