@@ -145,7 +145,7 @@ export default function Mesocycle() {
       <UpdateMesocycleForm />
 
       <Paragraph className="my-4">
-        Changing the training days won't mess with the current mesocycle run,
+        Modifying the training days won't mess with the current mesocycle run,
         just the next ones.
       </Paragraph>
 
@@ -153,7 +153,7 @@ export default function Mesocycle() {
         {allDays.map((day) =>
           typeof day === "number" ? (
             <li key={day}>
-              <div className="block rounded-lg bg-white px-4 py-4 shadow sm:px-6">
+              <div className="block rounded-lg bg-zinc-50 border border-zinc-300 px-4 py-4 sm:px-6">
                 <h3 className="truncate font-semibold text-zinc-900">
                   Day {day} - Rest
                 </h3>
@@ -185,7 +185,7 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
   return (
     <Link
       to={`./${trainingDay.id}`}
-      className="group block divide-y divide-zinc-200 rounded-lg bg-white shadow transition-all hover:scale-[1.01]"
+      className="group block divide-y divide-zinc-200 rounded-lg bg-zinc-50 hover:bg-white border border-zinc-300 transition-all"
     >
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4">
@@ -194,11 +194,6 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
               ? `Day ${trainingDay.number} - ${trainingDay.label}`
               : `Day ${trainingDay.number} - Unlabelled`}
           </h3>
-
-          <div className={classes.buttonOrLink.textOnly}>
-            <span className="sr-only">Edit</span>
-            <ArrowLongRightIcon className="h-5 w-5 group-hover:text-orange-900" />
-          </div>
         </div>
 
         {muscleGroups.length > 0 ? (
