@@ -21,7 +21,6 @@ import { configRoutes } from "~/utils/routes";
 import { WeightUnitPreference } from "../../new+/index/schema";
 import { WeightUnit } from "@prisma/client";
 import { Paragraph } from "~/components/paragraph";
-import { PlayIcon, StopIcon } from "@heroicons/react/20/solid";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
 
