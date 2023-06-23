@@ -48,16 +48,15 @@ export function TrainingDayLabelForm() {
   };
 
   return (
-    <Form
-      method="post"
-      onChange={handleFormChange}
-      replace
-      className="px-4 sm:px-6 lg:px-8"
-      {...form.props}
-    >
+    <Form method="post" onChange={handleFormChange} replace {...form.props}>
       <div className="mx-auto w-full max-w-2xl">
         <input {...conform.input(actionIntent, { hidden: true })} />
-        <Input label="Label" config={label} />
+        <Input
+          label="Label"
+          hideLabel
+          config={label}
+          placeholder="Push A, Legs A..."
+        />
       </div>
     </Form>
   );

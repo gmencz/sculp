@@ -156,35 +156,29 @@ export function TrainingDay() {
 
   return (
     <>
-      <div className="bg-zinc-900 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto w-full max-w-2xl">
-          <div className="mb-1 hidden items-center justify-between lg:flex">
-            <h2 className="font-medium text-zinc-200">
-              {trainingDay.mesocycle?.name}
-            </h2>
-          </div>
-
-          <Heading className="text-white">
-            {trainingDay.label || "Unlabelled"}
+          <Heading className="hidden lg:block">
+            {trainingDay.mesocycle!.name}
           </Heading>
 
           {muscleGroups.length > 0 ? (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="mb-4 flex flex-wrap gap-2 lg:mt-4">
               {muscleGroups.map((muscleGroup, index) => (
                 <li key={muscleGroup}>
-                  <MuscleGroupBadge white index={index}>
+                  <MuscleGroupBadge index={index}>
                     {muscleGroup}
                   </MuscleGroupBadge>
                 </li>
               ))}
             </ul>
           ) : null}
+
+          <TrainingDayLabelForm />
         </div>
       </div>
 
-      <div className="mt-4 pb-8">
-        <TrainingDayLabelForm />
-
+      <div className="pb-8">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -195,7 +189,7 @@ export function TrainingDay() {
             items={exercises}
             strategy={verticalListSortingStrategy}
           >
-            <ol className="mt-6 flex flex-col gap-6">
+            <ol className="flex flex-col gap-6">
               {exercises.map((exercise) => (
                 <SortableExercise key={exercise.id} exercise={exercise} />
               ))}

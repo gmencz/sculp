@@ -21,6 +21,9 @@ import { configRoutes } from "~/utils/routes";
 import { WeightUnitPreference } from "../../new+/index/schema";
 import { WeightUnit } from "@prisma/client";
 import { Paragraph } from "~/components/paragraph";
+import { PlayIcon, StopIcon } from "@heroicons/react/20/solid";
+import { classes } from "~/utils/classes";
+import clsx from "clsx";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.mesocycle.name,
@@ -84,7 +87,17 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
-  return json({ mesocycle });
+  const currentMesocycle = await prisma.mesocycleRun.findFirst({
+    where: {
+      currentUserId: user.id,
+    },
+    select: { id: true, mesocycle: { select: { id: true } } },
+  });
+
+  return json({
+    mesocycle,
+    isCurrent: currentMesocycle?.mesocycle.id === mesocycle.id,
+  });
 };
 
 export const action = async ({ request, params }: ActionArgs) => {
@@ -120,7 +133,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 };
 
 export default function Mesocycle() {
-  const { mesocycle } = useLoaderData<typeof loader>();
+  const { mesocycle, isCurrent } = useLoaderData<typeof loader>();
 
   const allDays = useMemo(
     () =>
@@ -151,7 +164,7 @@ export default function Mesocycle() {
         {allDays.map((day) =>
           typeof day === "number" ? (
             <li key={day}>
-              <div className="block rounded-lg bg-zinc-50 border border-zinc-300 px-4 py-4 sm:px-6">
+              <div className="block rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-4 sm:px-6">
                 <h3 className="truncate font-semibold text-zinc-900">
                   Day {day} - Rest
                 </h3>
@@ -164,6 +177,38 @@ export default function Mesocycle() {
           )
         )}
       </ul>
+
+      <div className="mt-8 flex items-center gap-4 border-t border-zinc-200 pt-6 sm:justify-start">
+        {isCurrent ? (
+          <Link
+            to="./stop"
+            className={clsx(
+              classes.buttonOrLink.primary,
+              "flex-1 lg:flex-none"
+            )}
+          >
+            <span>Stop</span>
+          </Link>
+        ) : (
+          <Link
+            to="./start"
+            className={clsx(
+              classes.buttonOrLink.primary,
+              "flex-1 lg:flex-none"
+            )}
+          >
+            <span>Start</span>
+          </Link>
+        )}
+        <div className="-ml-px flex w-0 flex-1">
+          <Link
+            to="./history"
+            className={clsx(classes.buttonOrLink.secondary, "w-full lg:w-auto")}
+          >
+            View runs
+          </Link>
+        </div>
+      </div>
     </AppPageLayout>
   );
 }
@@ -183,7 +228,7 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
   return (
     <Link
       to={`./${trainingDay.id}`}
-      className="group block divide-y divide-zinc-200 rounded-lg bg-zinc-50 hover:bg-white border border-zinc-300 transition-all"
+      className="group block divide-y divide-zinc-200 rounded-lg border border-zinc-300 bg-zinc-50 hover:bg-white"
     >
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4">
