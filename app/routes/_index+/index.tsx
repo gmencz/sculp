@@ -151,7 +151,7 @@ export default function Index() {
             eye on your progress. Say goodbye to plateaus and hello to
             extraordinary results.
           </p>
-          <div className="mt-8 flex items-center gap-6 xs:justify-center lg:justify-normal">
+          <div className="mt-8 flex flex-col gap-6 xs:flex-row xs:items-center xs:justify-center lg:justify-normal">
             {user ? (
               <Link
                 to={configRoutes.app.current}

@@ -9,44 +9,6 @@ export const loader = async () => {
       display: "fullscreen",
       background_color: "#fafafa",
       theme_color: "#ffffff",
-      shortcuts: [
-        {
-          name: "Mesocycles",
-          url: "/app/mesocycles",
-          icons: [
-            {
-              src: "/icons/icon-96x96.png",
-              sizes: "96x96",
-              type: "image/png",
-              purpose: "any monochrome",
-            },
-          ],
-        },
-        {
-          name: "Exercises",
-          url: "/app/exercises",
-          icons: [
-            {
-              src: "/icons/icon-96x96.png",
-              sizes: "96x96",
-              type: "image/png",
-              purpose: "any monochrome",
-            },
-          ],
-        },
-        {
-          name: "Profile",
-          url: "/app/profile",
-          icons: [
-            {
-              src: "/icons/icon-96x96.png",
-              sizes: "96x96",
-              type: "image/png",
-              purpose: "any monochrome",
-            },
-          ],
-        },
-      ],
       icons: [
         {
           src: "/icons/icon-48x48.png",
