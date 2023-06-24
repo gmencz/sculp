@@ -6,7 +6,7 @@ export const loader = async () => {
       short_name: "Sculped",
       name: "Sculped - Hypertrophy Training",
       start_url: "/app",
-      display: "standalone",
+      display: "fullscreen",
       background_color: "#fafafa",
       theme_color: "#ffffff",
       shortcuts: [

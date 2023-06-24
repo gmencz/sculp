@@ -231,8 +231,8 @@ function Layout({ children }: PropsWithChildren) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white px-6 pb-1 pt-3 shadow-lg lg:hidden">
-        <nav className="mx-auto w-full max-w-sm">
+      <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white shadow-lg lg:hidden">
+        <nav className="mx-auto w-full max-w-md">
           <ul
             style={{
               gridTemplateColumns: `repeat(${mobileNavigation.length}, 1fr)`,
@@ -240,14 +240,16 @@ function Layout({ children }: PropsWithChildren) {
             className="grid place-items-center gap-1 xs:gap-2 sm:gap-4"
           >
             {mobileNavigation.map((item) => (
-              <li key={item.name}>
+              <li key={item.name} className="w-full">
                 <NavLink
                   end={item.end}
                   to={item.href}
                   className={({ isActive }) =>
                     clsx(
-                      isActive ? "text-zinc-900" : "text-zinc-400",
-                      "group flex flex-col items-center justify-center rounded-md p-2 text-sm font-semibold leading-6"
+                      isActive
+                        ? "border-orange-600 text-orange-600"
+                        : "border-white text-zinc-400",
+                      "group flex flex-col items-center justify-center border-t-2 pb-2 pt-4 text-sm font-semibold leading-6"
                     )
                   }
                 >
