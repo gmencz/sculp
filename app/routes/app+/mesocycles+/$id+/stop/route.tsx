@@ -145,7 +145,7 @@ export default function StopMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">
+      <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
         Stop {mesocycle.name}
       </Heading>
       <Paragraph className="lg:mt-2">

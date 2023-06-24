@@ -59,7 +59,7 @@ export default function MesocycleHistory() {
   return (
     <AppPageLayout>
       <div className="hidden lg:block">
-        <Heading className="hidden text-zinc-900 lg:block">
+        <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
           {mesocycle.name}
         </Heading>
         {mesocycle.runs.length > 0 ? (
@@ -72,12 +72,12 @@ export default function MesocycleHistory() {
       </div>
 
       {mesocycle.runs.length ? (
-        <table className="min-w-full divide-y divide-zinc-300 lg:mt-6">
+        <table className="min-w-full divide-y divide-zinc-300 dark:divide-zinc-700 lg:mt-6">
           <thead>
             <tr>
               <th
                 scope="col"
-                className="pb-3.5 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-4"
+                className="pb-3.5 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 sm:pl-4"
               >
                 Start date
               </th>
@@ -86,10 +86,10 @@ export default function MesocycleHistory() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200">
+          <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
             {mesocycle.runs.map((run) => (
               <tr key={run.id}>
-                <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-zinc-900 sm:pl-4">
+                <td className="whitespace-nowrap py-4 pr-3 text-sm font-medium text-zinc-900 dark:text-zinc-50 sm:pl-4">
                   {format(new Date(run.startDate), "MMM' 'd' 'yyyy")}
                 </td>
 

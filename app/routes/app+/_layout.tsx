@@ -231,7 +231,7 @@ function Layout({ children }: PropsWithChildren) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white shadow-lg lg:hidden">
+      <div className="fixed bottom-0 left-0 z-50 w-full border-t border-zinc-900/10 bg-white shadow-lg dark:border-zinc-50/10 dark:bg-zinc-950 lg:hidden">
         <nav className="mx-auto w-full max-w-md">
           <ul
             style={{
@@ -248,7 +248,7 @@ function Layout({ children }: PropsWithChildren) {
                     clsx(
                       isActive
                         ? "border-orange-600 text-orange-600"
-                        : "border-white text-zinc-400",
+                        : "border-white text-zinc-400 dark:border-zinc-950 dark:text-zinc-600",
                       "group flex flex-col items-center justify-center border-t-2 pb-2 pt-4 text-sm font-semibold leading-6"
                     )
                   }
@@ -262,7 +262,7 @@ function Layout({ children }: PropsWithChildren) {
         </nav>
       </div>
 
-      <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg lg:hidden">
+      <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg dark:border-zinc-50/10 dark:bg-zinc-950 lg:hidden">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-8">
           <Link
             to={configRoutes.app.current}
@@ -270,7 +270,7 @@ function Layout({ children }: PropsWithChildren) {
           >
             <img className="h-8 w-auto" src="/logo.png" alt="" />
 
-            <span className="max-w-xl text-base font-bold text-zinc-950">
+            <span className="max-w-xl text-base font-bold text-zinc-950 dark:text-white">
               {matchWithHeader?.handle?.header(matchWithHeader.data) ||
                 "Sculped"}
             </span>
@@ -282,7 +282,7 @@ function Layout({ children }: PropsWithChildren) {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900"
+                    className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
                   >
                     {link.type === "new" ? (
                       <PlusCircleIcon className="h-8 w-8 rounded-full" />
@@ -296,7 +296,7 @@ function Layout({ children }: PropsWithChildren) {
         </div>
       </div>
 
-      <main className="min-h-full bg-zinc-50 pb-16 lg:pb-0 lg:pl-72">
+      <main className="min-h-full bg-zinc-50 pb-16 dark:bg-zinc-900 lg:pb-0 lg:pl-72">
         {children}
       </main>
     </>

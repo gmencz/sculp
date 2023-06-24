@@ -7,8 +7,8 @@ export function MuscleGroupBadge(
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-x-2 rounded-md px-3 py-1 text-sm font-medium ring-1 ring-inset ring-zinc-200",
-        props.white ? "text-white" : "text-zinc-900"
+        "inline-flex items-center gap-x-2 rounded-md px-3 py-1 text-sm font-medium ring-1 ring-inset ring-zinc-200 dark:ring-zinc-700",
+        props.white ? "text-white" : "text-zinc-900 dark:text-zinc-50"
       )}
     >
       <svg

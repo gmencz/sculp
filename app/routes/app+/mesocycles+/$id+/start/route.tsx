@@ -275,7 +275,7 @@ export default function StartMesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">
+      <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
         {mesocycle.name}
       </Heading>
 

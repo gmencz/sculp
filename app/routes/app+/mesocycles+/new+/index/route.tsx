@@ -11,6 +11,7 @@ import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { configRoutes } from "~/utils/routes";
 import { WeightUnit } from "@prisma/client";
+import { Heading } from "~/components/heading";
 
 export const handle: MatchWithHeader = {
   header: () => "Plan a new mesocycle",
@@ -200,8 +201,12 @@ const tabs = ["Preset", "Custom"];
 
 export default function NewMesocycle() {
   return (
-    <div className="px-4 pb-14 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
+    <div className="px-4 pt-6 sm:px-6 lg:px-8 lg:pb-0 lg:pt-10">
       <div className="mx-auto w-full max-w-2xl">
+        <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:mb-8 lg:block">
+          Plan a new mesocycle
+        </Heading>
+
         <Tab.Group>
           <Tab.List className="flex">
             {tabs.map((tab, index) => (
@@ -210,8 +215,8 @@ export default function NewMesocycle() {
                 className={({ selected }) =>
                   clsx(
                     selected
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-white text-zinc-500 hover:text-zinc-700",
+                      ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                      : "bg-white text-zinc-500 hover:text-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-200",
 
                     index === 0
                       ? "rounded-bl rounded-tl"
@@ -219,7 +224,7 @@ export default function NewMesocycle() {
                       ? "rounded-br rounded-tr"
                       : null,
 
-                    "flex-1 px-3 py-2 text-sm font-medium"
+                    "flex-1 px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-orange-500"
                   )
                 }
               >

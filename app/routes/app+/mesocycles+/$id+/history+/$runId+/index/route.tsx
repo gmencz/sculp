@@ -220,7 +220,7 @@ export default function MesocycleRun() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">
+      <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
         {mesocycleRun.mesocycle.name}
       </Heading>
 
@@ -232,13 +232,13 @@ export default function MesocycleRun() {
         .
       </Paragraph>
 
-      <h3 className="mt-4 text-base font-semibold leading-6 text-zinc-900">
+      <h3 className="mt-4 text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
         Stats
       </h3>
       <dl className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {stats.map((item) => (
           <div key={item.name} className="overflow-hidden">
-            <dt className="truncate text-sm font-medium text-zinc-700">
+            <dt className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {item.name}
             </dt>
             <dd className="mt-2 flex items-baseline text-3xl font-semibold text-zinc-900">
@@ -316,7 +316,7 @@ export default function MesocycleRun() {
         )}
       </div>
 
-      <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 sm:justify-start">
+      <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 dark:border-zinc-700 sm:justify-start">
         <Link to="./training" className={classes.buttonOrLink.primary}>
           <span>View training</span>
         </Link>

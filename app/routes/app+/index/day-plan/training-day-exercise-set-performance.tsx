@@ -49,16 +49,16 @@ export function TrainingDayExerciseSetPerformance({
       leave="transition-opacity duration-150"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
-      className="mx-auto flex w-full max-w-xs items-center justify-between gap-4"
+      className="mx-auto flex w-full max-w-xs items-center justify-between gap-4 text-zinc-900 dark:text-zinc-50"
     >
       <span
         className={clsx(
-          "flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-2",
+          "flex h-8 w-8 items-center justify-center rounded bg-white text-sm font-bold ring-2 dark:bg-zinc-950",
           performance === SetPerformance.INCREASED
             ? "ring-green-500"
             : performance === SetPerformance.DECLINED
             ? "ring-red-500"
-            : "ring-zinc-300"
+            : "ring-zinc-300 dark:ring-zinc-700"
         )}
       >
         S{index + 1}
@@ -94,7 +94,7 @@ export function TrainingDayExerciseSetPerformance({
                     ? "text-green-500"
                     : performance === SetPerformance.DECLINED
                     ? "text-red-500"
-                    : "text-zinc-500"
+                    : "text-zinc-500 dark:text-zinc-300"
                 )}
               />
 
@@ -121,7 +121,7 @@ export function TrainingDayExerciseSetPerformance({
             ? "text-green-500"
             : performance === SetPerformance.DECLINED
             ? "text-red-500"
-            : "text-zinc-500"
+            : "text-zinc-500 dark:text-zinc-300"
         )}
       >
         {performance === SetPerformance.INCREASED ? (

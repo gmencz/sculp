@@ -204,7 +204,7 @@ export default function AddExercise() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden text-zinc-900 lg:block">
+          <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
             Add exercise
           </Heading>
         </div>
@@ -239,18 +239,18 @@ export default function AddExercise() {
             {...form.props}
           >
             <div className="relative">
-              <table className="min-w-full divide-y divide-zinc-300">
+              <table className="min-w-full divide-y divide-zinc-300 dark:divide-zinc-700">
                 <thead>
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 sm:pl-0"
                     >
                       Name
                     </th>
                     <th
                       scope="col"
-                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
+                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 lg:table-cell"
                     >
                       Muscles
                     </th>
@@ -262,7 +262,7 @@ export default function AddExercise() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 bg-zinc-50">
+                <tbody className="divide-y divide-zinc-200 bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
                   {exercises.map((exercise, index) => (
                     <ExerciseRow
                       config={idConfig}
@@ -315,16 +315,16 @@ function ExerciseRow({ exercise, index, config }: ExerciseRowProps) {
 
   return (
     <tr>
-      <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 sm:w-auto sm:max-w-none sm:pl-0">
+      <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 dark:text-zinc-50 sm:w-auto sm:max-w-none sm:pl-0">
         {exercise.name}
         <dl className="font-normal lg:hidden">
           <dt className="sr-only">Muscles</dt>
-          <dd className="mt-1 truncate text-zinc-700">
+          <dd className="mt-1 truncate text-zinc-700 dark:text-zinc-200">
             {formattedMuscleGroups}
           </dd>
         </dl>
       </td>
-      <td className="hidden px-3 py-4 text-sm text-zinc-500 lg:table-cell">
+      <td className="hidden px-3 py-4 text-sm text-zinc-500 dark:text-zinc-200 lg:table-cell">
         {formattedMuscleGroups}
       </td>
 

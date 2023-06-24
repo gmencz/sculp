@@ -18,7 +18,7 @@ export function TrainingDayExerciseReadOnly({
   exercise,
 }: TrainingDayExerciseReadOnlyProps) {
   return (
-    <li className="mx-auto block w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
+    <li className="mx-auto block w-full max-w-2xl rounded bg-white pt-4 dark:bg-zinc-950">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
@@ -32,7 +32,7 @@ export function TrainingDayExerciseReadOnly({
       </div>
 
       <div className="mt-3 px-4 sm:px-6 lg:px-8">
-        <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+        <h3 className="text-xl font-bold leading-7 text-zinc-900 dark:text-zinc-50 sm:truncate sm:text-2xl sm:tracking-tight">
           {exercise.exercise?.name}
         </h3>
 
@@ -41,44 +41,47 @@ export function TrainingDayExerciseReadOnly({
         ) : null}
       </div>
 
-      <table className="mt-3 min-w-full divide-y divide-zinc-300">
+      <table className="mt-3 min-w-full divide-y divide-zinc-300 dark:divide-zinc-700">
         <thead>
           <tr>
             <th
               scope="col"
-              className="py-2 pl-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900 sm:pl-0"
+              className="py-2 pl-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50 sm:pl-0"
             >
               Set
             </th>
             <th
               scope="col"
-              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900"
+              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
             >
               Weight
             </th>
             <th
               scope="col"
-              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900"
+              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
             >
               Rep range
             </th>
             <th
               scope="col"
-              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900"
+              className="py-2 pr-3 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
             >
               RIR
             </th>
             <th
               scope="col"
-              className="py-2 pr-2 text-center text-xs font-medium uppercase text-zinc-900 sm:pr-0"
+              className="py-2 pr-2 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50 sm:pr-0"
             >
               Reps
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-200">
+        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {exercise.sets.map((set) => (
-            <tr key={set.id} className="text-center text-sm text-zinc-900">
+            <tr
+              key={set.id}
+              className="text-center text-sm text-zinc-900 dark:text-zinc-50"
+            >
               <td className="py-2 pl-2 pr-3 font-medium sm:pl-0">
                 {set.number}
               </td>

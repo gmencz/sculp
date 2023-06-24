@@ -72,7 +72,7 @@ function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full bg-zinc-50">
+      <body className="h-full bg-zinc-50 dark:bg-zinc-900">
         <Toaster position="bottom-right" />
         <GlobalLoading />
         <Outlet />
@@ -97,7 +97,7 @@ function ErrorDoc({ children }: PropsWithChildren) {
         <title>Oh no...</title>
         <Links />
       </head>
-      <body className="h-full bg-zinc-50">
+      <body className="h-full bg-zinc-50 dark:bg-zinc-900">
         {children}
         <Scripts />
       </body>

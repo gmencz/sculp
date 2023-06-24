@@ -111,14 +111,14 @@ export const UpdateExerciseNotesForm = forwardRef<
         leaveTo="opacity-0"
         className="relative mb-3"
       >
-        <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
+        <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 dark:bg-red-800 sm:hidden">
           <TrashIcon className="h-5 w-5 text-white" />
           <span className="sr-only">Remove</span>
         </div>
 
         <animated.div
           {...bind()}
-          className="relative cursor-grab touch-pan-y bg-white px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
+          className="relative cursor-grab touch-pan-y bg-white px-4 py-1 dark:bg-zinc-950 sm:cursor-auto sm:px-6 lg:px-8"
           style={{ x }}
         >
           <Textarea

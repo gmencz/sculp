@@ -95,7 +95,7 @@ export function TrainingDay({
 
   return (
     <>
-      <div className="bg-zinc-900 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <div className="mb-6 bg-zinc-900 px-4 py-6 dark:bg-zinc-950 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto w-full max-w-2xl">
           <div className="mb-1 flex items-center justify-between">
             <div className="hidden lg:block">
@@ -140,7 +140,7 @@ export function TrainingDay({
         </div>
       </div>
 
-      <div className="bg-zinc-50 pb-12">
+      <div className="bg-zinc-50 pb-6 dark:bg-zinc-900">
         {trainingDay.completed ? (
           <div className="mx-auto flex w-full max-w-2xl items-center gap-4 bg-green-100 px-4 py-2 text-sm font-semibold leading-6 text-green-900 sm:px-6 lg:px-8">
             <span>Completed</span>

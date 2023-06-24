@@ -125,11 +125,11 @@ export function FinishOrUpdateTrainingDayModal({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all dark:bg-zinc-950 sm:my-8 sm:w-full sm:max-w-md sm:p-6">
                 <div>
                   <Dialog.Title
                     as="h3"
-                    className="text-base font-semibold leading-6 text-zinc-900"
+                    className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50"
                   >
                     {isUpdate
                       ? "Update your training session"
@@ -142,16 +142,16 @@ export function FinishOrUpdateTrainingDayModal({
                   </Paragraph>
 
                   <ul className="mt-4 flex flex-col gap-3">
-                    <li className="flex items-center gap-1.5 text-sm text-zinc-500">
+                    <li className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-300">
                       <ArrowPathIcon className="h-5 w-5 flex-shrink-0 text-orange-500" />
                       {totalStats.sets} total sets
                     </li>
-                    <li className="flex items-center gap-1.5 text-sm text-zinc-500">
+                    <li className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-300">
                       <ScaleIcon className="h-5 w-5 flex-shrink-0 text-orange-500" />
                       {totalStats.weight} total weight lifted
                     </li>
                     {totalStats.progressions > 0 ? (
-                      <li className="flex items-center gap-1.5 text-sm text-zinc-500">
+                      <li className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-300">
                         <ArrowTrendingUpIcon className="h-5 w-5 flex-shrink-0 text-orange-500" />
                         {totalStats.progressions} total progressions, great
                         stuff!

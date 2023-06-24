@@ -51,15 +51,11 @@ export function CustomMesocycle() {
   );
 
   return (
-    <Form
-      method="post"
-      className="mt-4 rounded-lg bg-white  ring-1 ring-zinc-900/5 sm:rounded-xl md:col-span-2"
-      {...form.props}
-    >
-      <div className="flex flex-col gap-6 px-4 py-6 sm:p-8">
+    <Form method="post" className="mb-8 mt-6" {...form.props}>
+      <div className="flex flex-col gap-6">
         <Input
           config={name}
-          label="How do you want to name the mesocycle?"
+          label="Name"
           placeholder="My New Mesocycle"
           autoComplete="mesocycle-name"
         />
@@ -67,14 +63,14 @@ export function CustomMesocycle() {
         <Select
           config={weightUnitPreference}
           options={Object.keys(WeightUnitPreference)}
-          label="What is the prefered weight unit for this mesocycle?"
+          label="Weight unit"
           helperText="This cannot be changed later."
         />
 
         <Select
           config={durationInMicrocycles}
           options={durationInMicrocyclesArray.map((o) => o.toString())}
-          label="How many microcycles?"
+          label="Microcycles"
           helperText="This cannot be changed later."
         />
 
@@ -106,7 +102,7 @@ export function CustomMesocycle() {
               )
             );
           }}
-          label="On which days of the microcycle will you train?"
+          label="Training days"
           helperText="Please select a realistic number of days that you can commit to. This cannot be changed later."
         />
 
@@ -124,13 +120,13 @@ export function CustomMesocycle() {
                 ? "Select training days first"
                 : "Select rest days",
           }}
-          label="On which days of the microcycle will you rest?"
+          label="Rest days"
           helperText="This cannot be changed later."
         />
 
         <Input
           config={goal}
-          label="What is the main goal of the mesocycle?"
+          label="Goal"
           placeholder="Overall hypertrophy, bringing up legs..."
         />
 
