@@ -34,13 +34,13 @@ export default function LegalLayout() {
         )}
       </header>
 
-      <div className="flex items-center justify-center border-b border-t border-zinc-600 px-6 py-24">
-        <h1 className="text-5xl font-semibold text-zinc-950 sm:text-6xl">
+      <div className="flex items-center justify-center border-b border-t border-zinc-600 px-6 py-24 dark:border-zinc-700">
+        <h1 className="text-5xl font-semibold text-zinc-950 dark:text-white sm:text-6xl">
           Privacy Policy
         </h1>
       </div>
 
-      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-700">
+      <div className="mx-auto w-full max-w-5xl p-6 leading-7 text-zinc-700 dark:text-zinc-200">
         <Outlet />
       </div>
     </div>

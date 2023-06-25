@@ -142,10 +142,10 @@ export default function Index() {
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
             Currently in beta
           </span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-950 xs:text-5xl sm:text-6xl">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-950 dark:text-white xs:text-5xl sm:text-6xl">
             Supercharge your hypertrophy training
           </h1>
-          <p className="mt-6 text-lg leading-8 text-zinc-600">
+          <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-300">
             Unleash the muscle-building potential within you using our
             groundbreaking app. Design customized mesocycles and keep a close
             eye on your progress. Say goodbye to plateaus and hello to
@@ -182,7 +182,7 @@ export default function Index() {
         <div className="flex-shrink-0">
           <img
             src="/app-preview.png"
-            className="w-auto rounded-3xl border-[6px] border-zinc-900"
+            className="w-auto rounded-3xl border-[6px] border-zinc-900 dark:border-zinc-700"
             alt="App preview"
           />
         </div>
@@ -210,10 +210,10 @@ export default function Index() {
         <ul className="flex flex-col gap-16">
           {features.map((feature) => (
             <li className="lg:text-center" key={feature.name}>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
+              <p className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
                 {feature.name}
               </p>
-              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">
                 {feature.description}
               </p>
 
@@ -223,7 +223,7 @@ export default function Index() {
                     key={picture}
                     src={picture}
                     alt={`Preview ${index + 1}`}
-                    className="max-h-[700px] w-auto rounded-3xl border-[6px] border-zinc-900"
+                    className="max-h-[700px] w-auto rounded-3xl border-[6px] border-zinc-900 dark:border-zinc-700"
                   />
                 ))}
               </div>
@@ -232,17 +232,17 @@ export default function Index() {
         </ul>
       </div>
 
-      <div className="mt-32 divide-y divide-zinc-900/10 sm:mt-56">
-        <h2 className="text-2xl font-bold leading-10 tracking-tight text-zinc-900">
+      <div className="mt-32 divide-y divide-zinc-900/10 dark:divide-zinc-50/10 sm:mt-56">
+        <h2 className="text-2xl font-bold leading-10 tracking-tight text-zinc-900 dark:text-zinc-50">
           Frequently asked questions
         </h2>
-        <dl className="mt-10 space-y-6 divide-y divide-zinc-900/10">
+        <dl className="mt-10 space-y-6 divide-y divide-zinc-900/10 dark:divide-zinc-50/10">
           {faqs.map((faq) => (
             <Disclosure as="div" key={faq.question} className="pt-6">
               {({ open }) => (
                 <>
                   <dt>
-                    <Disclosure.Button className="flex w-full items-start justify-between text-left text-zinc-900">
+                    <Disclosure.Button className="flex w-full items-start justify-between text-left text-zinc-900 dark:text-zinc-50">
                       <span className="text-base font-semibold leading-7">
                         {faq.question}
                       </span>
@@ -262,7 +262,7 @@ export default function Index() {
                     </Disclosure.Button>
                   </dt>
                   <Disclosure.Panel as="dd" className="mt-2 pr-12">
-                    <p className="text-base leading-7 text-zinc-600">
+                    <p className="text-base leading-7 text-zinc-600 dark:text-zinc-300">
                       {typeof faq.answer === "function"
                         ? faq.answer()
                         : faq.answer}
@@ -278,13 +278,13 @@ export default function Index() {
       <footer className="mt-32 flex gap-6 text-sm">
         <Link
           to="/legal/privacy-policy"
-          className="text-zinc-600 hover:text-zinc-900"
+          className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-400"
         >
           Privacy Policy
         </Link>
         <Link
           to="/legal/terms-of-service"
-          className="text-zinc-600 hover:text-zinc-900"
+          className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-400"
         >
           Terms Of Service
         </Link>
@@ -292,9 +292,18 @@ export default function Index() {
         <div className="ml-auto">
           <Link
             to="https://discord.gg/t2vhvjrK"
-            className="text-zinc-600 hover:text-zinc-900"
+            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-400"
           >
-            <img className="h-10 w-10" src="/discord.png" alt="Discord" />
+            <svg
+              width="24"
+              height="24"
+              xmlns="http://www.w3.org/2000/svg"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              fill="currentColor"
+            >
+              <path d="M19.54 0c1.356 0 2.46 1.104 2.46 2.472v21.528l-2.58-2.28-1.452-1.344-1.536-1.428.636 2.22h-13.608c-1.356 0-2.46-1.104-2.46-2.472v-16.224c0-1.368 1.104-2.472 2.46-2.472h16.08zm-4.632 15.672c2.652-.084 3.672-1.824 3.672-1.824 0-3.864-1.728-6.996-1.728-6.996-1.728-1.296-3.372-1.26-3.372-1.26l-.168.192c2.04.624 2.988 1.524 2.988 1.524-1.248-.684-2.472-1.02-3.612-1.152-.864-.096-1.692-.072-2.424.024l-.204.024c-.42.036-1.44.192-2.724.756-.444.204-.708.348-.708.348s.996-.948 3.156-1.572l-.12-.144s-1.644-.036-3.372 1.26c0 0-1.728 3.132-1.728 6.996 0 0 1.008 1.74 3.66 1.824 0 0 .444-.54.804-.996-1.524-.456-2.1-1.416-2.1-1.416l.336.204.048.036.047.027.014.006.047.027c.3.168.6.3.876.408.492.192 1.08.384 1.764.516.9.168 1.956.228 3.108.012.564-.096 1.14-.264 1.74-.516.42-.156.888-.384 1.38-.708 0 0-.6.984-2.172 1.428.36.456.792.972.792.972zm-5.58-5.604c-.684 0-1.224.6-1.224 1.332 0 .732.552 1.332 1.224 1.332.684 0 1.224-.6 1.224-1.332.012-.732-.54-1.332-1.224-1.332zm4.38 0c-.684 0-1.224.6-1.224 1.332 0 .732.552 1.332 1.224 1.332.684 0 1.224-.6 1.224-1.332 0-.732-.54-1.332-1.224-1.332z" />
+            </svg>
           </Link>
         </div>
       </footer>
