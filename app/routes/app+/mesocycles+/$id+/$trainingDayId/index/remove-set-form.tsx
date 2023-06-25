@@ -46,7 +46,7 @@ export function RemoveSetForm({
       <button
         type="submit"
         disabled={isBeingCreated}
-        className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:cursor-not-allowed disabled:text-red-300 disabled:hover:bg-red-100"
+        className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:cursor-not-allowed disabled:text-red-300 disabled:hover:bg-red-100 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-950"
       >
         <TrashIcon className="h-5 w-5" />
         <span className="sr-only">Remove</span>

@@ -95,7 +95,7 @@ export function TrainingDay({
 
   return (
     <>
-      <div className="mb-6 bg-zinc-900 px-4 py-6 dark:bg-zinc-950 sm:px-6 sm:py-10 lg:px-8">
+      <div className="border-b border-zinc-200 bg-zinc-900 px-4 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto w-full max-w-2xl">
           <div className="mb-1 flex items-center justify-between">
             <div className="hidden lg:block">
@@ -142,18 +142,18 @@ export function TrainingDay({
 
       <div className="bg-zinc-50 pb-6 dark:bg-zinc-900">
         {trainingDay.completed ? (
-          <div className="mx-auto flex w-full max-w-2xl items-center gap-4 bg-green-100 px-4 py-2 text-sm font-semibold leading-6 text-green-900 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-2xl items-center gap-4 bg-green-100 px-4 py-2 text-sm font-semibold leading-6 text-green-900 dark:bg-green-900 dark:text-green-300 sm:px-6 lg:px-8">
             <span>Completed</span>
             <CheckBadgeIcon className="h-5 w-5" />
           </div>
         ) : null}
 
         {trainingDay.feedback ? (
-          <div className="mx-auto w-full max-w-2xl rounded-b border-b border-b-zinc-200">
+          <div className="mx-auto w-full max-w-2xl">
             <Disclosure>
               {({ open }) => (
                 <>
-                  <Disclosure.Button className="flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 sm:px-6 lg:px-8">
+                  <Disclosure.Button className="flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 dark:bg-orange-950 dark:text-orange-200 hover:dark:bg-orange-900 sm:px-6 lg:px-8">
                     <span>Your feedback</span>
 
                     <div>
@@ -166,7 +166,7 @@ export function TrainingDay({
                     </div>
                   </Disclosure.Button>
 
-                  <Disclosure.Panel className="bg-white px-4 py-2 sm:px-6 lg:px-8">
+                  <Disclosure.Panel className="border-b border-zinc-300 bg-white px-4 py-2 dark:border-zinc-700 dark:bg-zinc-950 sm:px-6 lg:px-8">
                     <Paragraph>{trainingDay.feedback}</Paragraph>
                   </Disclosure.Panel>
                 </>
