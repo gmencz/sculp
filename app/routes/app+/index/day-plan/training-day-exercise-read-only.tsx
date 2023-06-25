@@ -1,6 +1,5 @@
 import { MuscleGroupBadge } from "~/components/muscle-group-badge";
 import type { CurrentMesocycleState, loader } from "../route";
-import { TrainingDayExerciseSetPerformance } from "./training-day-exercise-set-performance";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { Paragraph } from "~/components/paragraph";
 
@@ -95,19 +94,6 @@ export function TrainingDayExerciseReadOnly({
           ))}
         </tbody>
       </table>
-
-      <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
-        <ol className="flex flex-col gap-4">
-          {exercise.sets.map((set, index) => (
-            <TrainingDayExerciseSetPerformance
-              index={index}
-              previousSets={exercise.previousSets}
-              set={{ ...set, isNew: false }}
-              key={`${set.id}-performance-change`}
-            />
-          ))}
-        </ol>
-      </div>
     </li>
   );
 }
