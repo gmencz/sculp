@@ -22,15 +22,6 @@ import type { MatchWithHeader } from "~/utils/hooks";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
 import { format } from "date-fns";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 export const handle: MatchWithHeader<SerializeFrom<typeof loader>> = {
   header: (data) => data.exercise.name,
@@ -348,7 +339,7 @@ export default function Exercise() {
                   {item.stat}
                 </span>
                 {item.helperText ? (
-                  <span className="ml-2 text-sm font-medium text-zinc-500">
+                  <span className="ml-2 text-sm font-medium text-zinc-500 dark:text-zinc-300">
                     {item.helperText}
                   </span>
                 ) : null}
@@ -356,59 +347,6 @@ export default function Exercise() {
             </div>
           ))}
         </dl>
-
-        <div className="mt-12">
-          <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
-            Volume graph
-          </h3>
-
-          {exercise.performances.length > 0 ? (
-            <ResponsiveContainer
-              className="mt-6 text-zinc-50 dark:text-zinc-900"
-              width="100%"
-              height={200}
-            >
-              <LineChart data={exercise.performances}>
-                <CartesianGrid strokeDasharray="3 3" fill="currentColor" />
-                <Line type="monotone" dataKey="volume" stroke="#f97316" />
-                <YAxis
-                  dx={-20}
-                  tickLine={{ stroke: "#f97316" }}
-                  axisLine={{ stroke: "#e4e4e7" }}
-                  tick={{ fill: "#71717a", fontSize: "0.875rem" }}
-                />
-                <XAxis
-                  dataKey="formattedShortDate"
-                  dy={10}
-                  tickLine={{ stroke: "#f97316" }}
-                  axisLine={{ stroke: "#e4e4e7" }}
-                  tick={{ fill: "#71717a", fontSize: "0.875rem" }}
-                />
-                <Tooltip
-                  separator=": "
-                  labelClassName="text-zinc-500"
-                  wrapperClassName="text-sm font-medium rounded-xl shadow-lg bg-white ring-1 ring-zinc-900/5 flex flex-col gap-1"
-                  contentStyle={{ border: "none" }}
-                  itemStyle={{
-                    margin: 0,
-                    padding: 0,
-                    fontFamily:
-                      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji","Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji"',
-                  }}
-                  formatter={(value, name, item) => {
-                    return [value, "Volume"];
-                  }}
-                  labelFormatter={(label, item) => {
-                    if (!item[0]) return label;
-                    return item[0].payload.formattedDate;
-                  }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <Paragraph className="mt-2">No data</Paragraph>
-          )}
-        </div>
 
         <div className="mt-12">
           <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
@@ -440,7 +378,7 @@ export default function Exercise() {
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 align-baseline text-sm font-medium text-zinc-900 dark:text-zinc-50 sm:pl-0">
                         {performance.formattedDate}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 align-baseline text-sm text-zinc-500">
+                      <td className="whitespace-nowrap px-3 py-4 align-baseline text-sm text-zinc-500 dark:text-zinc-300">
                         {performance.sets.map((set, index) => (
                           <span className="block" key={set.id}>
                             {set.number} - {set.weight}x{set.repsCompleted}

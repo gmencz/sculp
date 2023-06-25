@@ -4,11 +4,6 @@ export const durationInMicrocyclesArray = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const trainingDaysPerMicrocycleArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-export enum WeightUnitPreference {
-  kg = "kg",
-  lbs = "lbs",
-}
-
 export const schema = z.object({
   name: z
     .string({
@@ -21,11 +16,6 @@ export const schema = z.object({
   presetName: z
     .string({ invalid_type_error: "The preset name is not valid." })
     .optional(),
-
-  weightUnitPreference: z.nativeEnum(WeightUnitPreference, {
-    required_error: "The prefered weight unit is required",
-    invalid_type_error: "The prefered weight unit is not valid",
-  }),
 
   durationInMicrocycles: z.coerce
     .number({

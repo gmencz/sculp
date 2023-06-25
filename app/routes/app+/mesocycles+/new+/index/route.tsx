@@ -1,7 +1,7 @@
 import { parse } from "@conform-to/zod";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { WeightUnitPreference, schema } from "./schema";
+import { schema } from "./schema";
 import { Tab } from "@headlessui/react";
 import { CustomMesocycle } from "./custom";
 import { PresetMesocycle } from "./preset";
@@ -10,7 +10,6 @@ import { prisma } from "~/utils/db.server";
 import { requireUser } from "~/services/auth/api/require-user";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { configRoutes } from "~/utils/routes";
-import { WeightUnit } from "@prisma/client";
 import { Heading } from "~/components/heading";
 
 export const handle: MatchWithHeader = {
@@ -58,7 +57,6 @@ export const action = async ({ request }: ActionArgs) => {
     name,
     trainingDaysPerMicrocycle,
     presetName,
-    weightUnitPreference,
   } = submission.value;
 
   const existingMesocycle = await prisma.mesocycle.findUnique({
@@ -125,10 +123,6 @@ export const action = async ({ request }: ActionArgs) => {
         microcycles: preset.microcycles,
         user: { connect: { id: user.id } },
         restDays: { set: preset.restDays },
-        weightUnitPreference:
-          weightUnitPreference === WeightUnitPreference.kg
-            ? WeightUnit.KILOGRAM
-            : WeightUnit.POUND,
         trainingDays: {
           create: preset.trainingDays.map((trainingDay) => ({
             label: trainingDay.label,
@@ -177,10 +171,6 @@ export const action = async ({ request }: ActionArgs) => {
       microcycles: durationInMicrocycles,
       user: { connect: { id: user.id } },
       restDays: { set: restDaysPerMicrocycle.sort((a, b) => a - b) },
-      weightUnitPreference:
-        weightUnitPreference === WeightUnitPreference.kg
-          ? WeightUnit.KILOGRAM
-          : WeightUnit.POUND,
       trainingDays: {
         create: trainingDaysPerMicrocycle
           .sort((a, b) => a - b)
@@ -215,8 +205,8 @@ export default function NewMesocycle() {
                 className={({ selected }) =>
                   clsx(
                     selected
-                      ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
-                      : "bg-white text-zinc-500 hover:text-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-200",
+                      ? "bg-orange-500 text-white"
+                      : "bg-white text-zinc-500 hover:text-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:text-zinc-200",
 
                     index === 0
                       ? "rounded-bl rounded-tl"

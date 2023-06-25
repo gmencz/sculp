@@ -93,26 +93,20 @@ model MesocyclePreset {
 }
 
 model Mesocycle {
-  id                   String                 @id @default(cuid())
-  name                 String
-  microcycles          Int
-  restDays             Int[]                  @map("rest_days")
-  goal                 String
-  createdAt            DateTime               @default(now()) @map("created_at")
-  updatedAt            DateTime               @updatedAt @map("updated_at")
-  trainingDays         MesocycleTrainingDay[]
-  user                 User?                  @relation("ExistingMesocycles", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId               String?                @map("user_id")
-  runs                 MesocycleRun[]
-  weightUnitPreference WeightUnit             @default(KILOGRAM) @map("weight_unit_preference")
+  id           String                 @id @default(cuid())
+  name         String
+  microcycles  Int
+  restDays     Int[]                  @map("rest_days")
+  goal         String
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  trainingDays MesocycleTrainingDay[]
+  user         User?                  @relation("ExistingMesocycles", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       String?                @map("user_id")
+  runs         MesocycleRun[]
 
   @@unique([name, userId])
   @@map("mesocycles")
-}
-
-enum WeightUnit {
-  KILOGRAM
-  POUND
 }
 
 model MesocycleTrainingDay {

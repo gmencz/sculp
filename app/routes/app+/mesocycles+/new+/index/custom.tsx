@@ -3,7 +3,6 @@ import { Form, useActionData } from "@remix-run/react";
 import { useState } from "react";
 import type { Schema } from "./schema";
 import {
-  WeightUnitPreference,
   durationInMicrocyclesArray,
   trainingDaysPerMicrocycleArray,
 } from "./schema";
@@ -24,14 +23,12 @@ export function CustomMesocycle() {
       goal,
       trainingDaysPerMicrocycle,
       restDaysPerMicrocycle,
-      weightUnitPreference,
     },
   ] = useForm<Schema>({
     id: "new-mesocycle",
     lastSubmission,
     defaultValue: {
       durationInMicrocycles: "Select microcycles",
-      weightUnitPreference: "Select weight unit",
       trainingDaysPerMicrocycle: [],
       restDaysPerMicrocycle: [],
     },
@@ -58,13 +55,6 @@ export function CustomMesocycle() {
           label="Name"
           placeholder="My New Mesocycle"
           autoComplete="mesocycle-name"
-        />
-
-        <Select
-          config={weightUnitPreference}
-          options={Object.keys(WeightUnitPreference)}
-          label="Weight unit"
-          helperText="This cannot be changed later."
         />
 
         <Select

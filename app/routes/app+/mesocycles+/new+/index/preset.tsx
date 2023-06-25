@@ -1,6 +1,6 @@
 import { useForm } from "@conform-to/react";
 import type { Schema } from "./schema";
-import { WeightUnitPreference, durationInMicrocyclesArray } from "./schema";
+import { durationInMicrocyclesArray } from "./schema";
 import { schema } from "./schema";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { parse } from "@conform-to/zod";
@@ -23,7 +23,6 @@ export function PresetMesocycle() {
       trainingDaysPerMicrocycle,
       restDaysPerMicrocycle,
       presetName,
-      weightUnitPreference,
     },
   ] = useForm<Schema>({
     id: "new-mesocycle",
@@ -38,7 +37,6 @@ export function PresetMesocycle() {
       restDaysPerMicrocycle: mesocyclesPresets[0].restDays.map((day) =>
         day.toString()
       ),
-      weightUnitPreference: "Select weight unit",
     },
     onValidate({ formData }) {
       return parse(formData, { schema });
@@ -90,13 +88,6 @@ export function PresetMesocycle() {
           label="How do you want to call the mesocycle?"
           placeholder="My New Mesocycle"
           autoComplete="mesocycle-name"
-        />
-
-        <Select
-          config={weightUnitPreference}
-          options={Object.keys(WeightUnitPreference)}
-          label="What is the prefered weight unit for this mesocycle?"
-          helperText="This cannot be changed later."
         />
 
         <Select

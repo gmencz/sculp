@@ -211,7 +211,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
     },
   ];
 
-  const { isFutureSession, weightUnitPreference } = useLoaderData<
+  const { isFutureSession } = useLoaderData<
     SerializeFrom<typeof loader> & {
       state: CurrentMesocycleState.STARTED;
     }
@@ -384,7 +384,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
-                {weightUnitPreference === "KILOGRAM" ? "kg" : "lbs"}
+                Weight
               </div>
               <div
                 role="columnheader"

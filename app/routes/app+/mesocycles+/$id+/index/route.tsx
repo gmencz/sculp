@@ -18,8 +18,6 @@ import { schema } from "./schema";
 import { parse } from "@conform-to/zod";
 import { redirectBack } from "~/utils/responses.server";
 import { configRoutes } from "~/utils/routes";
-import { WeightUnitPreference } from "../../new+/index/schema";
-import { WeightUnit } from "@prisma/client";
 import { Paragraph } from "~/components/paragraph";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
@@ -46,7 +44,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       name: true,
       goal: true,
       restDays: true,
-      weightUnitPreference: true,
       trainingDays: {
         orderBy: { number: "asc" },
         select: {
@@ -112,17 +109,13 @@ export const action = async ({ request, params }: ActionArgs) => {
     return json(intentSubmission, { status: 400 });
   }
 
-  const { name, goal, weightUnitPreference } = intentSubmission.value;
+  const { name, goal } = intentSubmission.value;
 
   await prisma.mesocycle.update({
     where: { id },
     data: {
       goal,
       name,
-      weightUnitPreference:
-        weightUnitPreference === WeightUnitPreference.kg
-          ? WeightUnit.KILOGRAM
-          : WeightUnit.POUND,
     },
   });
 

@@ -90,7 +90,6 @@ export const loader = async ({ request }: LoaderArgs) => {
       mesocycle: {
         select: {
           id: true,
-          weightUnitPreference: true,
           name: true,
           microcycles: true,
           restDays: true,
@@ -147,7 +146,6 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json({
       state,
       formattedStartDate,
-      weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
       mesocycleName: currentMesocycle.mesocycle.name,
     });
   }
@@ -296,7 +294,6 @@ export const loader = async ({ request }: LoaderArgs) => {
       return json(
         {
           state,
-          weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
           mesocycleName: currentMesocycle.mesocycle.name,
           microcycleLength,
           calendarDays,
@@ -398,8 +395,6 @@ export const loader = async ({ request }: LoaderArgs) => {
         return json(
           {
             state,
-            weightUnitPreference:
-              currentMesocycle.mesocycle.weightUnitPreference,
             mesocycleName: currentMesocycle.mesocycle.name,
             microcycleLength,
             calendarDays,
@@ -460,7 +455,6 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json(
       {
         state,
-        weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
         mesocycleName: currentMesocycle.mesocycle.name,
         microcycleLength,
         calendarDays,
@@ -496,7 +490,6 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json(
     {
       state,
-      weightUnitPreference: currentMesocycle.mesocycle.weightUnitPreference,
       mesocycleName: currentMesocycle.mesocycle.name,
       microcycleLength,
       calendarDays,
@@ -677,11 +670,6 @@ export const action = async ({ request }: ActionArgs) => {
                     endDate: true,
                     mesocycleId: true,
                     progressiveRir: true,
-                    mesocycle: {
-                      select: {
-                        weightUnitPreference: true,
-                      },
-                    },
                   },
                 },
               },
