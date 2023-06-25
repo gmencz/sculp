@@ -251,7 +251,7 @@ export default function MesocycleRun() {
       </dl>
 
       <div className="mt-12">
-        <h3 className="text-base font-semibold leading-6 text-zinc-900">
+        <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-gray-50">
           Exercises volume graph
         </h3>
 
@@ -261,9 +261,13 @@ export default function MesocycleRun() {
         </Paragraph>
 
         {mesocycleRun.chartData.length > 0 ? (
-          <ResponsiveContainer className="mt-6" width="100%" height={400}>
+          <ResponsiveContainer
+            className="mt-6 text-zinc-50 dark:text-zinc-900"
+            width="100%"
+            height={400}
+          >
             <LineChart data={mesocycleRun.chartData}>
-              <CartesianGrid strokeDasharray="3 3" fill="#fafafa" />
+              <CartesianGrid strokeDasharray="3 3" fill="currentColor" />
 
               {mesocycleRun.chartExercises.map((exercise) => (
                 <Line

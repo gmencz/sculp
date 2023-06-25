@@ -363,9 +363,13 @@ export default function Exercise() {
           </h3>
 
           {exercise.performances.length > 0 ? (
-            <ResponsiveContainer className="mt-6" width="100%" height={200}>
+            <ResponsiveContainer
+              className="mt-6 text-zinc-50 dark:text-zinc-900"
+              width="100%"
+              height={200}
+            >
               <LineChart data={exercise.performances}>
-                <CartesianGrid strokeDasharray="3 3" fill="#fafafa" />
+                <CartesianGrid strokeDasharray="3 3" fill="currentColor" />
                 <Line type="monotone" dataKey="volume" stroke="#f97316" />
                 <YAxis
                   dx={-20}
