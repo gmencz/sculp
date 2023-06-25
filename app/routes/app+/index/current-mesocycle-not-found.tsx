@@ -9,6 +9,7 @@ import { configRoutes } from "~/utils/routes";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
 import type { SerializeFrom } from "@remix-run/server-runtime";
+import { Paragraph } from "~/components/paragraph";
 
 type CurrentMesocycleNotFoundProps = {
   data: SerializeFrom<typeof loader> & {
@@ -21,13 +22,15 @@ export function CurrentMesocycleNotFound({
 }: CurrentMesocycleNotFoundProps) {
   return (
     <div className="flex flex-col items-center justify-center py-32 text-center">
-      <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400" />
-      <h3 className="mt-2 text-sm font-semibold text-zinc-900">Nothing here</h3>
-      <p className="mt-1 text-sm text-zinc-500">
+      <CalendarIcon className="mx-auto h-12 w-12 text-zinc-400 dark:text-zinc-300" />
+      <h3 className="mt-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+        Nothing here
+      </h3>
+      <Paragraph className="mt-1">
         {data.mesocyclesCount > 0
           ? "Get started by starting one of your mesocycles."
           : "Get started by planning a new mesocycle."}
-      </p>
+      </Paragraph>
       <div className="mt-6">
         {data.mesocyclesCount > 0 ? (
           <Link
