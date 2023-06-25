@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Form,
   useActionData,
+  useLoaderData,
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
@@ -26,6 +27,7 @@ import { Textarea } from "~/components/textarea";
 import { SubmitButton } from "~/components/submit-button";
 import { TrainingDayExerciseSet } from "./training-day-exercise-set";
 import { useDrag } from "@use-gesture/react";
+import { TrainingDayExerciseSetPerformance } from "./training-day-exercise-set-performance";
 import type { CurrentMesocycleState, loader } from "../route";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useDebounce, useMediaQuery } from "~/utils/hooks";
@@ -208,6 +210,12 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
       },
     },
   ];
+
+  const { isFutureSession } = useLoaderData<
+    SerializeFrom<typeof loader> & {
+      state: CurrentMesocycleState.STARTED;
+    }
+  >();
 
   const shouldIncreaseWeightInSets = useMemo(
     () =>
@@ -434,6 +442,21 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           text="Add set"
         />
       </Form>
+
+      {isFutureSession ? null : (
+        <div className="mt-2 px-4 py-4 sm:px-6 lg:px-8">
+          <ol className="flex flex-col gap-4">
+            {sets.map((set, index) => (
+              <TrainingDayExerciseSetPerformance
+                index={index}
+                previousSets={exercise.previousSets}
+                set={set}
+                key={`${set.id}-performance-change`}
+              />
+            ))}
+          </ol>
+        </div>
+      )}
     </li>
   );
 }
