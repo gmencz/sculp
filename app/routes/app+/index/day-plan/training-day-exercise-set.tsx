@@ -4,6 +4,8 @@ import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { useRef, useState } from "react";
 import { TrainingDayExerciseSetForm } from "./training-day-exercise-set-form";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { CurrentMesocycleState, loader } from "../route";
 
 export type Set = {
   isNew: boolean;
@@ -24,6 +26,13 @@ type TrainingDayExerciseSetProps = {
   index: number;
   isXs: boolean;
   exerciseId: string;
+  previousSets: NonNullable<
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
+  >["exercises"][number]["previousSets"];
 };
 
 export function TrainingDayExerciseSet({
@@ -32,6 +41,7 @@ export function TrainingDayExerciseSet({
   isXs,
   setSets,
   exerciseId,
+  previousSets,
 }: TrainingDayExerciseSetProps) {
   const [isRemoved, setIsRemoved] = useState(false);
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
@@ -95,6 +105,7 @@ export function TrainingDayExerciseSet({
           isRemoved={isRemoved}
           setIsRemoved={setIsRemoved}
           setSets={setSets}
+          previousSets={previousSets}
         />
       </animated.div>
     </Transition>

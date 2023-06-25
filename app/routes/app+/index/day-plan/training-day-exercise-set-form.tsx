@@ -10,7 +10,7 @@ import type { UpdateSetSchema } from "../schema";
 import { actionIntents, updateSetSchema } from "../schema";
 import { parse } from "@conform-to/zod";
 import type { ChangeEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "~/components/input";
 import clsx from "clsx";
 import {
@@ -28,6 +28,13 @@ type TrainingDayExerciseSetFormProps = {
   removeSetButtonRef: React.RefObject<HTMLButtonElement>;
   isRemoved: boolean;
   exerciseId: string;
+  previousSets: NonNullable<
+    NonNullable<
+      (SerializeFrom<typeof loader> & {
+        state: CurrentMesocycleState.STARTED;
+      })["day"]
+    >["trainingDay"]
+  >["exercises"][number]["previousSets"];
 };
 
 export function TrainingDayExerciseSetForm({
@@ -37,6 +44,7 @@ export function TrainingDayExerciseSetForm({
   isRemoved,
   setSets,
   exerciseId,
+  previousSets,
 }: TrainingDayExerciseSetFormProps) {
   const lastSubmission = useActionData() as any as any;
   const [
@@ -158,9 +166,10 @@ export function TrainingDayExerciseSetForm({
     }
   >();
 
-  const hitTargetRepRange =
-    (set.repsCompleted || 0) >= set.repRangeLowerBound &&
-    (set.repsCompleted || 0) <= set.repRangeUpperBound;
+  const previousSet = useMemo(
+    () => previousSets.find(({ number }) => number === set.number),
+    [previousSets, set.number]
+  );
 
   return (
     <Form
@@ -176,21 +185,14 @@ export function TrainingDayExerciseSetForm({
 
       <div
         role="cell"
-        className="flex flex-1 items-center justify-center gap-2 text-center text-sm font-medium text-zinc-700 dark:text-zinc-200"
+        className="flex-1 text-center text-sm font-medium text-zinc-700 dark:text-zinc-200"
       >
-        <span>
-          {set.repRangeLowerBound}-{set.repRangeUpperBound}
+        <span className="tracking-tight">
+          {/*  */}
+          {previousSet
+            ? `${previousSet.weight}x${previousSet.repsCompleted}`
+            : "-"}
         </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className={clsx("h-5 w-5", hitTargetRepRange && "text-green-500")}
-          fill="currentColor"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M6 12c0 2.206 1.794 4 4 4 1.761 0 3.242-1.151 3.775-2.734l2.224-1.291.001.025c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6c1.084 0 2.098.292 2.975.794l-2.21 1.283c-.248-.048-.503-.077-.765-.077-2.206 0-4 1.794-4 4zm4-2c-1.105 0-2 .896-2 2s.895 2 2 2 2-.896 2-2l-.002-.015 3.36-1.95c.976-.565 2.704-.336 3.711.159l4.931-2.863-3.158-1.569.169-3.632-4.945 2.87c-.07 1.121-.734 2.736-1.705 3.301l-3.383 1.964c-.29-.163-.621-.265-.978-.265zm7.995 1.911l.005.089c0 4.411-3.589 8-8 8s-8-3.589-8-8 3.589-8 8-8c1.475 0 2.853.408 4.041 1.107.334-.586.428-1.544.146-2.18-1.275-.589-2.69-.927-4.187-.927-5.523 0-10 4.477-10 10s4.477 10 10 10c5.233 0 9.521-4.021 9.957-9.142-.301-.483-1.066-1.061-1.962-.947z" />
-        </svg>
       </div>
 
       <div role="cell" className="flex-1">
@@ -219,6 +221,7 @@ export function TrainingDayExerciseSetForm({
           onChange={(e) => handleValueChange(e, "repsCompleted")}
           min={0}
           readOnly={Boolean(values.completed)}
+          placeholder={`${set.repRangeLowerBound}-${set.repRangeUpperBound}`}
         />
       </div>
 

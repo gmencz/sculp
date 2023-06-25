@@ -378,7 +378,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 role="columnheader"
                 className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
-                Rep range
+                Previous
               </div>
               <div
                 role="columnheader"
@@ -413,6 +413,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                 isXs={isXs}
                 index={index}
                 set={set}
+                previousSets={exercise.previousSets}
               />
             ))}
           </div>

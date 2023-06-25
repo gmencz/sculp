@@ -99,7 +99,7 @@ export function TrainingDayExerciseSetPerformance({
               />
 
               {set.completed ? (
-                <span>
+                <span className="tracking-tight">
                   {set.weight}x{set.repsCompleted} {set.rir} RIR
                 </span>
               ) : (
