@@ -293,7 +293,7 @@ export default function Exercise() {
     <AppPageLayout>
       {exercise.shared ? (
         <>
-          <Heading className="hidden text-zinc-900 lg:block">
+          <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
             {exercise.name}
           </Heading>
 
@@ -304,7 +304,7 @@ export default function Exercise() {
         </>
       ) : (
         <>
-          <Heading className="hidden text-zinc-900 lg:block">
+          <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
             {exercise.name}
           </Heading>
 
@@ -334,16 +334,16 @@ export default function Exercise() {
       )}
 
       <div className="mt-6">
-        <h3 className="text-base font-semibold leading-6 text-zinc-900">
+        <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
           Stats
         </h3>
         <dl className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {stats.map((item) => (
             <div key={item.name} className="overflow-hidden">
-              <dt className="truncate text-sm font-medium text-zinc-700">
+              <dt className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
                 {item.name}
               </dt>
-              <dd className="mt-2 flex items-baseline text-3xl font-semibold text-zinc-900">
+              <dd className="mt-2 flex items-baseline text-3xl font-semibold text-zinc-900 dark:text-zinc-50">
                 <span className="tracking-tight text-orange-500">
                   {item.stat}
                 </span>
@@ -358,14 +358,18 @@ export default function Exercise() {
         </dl>
 
         <div className="mt-12">
-          <h3 className="text-base font-semibold leading-6 text-zinc-900">
+          <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
             Volume graph
           </h3>
 
           {exercise.performances.length > 0 ? (
-            <ResponsiveContainer className="mt-6" width="100%" height={200}>
+            <ResponsiveContainer
+              className="mt-6 text-zinc-50 dark:text-zinc-900"
+              width="100%"
+              height={200}
+            >
               <LineChart data={exercise.performances}>
-                <CartesianGrid strokeDasharray="3 3" fill="#fafafa" />
+                <CartesianGrid strokeDasharray="3 3" fill="currentColor" />
                 <Line type="monotone" dataKey="volume" stroke="#f97316" />
                 <YAxis
                   dx={-20}
@@ -407,33 +411,33 @@ export default function Exercise() {
         </div>
 
         <div className="mt-12">
-          <h3 className="text-base font-semibold leading-6 text-zinc-900">
+          <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
             History
           </h3>
 
           {exercise.performances.length > 0 ? (
             <div className="-mx-4 mt-4 sm:-mx-0">
-              <table className="min-w-full divide-y divide-zinc-300">
+              <table className="min-w-full divide-y divide-zinc-300 dark:divide-zinc-700">
                 <thead>
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 sm:pl-0"
                     >
                       Date
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                     >
                       Sets
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                   {exercise.performances.map((performance) => (
                     <tr key={performance.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 align-baseline text-sm font-medium text-zinc-900 sm:pl-0">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 align-baseline text-sm font-medium text-zinc-900 dark:text-zinc-50 sm:pl-0">
                         {performance.formattedDate}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 align-baseline text-sm text-zinc-500">
@@ -455,7 +459,7 @@ export default function Exercise() {
       </div>
 
       {exercise.shared ? null : (
-        <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 sm:justify-start">
+        <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 dark:border-zinc-700 sm:justify-start">
           <SubmitButton
             form={form.id}
             text="Save changes"

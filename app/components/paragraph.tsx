@@ -6,7 +6,12 @@ export function Paragraph({
   className,
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <p className={clsx("text-sm leading-6 text-zinc-500", className)}>
+    <p
+      className={clsx(
+        "text-sm leading-6 text-zinc-500 dark:text-zinc-200",
+        className
+      )}
+    >
       {children}
     </p>
   );

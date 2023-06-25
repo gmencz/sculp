@@ -148,7 +148,7 @@ export default function Mesocycle() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">
+      <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
         {mesocycle.name}
       </Heading>
 
@@ -163,8 +163,8 @@ export default function Mesocycle() {
         {allDays.map((day) =>
           typeof day === "number" ? (
             <li key={day}>
-              <div className="block rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-4 sm:px-6">
-                <h3 className="truncate font-semibold text-zinc-900">
+              <div className="block rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-4 dark:border-zinc-700 dark:bg-zinc-900 sm:px-6">
+                <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
                   Day {day} - Rest
                 </h3>
               </div>
@@ -177,7 +177,7 @@ export default function Mesocycle() {
         )}
       </ul>
 
-      <div className="mt-8 flex items-center gap-4 border-t border-zinc-200 pt-6 sm:justify-start">
+      <div className="mt-8 flex items-center gap-4 border-t border-zinc-200 pt-6 dark:border-zinc-700 sm:justify-start">
         {isCurrent ? (
           <Link
             to="./stop"
@@ -227,11 +227,11 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
   return (
     <Link
       to={`./${trainingDay.id}`}
-      className="group block divide-y divide-zinc-200 rounded-lg border border-zinc-300 bg-zinc-50 hover:bg-white"
+      className="group block divide-y divide-zinc-200 rounded-lg border border-zinc-300 bg-zinc-50 hover:bg-white dark:divide-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-950"
     >
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4">
-          <h3 className="truncate font-semibold text-zinc-900">
+          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
             {trainingDay.label
               ? `Day ${trainingDay.number} - ${trainingDay.label}`
               : `Day ${trainingDay.number} - Unlabelled`}
@@ -252,7 +252,7 @@ function TrainingDayCard({ trainingDay }: TrainingDayCardProps) {
           <ol className="mt-4 flex flex-col gap-1">
             {trainingDay.exercises.map((exercise) => (
               <li key={exercise.id}>
-                <p className="text-sm text-zinc-700">
+                <p className="text-sm text-zinc-700 dark:text-zinc-300">
                   {exercise.sets.length} x {exercise.exercise?.name}
                 </p>
               </li>

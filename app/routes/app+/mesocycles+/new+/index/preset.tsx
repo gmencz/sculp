@@ -54,7 +54,7 @@ export function PresetMesocycle() {
   )!;
 
   return (
-    <Form method="post" className="mt-4" {...form.props}>
+    <Form method="post" className="mt-6" {...form.props}>
       <Select
         config={presetName}
         options={mesocyclesPresets.map((preset) => preset.name)}
@@ -84,10 +84,10 @@ export function PresetMesocycle() {
         </Fragment>
       ))}
 
-      <div className="mt-6 flex flex-col gap-6 rounded-lg bg-white px-4 py-6  ring-1 ring-zinc-900/5 sm:p-8">
+      <div className="mt-6 flex flex-col gap-6">
         <Input
           config={name}
-          label="How do you want to name the mesocycle?"
+          label="How do you want to call the mesocycle?"
           placeholder="My New Mesocycle"
           autoComplete="mesocycle-name"
         />

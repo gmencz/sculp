@@ -231,7 +231,9 @@ export default function Exercises() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden text-zinc-900 lg:block">Exercises</Heading>
+          <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
+            Exercises
+          </Heading>
 
           {exercises.length > 0 || noResults ? (
             <Paragraph className="mt-1 hidden lg:block">
@@ -260,6 +262,7 @@ export default function Exercises() {
         {exercises.length > 0 || noResults ? (
           <Form className="lg:mt-4" method="get" {...searchForm.props}>
             <Input
+              hideLabel
               config={queryConfig}
               label="Quick search"
               onChange={(e) => {
@@ -280,21 +283,21 @@ export default function Exercises() {
               {canDeleteExercises ? (
                 <div
                   className={clsx(
-                    "absolute left-14 top-0 h-12 items-center space-x-3 bg-white sm:left-12",
+                    "absolute left-14 top-0 h-12 items-center space-x-3 sm:left-12",
                     selectedExercisesIds.length > 0 ? "flex" : "hidden"
                   )}
                 >
                   <button
                     disabled={isSubmitting}
                     type="submit"
-                    className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-zinc-900  ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                    className={clsx(classes.buttonOrLink.secondary, "!py-1")}
                   >
                     Delete selected ({selectedExercisesIds.length})
                   </button>
                 </div>
               ) : null}
 
-              <table className="min-w-full divide-y divide-zinc-300">
+              <table className="min-w-full divide-y divide-zinc-300 dark:divide-zinc-600">
                 <thead>
                   <tr>
                     <th scope="col" className="relative px-6 sm:w-12">
@@ -302,7 +305,7 @@ export default function Exercises() {
                         <input
                           id="toggle-all"
                           type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
+                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 bg-white text-orange-600 focus:shadow-none focus:ring-orange-600 focus:ring-offset-white dark:border-zinc-700 dark:bg-zinc-950 dark:focus:ring-offset-zinc-950"
                           ref={checkbox}
                           checked={checked}
                           onChange={toggleAll}
@@ -312,13 +315,13 @@ export default function Exercises() {
 
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-0"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 sm:pl-0"
                     >
                       Name
                     </th>
                     <th
                       scope="col"
-                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 lg:table-cell"
+                      className="hidden px-3 py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50 lg:table-cell"
                     >
                       Muscles
                     </th>
@@ -330,7 +333,7 @@ export default function Exercises() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 bg-zinc-50">
+                <tbody className="divide-y divide-zinc-200 bg-zinc-50 dark:divide-zinc-700 dark:bg-zinc-900">
                   {exercises.map((exercise, index) => (
                     <ExerciseRow
                       index={index}
@@ -401,7 +404,7 @@ function ExerciseRow({
         ) : null}
 
         {exercise.shared ? (
-          <LockClosedIcon className="-mx-2 h-4 w-4 text-zinc-600" />
+          <LockClosedIcon className="-mx-2 h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         ) : (
           <>
             <input
@@ -416,7 +419,7 @@ function ExerciseRow({
             <input
               id={`select-${exercise.id}`}
               type="checkbox"
-              className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-600"
+              className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-zinc-300 bg-white text-orange-600 focus:shadow-none focus:ring-orange-600 focus:ring-offset-white dark:border-zinc-700 dark:bg-zinc-950 dark:focus:ring-offset-zinc-950"
               checked={isSelected}
               onChange={(e) => {
                 setSelected(
@@ -430,16 +433,16 @@ function ExerciseRow({
         )}
       </td>
 
-      <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 sm:w-auto sm:max-w-none sm:pl-0">
+      <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-zinc-900 dark:text-zinc-50 sm:w-auto sm:max-w-none sm:pl-0">
         {exercise.name}
         <dl className="font-normal lg:hidden">
           <dt className="sr-only">Muscles</dt>
-          <dd className="mt-1 truncate text-zinc-700">
+          <dd className="mt-1 truncate text-zinc-700 dark:text-zinc-200">
             {formattedMuscleGroups}
           </dd>
         </dl>
       </td>
-      <td className="hidden px-3 py-4 text-sm text-zinc-500 lg:table-cell">
+      <td className="hidden px-3 py-4 text-sm text-zinc-500 dark:text-zinc-200 lg:table-cell">
         {formattedMuscleGroups}
       </td>
 

@@ -176,7 +176,7 @@ export function TrainingDayExerciseSetForm({
 
       <div
         role="cell"
-        className="flex flex-1 items-center justify-center gap-2 text-center text-sm font-medium text-zinc-700"
+        className="flex flex-1 items-center justify-center gap-2 text-center text-sm font-medium text-zinc-700 dark:text-zinc-200"
       >
         <span>
           {set.repRangeLowerBound}-{set.repRangeUpperBound}
@@ -241,7 +241,7 @@ export function TrainingDayExerciseSetForm({
           <button
             type="submit"
             disabled
-            className="flex h-8 w-8 items-center justify-center rounded text-zinc-400"
+            className="flex h-8 w-8 items-center justify-center rounded text-zinc-400 dark:text-zinc-600"
           >
             <LockClosedIcon className="h-5 w-5" />
             <span className="sr-only">Locked</span>
@@ -257,8 +257,8 @@ export function TrainingDayExerciseSetForm({
             className={clsx(
               "flex h-8 w-8 items-center justify-center rounded transition-all",
               values.completed
-                ? "bg-green-500 text-white hover:bg-green-600"
-                : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200"
+                ? "bg-green-500 text-white hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-800"
+                : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-500 dark:disabled:hover:bg-zinc-800"
             )}
           >
             <CheckIcon className="h-5 w-5" />
@@ -276,7 +276,7 @@ export function TrainingDayExerciseSetForm({
           disabled={isBeingCreated}
           name={wantsToRemove.name}
           value="true"
-          className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:cursor-not-allowed disabled:text-red-300 disabled:hover:bg-red-100"
+          className="flex h-8 w-8 items-center justify-center rounded bg-red-50 text-red-700 ring-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:cursor-not-allowed disabled:text-red-300 disabled:hover:bg-red-100 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-950"
         >
           <TrashIcon className="h-5 w-5" />
           <span className="sr-only">Remove</span>

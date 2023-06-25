@@ -229,7 +229,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
   );
 
   return (
-    <li className="mx-auto block w-full max-w-2xl rounded border-b border-zinc-200 bg-white pt-4">
+    <li className="mx-auto block w-full max-w-2xl rounded bg-white pt-4 dark:bg-zinc-950">
       <div className="flex items-center gap-8 px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap gap-2">
           {exercise.exercise?.muscleGroups.map((muscleGroup, index) => (
@@ -245,7 +245,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           <Popover className="relative flex items-center">
             <Popover.Button
               type="button"
-              className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
+              className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75 dark:text-zinc-300 dark:hover:text-zinc-200"
             >
               <EllipsisVerticalIcon className="h-6 w-6" />
               <span className="sr-only">Options</span>
@@ -260,9 +260,9 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-1"
             >
-              <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
+              <Popover.Panel className="absolute right-2 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
                 {({ close }) => (
-                  <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
+                  <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5 dark:bg-zinc-950 dark:text-zinc-50 dark:ring-zinc-50/10">
                     {menuOptions.map((option) => (
                       <li key={option.name}>
                         <button
@@ -271,7 +271,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
                             option.onClick();
                           }}
                           type="button"
-                          className="block w-full text-left text-zinc-900 hover:text-orange-600"
+                          className="block w-full text-left text-zinc-900 hover:text-orange-600 dark:text-zinc-50"
                         >
                           {option.name}
                         </button>
@@ -286,7 +286,7 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
       </div>
 
       <div className="mt-3 px-4 sm:px-6 lg:px-8">
-        <h3 className="text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+        <h3 className="text-xl font-bold leading-7 text-zinc-900 dark:text-zinc-50 sm:truncate sm:text-2xl sm:tracking-tight">
           {exercise.exercise?.name}
         </h3>
       </div>
@@ -295,20 +295,20 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
         <Disclosure>
           {({ open }) => (
             <>
-              <Disclosure.Button className="mt-3 flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 sm:px-6 lg:px-8">
+              <Disclosure.Button className="mt-3 flex w-full items-center justify-between gap-2 bg-orange-50 px-4 py-4 text-sm font-semibold leading-6 text-orange-900 hover:bg-orange-100 dark:bg-orange-950 dark:text-orange-200 hover:dark:bg-orange-900 sm:px-6 lg:px-8">
                 <span>Recommendation</span>
 
                 <div>
                   <ChevronUpIcon
                     className={clsx(
-                      "h-5 w-5 transform text-orange-500",
+                      "h-5 w-5 transform",
                       open ? "rotate-180" : "rotate-90"
                     )}
                   />
                 </div>
               </Disclosure.Button>
 
-              <Disclosure.Panel className="border-b border-zinc-300 bg-white px-4 py-2 sm:px-6 lg:px-8">
+              <Disclosure.Panel className="border-b border-zinc-300 bg-white px-4 py-2 dark:border-zinc-700 dark:bg-zinc-950 sm:px-6 lg:px-8">
                 <Paragraph>
                   Increase weight in{" "}
                   {shouldIncreaseWeightInSets.length === 1 ? "set" : "sets"}{" "}
@@ -341,16 +341,16 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
           leave="transition-opacity duration-150"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-          className="relative"
+          className="relative mb-3"
         >
-          <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 sm:hidden">
+          <div className="absolute inset-0 flex items-center justify-end bg-red-500 px-4 py-1 dark:bg-red-800 sm:hidden">
             <TrashIcon className="h-5 w-5 text-white" />
-            <span className="sr-only">Remove</span>
+            <span className="sr-only">Remove notes</span>
           </div>
 
           <animated.div
             {...bind()}
-            className="relative cursor-grab touch-pan-y bg-white px-4 py-1 sm:cursor-auto sm:px-6 lg:px-8"
+            className="relative mt-2 cursor-grab touch-pan-y bg-white px-4 py-1 dark:bg-zinc-950 sm:cursor-auto sm:px-6 lg:px-8"
             style={{ x }}
           >
             <Textarea
@@ -362,7 +362,6 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
               label="Notes"
               onChangeValue={setNotesValue}
               placeholder="Notes"
-              className="mt-2"
             />
           </animated.div>
         </Transition>
@@ -377,25 +376,25 @@ export function TrainingDayExercise({ exercise }: TrainingDayExerciseProps) {
             >
               <div
                 role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 Rep range
               </div>
               <div
                 role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 {weightUnitPreference === "KILOGRAM" ? "kg" : "lbs"}
               </div>
               <div
                 role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 Reps
               </div>
               <div
                 role="columnheader"
-                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 RIR
               </div>

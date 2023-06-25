@@ -60,7 +60,7 @@ export default function Mesocycles() {
     <AppPageLayout>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <Heading className="hidden text-zinc-900 lg:block">
+          <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
             Mesocycles
           </Heading>
           {mesocycles.length > 0 ? (
@@ -85,16 +85,16 @@ export default function Mesocycles() {
         {mesocycles.map((mesocycle) => (
           <li
             key={mesocycle.id}
-            className="col-span-1 divide-y divide-zinc-200 rounded-lg bg-zinc-50 hover:bg-white border border-zinc-300"
+            className="col-span-1 divide-y divide-zinc-200 rounded-lg border border-zinc-300 bg-zinc-50 hover:bg-white dark:divide-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-950"
           >
             <Link to={`./${mesocycle.id}`} className="block px-4 py-4 sm:px-6">
               <div className="flex items-center gap-3">
-                <h3 className="truncate font-semibold text-zinc-900">
+                <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
                   {mesocycle.name}
                 </h3>
                 {currentMesocycle?.mesocycle &&
                 mesocycle.id === currentMesocycle.mesocycle.id ? (
-                  <span className="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-orange-600/20">
+                  <span className="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-orange-600/20 dark:bg-green-900 dark:text-green-200 hover:dark:bg-green-950">
                     Current
                   </span>
                 ) : null}

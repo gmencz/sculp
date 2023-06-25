@@ -39,7 +39,7 @@ export function Calendar({ darkButton }: CalendarProps) {
         className={clsx(
           "rounded  focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75",
           darkButton
-            ? "text-zinc-800 hover:text-zinc-950 focus-visible:ring-zinc-950"
+            ? "text-zinc-800 hover:text-zinc-950 focus-visible:ring-zinc-950 dark:text-zinc-100 dark:hover:text-zinc-50 dark:focus-visible:ring-zinc-50"
             : "text-zinc-200 hover:text-white focus-visible:ring-white"
         )}
       >
@@ -57,12 +57,12 @@ export function Calendar({ darkButton }: CalendarProps) {
         leaveTo="opacity-0 translate-y-1"
       >
         <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen sm:-mx-6 lg:-mx-8">
-          <div className="mx-auto w-full max-w-sm rounded-lg bg-white pb-2 shadow-lg ring-2 ring-zinc-400 sm:ml-auto sm:mr-0">
+          <div className="mx-auto w-full max-w-sm rounded-lg bg-white pb-2 shadow-lg ring-2 ring-zinc-400 dark:bg-zinc-950 dark:ring-zinc-700 sm:ml-auto sm:mr-0">
             <div
               style={{
                 gridTemplateColumns: `repeat(${microcycleLength}, minmax(0, 1fr))`,
               }}
-              className="grid pt-3 text-center text-xs font-bold leading-6 text-zinc-500"
+              className="grid pt-3 text-center text-xs font-bold leading-6 text-zinc-500 dark:text-zinc-200"
             >
               {microcycleDays.map((_, index) => (
                 <span key={index}>D{index + 1}</span>
@@ -73,7 +73,7 @@ export function Calendar({ darkButton }: CalendarProps) {
               style={{
                 gridTemplateColumns: `repeat(${microcycleLength}, minmax(0, 1fr))`,
               }}
-              className="isolate m-2 grid flex-1 gap-px rounded-lg bg-zinc-200 text-sm shadow ring-1 ring-zinc-200"
+              className="isolate m-2 grid flex-1 gap-px rounded-lg bg-zinc-200 text-sm shadow ring-1 ring-zinc-200 dark:bg-zinc-700 dark:ring-zinc-700"
             >
               {calendarDays.map((day, dayIdx) => (
                 <Link
@@ -81,8 +81,8 @@ export function Calendar({ darkButton }: CalendarProps) {
                   key={day.date}
                   className={clsx(
                     day.isPlannedTrainingDay
-                      ? "bg-white text-zinc-900"
-                      : "bg-zinc-50 text-zinc-400",
+                      ? "bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50"
+                      : "bg-zinc-50 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-500",
                     dayIdx === 0 && "rounded-tl-lg",
                     dayIdx === microcycleLength - 1 && "rounded-tr-lg",
                     lastMicrocycleStartDay &&
@@ -91,7 +91,7 @@ export function Calendar({ darkButton }: CalendarProps) {
                     lastMicrocycleEndDate &&
                       day.date === lastMicrocycleEndDate &&
                       "rounded-br-lg",
-                    "py-1.5 hover:bg-zinc-100 focus:z-10"
+                    "py-1.5 hover:bg-zinc-100 focus:z-10 dark:hover:bg-zinc-800"
                   )}
                 >
                   <time

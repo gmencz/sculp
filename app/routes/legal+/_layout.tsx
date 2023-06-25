@@ -7,7 +7,7 @@ export default function LegalLayout() {
   const user = useOptionalUser();
 
   return (
-    <div className="bg-zinc-50 text-white">
+    <div className="bg-zinc-50 text-white dark:bg-zinc-900">
       <header className="mx-auto flex w-full max-w-5xl justify-between p-6">
         <Link
           className="flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800"

@@ -124,7 +124,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
             preventScrollReset: true,
           });
         }}
-        className="mx-auto w-full max-w-2xl bg-white pb-6 shadow sm:rounded-lg"
+        className="mx-auto w-full max-w-2xl bg-white pb-6 shadow dark:bg-zinc-950 sm:rounded-lg"
       >
         <RemoveExerciseForm
           exercise={exercise}
@@ -147,7 +147,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
               <Popover className="relative flex items-center">
                 <Popover.Button
                   type="button"
-                  className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75"
+                  className="-m-1.5 rounded p-1.5 text-zinc-600 hover:text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-opacity-75 dark:text-zinc-300 dark:hover:text-zinc-200"
                 >
                   <EllipsisVerticalIcon className="h-6 w-6" />
                   <span className="sr-only">Options</span>
@@ -164,13 +164,13 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                 >
                   <Popover.Panel className="absolute right-0 top-0 z-10 -mx-4 mt-10 flex w-screen max-w-min sm:-mx-6 lg:-mx-8">
                     {({ close }) => (
-                      <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5">
+                      <ul className="flex w-44 shrink flex-col gap-4 rounded-xl bg-white p-4 text-sm font-semibold leading-6 text-zinc-900 shadow-lg ring-1 ring-zinc-900/5 dark:bg-zinc-950 dark:text-zinc-50 dark:ring-zinc-50/10">
                         {menuOptions.map((option) => (
                           <li key={option.name}>
                             {option.to ? (
                               <Link
                                 to={option.to}
-                                className="block w-full text-left text-zinc-900 hover:text-orange-600"
+                                className="block w-full text-left text-zinc-900 hover:text-orange-600 dark:text-zinc-50"
                               >
                                 {option.name}
                               </Link>
@@ -181,7 +181,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                                   option.onClick?.();
                                 }}
                                 type="button"
-                                className="block w-full text-left text-zinc-900 hover:text-orange-600"
+                                className="block w-full text-left text-zinc-900 hover:text-orange-600 dark:text-zinc-50"
                               >
                                 {option.name}
                               </button>
@@ -196,7 +196,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
             </div>
           </div>
 
-          <h3 className="mt-3 text-xl font-bold leading-7 text-zinc-900 sm:truncate sm:text-2xl sm:tracking-tight">
+          <h3 className="mt-3 text-xl font-bold leading-7 text-zinc-900 dark:text-zinc-50 sm:truncate sm:text-2xl sm:tracking-tight">
             {exercise.exercise?.name}
           </h3>
         </div>
@@ -220,7 +220,7 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
               >
                 <div
                   role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
                 >
                   {mesocycle!.weightUnitPreference === "KILOGRAM"
                     ? "kg"
@@ -228,13 +228,13 @@ export const Exercise = forwardRef<HTMLDivElement, ExerciseProps>(
                 </div>
                 <div
                   role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
                 >
                   Rep range
                 </div>
                 <div
                   role="columnheader"
-                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900"
+                  className="flex-1 text-center text-xs font-medium uppercase text-zinc-900 dark:text-zinc-50"
                 >
                   RIR
                 </div>

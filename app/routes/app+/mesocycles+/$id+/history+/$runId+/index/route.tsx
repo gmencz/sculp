@@ -220,7 +220,7 @@ export default function MesocycleRun() {
 
   return (
     <AppPageLayout>
-      <Heading className="hidden text-zinc-900 lg:block">
+      <Heading className="hidden text-zinc-900 dark:text-zinc-50 lg:block">
         {mesocycleRun.mesocycle.name}
       </Heading>
 
@@ -232,13 +232,13 @@ export default function MesocycleRun() {
         .
       </Paragraph>
 
-      <h3 className="mt-4 text-base font-semibold leading-6 text-zinc-900">
+      <h3 className="mt-4 text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50">
         Stats
       </h3>
       <dl className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {stats.map((item) => (
           <div key={item.name} className="overflow-hidden">
-            <dt className="truncate text-sm font-medium text-zinc-700">
+            <dt className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {item.name}
             </dt>
             <dd className="mt-2 flex items-baseline text-3xl font-semibold text-zinc-900">
@@ -251,7 +251,7 @@ export default function MesocycleRun() {
       </dl>
 
       <div className="mt-12">
-        <h3 className="text-base font-semibold leading-6 text-zinc-900">
+        <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-gray-50">
           Exercises volume graph
         </h3>
 
@@ -261,9 +261,13 @@ export default function MesocycleRun() {
         </Paragraph>
 
         {mesocycleRun.chartData.length > 0 ? (
-          <ResponsiveContainer className="mt-6" width="100%" height={400}>
+          <ResponsiveContainer
+            className="mt-6 text-zinc-50 dark:text-zinc-900"
+            width="100%"
+            height={400}
+          >
             <LineChart data={mesocycleRun.chartData}>
-              <CartesianGrid strokeDasharray="3 3" fill="#fafafa" />
+              <CartesianGrid strokeDasharray="3 3" fill="currentColor" />
 
               {mesocycleRun.chartExercises.map((exercise) => (
                 <Line
@@ -316,7 +320,7 @@ export default function MesocycleRun() {
         )}
       </div>
 
-      <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 sm:justify-start">
+      <div className="mt-8 flex items-center border-t border-zinc-200 pt-6 dark:border-zinc-700 sm:justify-start">
         <Link to="./training" className={classes.buttonOrLink.primary}>
           <span>View training</span>
         </Link>

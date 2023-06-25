@@ -15,7 +15,9 @@ export function CurrentMesocycleStartsInTheFuture({
 }: CurrentMesocycleStartsInTheFutureProps) {
   return (
     <AppPageLayout>
-      <Heading className="text-zinc-900">{data.mesocycleName}</Heading>
+      <Heading className="text-zinc-900 dark:text-zinc-50">
+        {data.mesocycleName}
+      </Heading>
       <Paragraph>Your mesocycle starts {data.formattedStartDate}.</Paragraph>
     </AppPageLayout>
   );

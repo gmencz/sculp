@@ -18,6 +18,8 @@ import { stripe } from "~/services/stripe/config.server";
 import type { MatchWithHeader } from "~/utils/hooks";
 import { Heading } from "~/components/heading";
 import { Paragraph } from "~/components/paragraph";
+import { classes } from "~/utils/classes";
+import clsx from "clsx";
 
 export const handle: MatchWithHeader = {
   header: () => "Profile",
@@ -82,26 +84,26 @@ export default function Profile() {
     <>
       <AppPageLayout>
         <div className="hidden lg:block">
-          <Heading className="text-zinc-900">Profile</Heading>
+          <Heading className="text-zinc-900 dark:text-zinc-50">Profile</Heading>
           <Paragraph className="mt-1">
             Your profile's details and subscription.
           </Paragraph>
         </div>
 
-        <dl className="divide-y divide-zinc-200 lg:mt-6 lg:border-t lg:border-zinc-200">
+        <dl className="divide-y divide-zinc-200 dark:divide-zinc-700 lg:mt-6 lg:border-t lg:border-zinc-200 lg:dark:border-zinc-700">
           <div className="pb-6 pt-2 sm:grid sm:grid-cols-3 sm:gap-4 lg:pt-6">
-            <dt className="text-sm font-medium leading-6 text-zinc-900">
+            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
               Email
             </dt>
-            <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+            <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
               {user?.email}
             </dd>
           </div>
           <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-medium leading-6 text-zinc-900">
+            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
               Subscription
             </dt>
-            <dd className="mt-1 flex text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+            <dd className="mt-1 flex text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
               <div className="flex-grow">
                 <p>
                   <span className="font-medium">Status:</span>{" "}
@@ -131,19 +133,19 @@ export default function Profile() {
             </dd>
           </div>
           <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-medium leading-6 text-zinc-900">
+            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
               Joined
             </dt>
-            <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+            <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
               {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
             </dd>
           </div>
         </dl>
 
-        <div className="flex items-center gap-4 border-t border-zinc-200 pt-6">
+        <div className="flex items-center gap-4 border-t border-zinc-200 pt-6 dark:border-zinc-700">
           <a
             href={configRoutes.auth.signOut}
-            className="inline-flex gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900  ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"
+            className={classes.buttonOrLink.secondary}
           >
             <ArrowLeftOnRectangleIcon
               className="-ml-0.5 h-5 w-5"
@@ -154,7 +156,7 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white  hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-red-900 dark:hover:bg-red-950"
           >
             Delete account
           </button>
@@ -191,23 +193,20 @@ export default function Profile() {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all dark:bg-zinc-950 sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                   <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <ExclamationTriangleIcon
-                        className="h-6 w-6 text-red-600"
-                        aria-hidden="true"
-                      />
+                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                      <ExclamationTriangleIcon className="h-6 w-6 text-red-600 dark:text-red-300" />
                     </div>
                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <Dialog.Title
                         as="h3"
-                        className="text-base font-semibold leading-6 text-zinc-900"
+                        className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-50"
                       >
                         Delete account
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-sm text-zinc-500 dark:text-zinc-300">
                           Are you sure you want to delete your account? All of
                           your data will be permanently removed from our servers
                           forever and your subscription will be immediately
@@ -220,7 +219,7 @@ export default function Profile() {
                     <Form replace method="delete">
                       <button
                         type="submit"
-                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white  hover:bg-red-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 dark:bg-red-900  dark:hover:bg-red-950 sm:ml-3 sm:w-auto"
                         onClick={() => setOpen(false)}
                       >
                         Delete
@@ -228,7 +227,10 @@ export default function Profile() {
                     </Form>
                     <button
                       type="button"
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900  ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50 sm:mt-0 sm:w-auto"
+                      className={clsx(
+                        classes.buttonOrLink.secondary,
+                        "mt-3 w-full sm:mt-0 sm:w-auto"
+                      )}
                       onClick={() => setOpen(false)}
                       ref={cancelButtonRef}
                     >
