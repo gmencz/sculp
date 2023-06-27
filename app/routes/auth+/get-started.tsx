@@ -151,7 +151,7 @@ export default function GetStarted() {
           <img className="mx-auto h-16 w-auto" src="/logo.png" alt="Sculped" />
         </Link>
         <div>
-          <h2 className=" text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900">
+          <h2 className=" text-center text-2xl font-bold leading-9 tracking-tight text-zinc-900 dark:text-zinc-50">
             Start your 14-day free trial
           </h2>
           <Paragraph className="mt-2 text-center">
@@ -161,7 +161,7 @@ export default function GetStarted() {
         </div>
         <Form method="POST" {...form.props}>
           <div className="relative mb-2 -space-y-px rounded-md ">
-            <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-zinc-300" />
+            <div className="pointer-events-none absolute inset-0 z-10 rounded-md ring-1 ring-inset ring-zinc-300 dark:ring-zinc-700" />
 
             <Input
               config={email}
@@ -228,7 +228,7 @@ export default function GetStarted() {
           </div>
         </Form>
 
-        <p className="text-center text-sm leading-6 text-zinc-500">
+        <p className="text-center text-sm leading-6 text-zinc-500 dark:text-zinc-300">
           Already have an account?{" "}
           <Link
             to={configRoutes.auth.signIn}

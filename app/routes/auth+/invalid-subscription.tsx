@@ -46,8 +46,10 @@ export default function SubscriptionError() {
         className="h-36 w-36 select-none transition hover:scale-105 hover:brightness-110"
       />
 
-      <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-950">Oops!</h3>
-      <p className="max-w-md text-center font-medium text-zinc-500">
+      <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+        Oops!
+      </h3>
+      <p className="max-w-md text-center font-medium text-zinc-500 dark:text-zinc-300">
         Something went wrong with your subscription, its status is{" "}
         <strong>{subscription.status}</strong>. You can manage it{" "}
         <a
@@ -69,7 +71,7 @@ export default function SubscriptionError() {
 
       <a
         href={customerPortalLink}
-        className="mb-6 rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white  hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+        className="mb-6 rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
       >
         Manage subscription
       </a>

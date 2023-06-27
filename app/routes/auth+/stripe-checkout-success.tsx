@@ -98,11 +98,11 @@ export default function Checkout() {
         <>
           <Spinner className="h-10 w-10 text-orange-500" />
 
-          <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-950">
+          <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             Completing your checkout...
           </h3>
 
-          <p className="max-w-md text-center font-medium text-zinc-500">
+          <p className="max-w-md text-center font-medium text-zinc-500 dark:text-zinc-300">
             This will take a few seconds.
           </p>
         </>
@@ -115,11 +115,11 @@ export default function Checkout() {
 
           <div className="my-4" />
 
-          <h3 className="mb-3 text-2xl font-bold text-zinc-950">
+          <h3 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Checkout completed!
           </h3>
 
-          <p className="mb-6 max-w-md text-center text-sm font-medium text-zinc-500">
+          <p className="mb-6 max-w-md text-center text-sm font-medium text-zinc-500 dark:text-zinc-300">
             You're now one step closer to unlocking your ultimate
             muscle-building journey. Prepare to push boundaries, break records,
             and achieve your dream physique. Thank you for choosing our app, and
@@ -146,7 +146,9 @@ export default function Checkout() {
             className="h-36 w-36 select-none transition hover:scale-105 hover:brightness-110"
           />
 
-          <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-950">Oops!</h3>
+          <h3 className="mb-3 mt-6 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+            Oops!
+          </h3>
           <p className="max-w-md text-center font-medium text-zinc-500">
             Something went wrong. Please contact us directly at{" "}
             <a
