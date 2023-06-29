@@ -9,7 +9,6 @@ import { hashPassword } from "~/utils/encryption.server";
 import { env } from "~/utils/env.server";
 import { exercises } from "~/utils/user/exercises";
 import { MuscleGroup } from "~/utils/user/exercises";
-import { mesocyclePresets } from "~/utils/user/mesocycle-presets";
 
 const prisma = new PrismaClient();
 

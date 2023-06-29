@@ -41,6 +41,10 @@
     "@dnd-kit/core": "^6.0.8",
     "@dnd-kit/modifiers": "^6.0.1",
     "@dnd-kit/sortable": "^7.0.2",
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-regular-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@isaacs/express-prometheus-middleware": "^1.2.1",
@@ -77,6 +81,7 @@
     "remix-flat-routes": "^0.5.8",
     "resend": "^0.15.1",
     "stripe": "^12.9.0",
+    "use-deep-compare-effect": "^1.8.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -1,133 +1,309 @@
 export enum MuscleGroup {
+  ABS = "Abs",
   CHEST = "Chest",
   TRICEPS = "Triceps",
   SHOULDERS = "Shoulders",
-  BACK = "Back",
+  UPPER_BACK = "Upper Back",
+  LATS = "Lats",
   BICEPS = "Biceps",
   QUADS = "Quads",
   GLUTES = "Glutes",
   HAMSTRINGS = "Hamstrings",
   ADDUCTORS = "Adductors",
   CALVES = "Calves",
+  ERECTORS = "Erectors",
+  FOREARMS = "Forearms",
+  OTHER = "Other",
 }
 
 export const exercises = {
-  "Flat Bench Press (Barbell)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Incline Bench Press (Barbell)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Flat Bench Press (Dumbbell)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Incline Bench Press (Dumbbell)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Flat Chest Press (Machine)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Incline Chest Press (Machine)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Flat Bench Press (Smith Machine)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Incline Bench Press (Smith Machine)": [
-    MuscleGroup.CHEST,
-    MuscleGroup.TRICEPS,
-    MuscleGroup.SHOULDERS,
-  ],
-  "Push-ups": [MuscleGroup.CHEST, MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
-  Dips: [MuscleGroup.CHEST, MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
-  "Chest Fly (Machine)": [MuscleGroup.CHEST, MuscleGroup.SHOULDERS],
-  "Chest Fly (Cable)": [MuscleGroup.CHEST, MuscleGroup.SHOULDERS],
-  "Shoulder Press (Barbell)": [MuscleGroup.SHOULDERS],
-  "Shoulder Press (Dumbbell)": [MuscleGroup.SHOULDERS],
-  "Shoulder Press (Machine)": [MuscleGroup.SHOULDERS],
-  "Shoulder Press (Smith Machine)": [MuscleGroup.SHOULDERS],
-  "Lateral Raise (Dumbbell)": [MuscleGroup.SHOULDERS],
-  "Lateral Raise (Machine)": [MuscleGroup.SHOULDERS],
-  "Lateral Raise (Cable)": [MuscleGroup.SHOULDERS],
-  "Reverse Fly (Dumbbell)": [MuscleGroup.SHOULDERS],
-  "Reverse Fly (Machine)": [MuscleGroup.SHOULDERS],
-  "Reverse Fly (Cable)": [MuscleGroup.SHOULDERS],
-  "Triceps Pushdown (Machine)": [MuscleGroup.TRICEPS],
-  "Triceps Pushdown (Cable)": [MuscleGroup.TRICEPS],
-  "Triceps Overhead Extension (Dumbbell)": [MuscleGroup.TRICEPS],
-  "Triceps Overhead Extension (Machine)": [MuscleGroup.TRICEPS],
-  "Triceps Overhead Extension (Cable)": [MuscleGroup.TRICEPS],
-  "Skullcrushers (Barbell)": [MuscleGroup.TRICEPS],
-  "Lat Pulldown (Machine)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Lat Pulldown (Cable)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Pull-ups": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "SA High Row (Cable)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "T-Bar Row (Machine)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Seated Row (Machine)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Seated Row (Cable)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Bent Over Row (Barbell)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Bent Over Row (Dumbbell)": [MuscleGroup.BACK, MuscleGroup.BICEPS],
-  "Back Extension": [MuscleGroup.BACK],
-  "Preacher Curl (Machine)": [MuscleGroup.BICEPS],
-  "Preacher Curl (Barbell)": [MuscleGroup.BICEPS],
-  "Preacher Curl (Dumbbell)": [MuscleGroup.BICEPS],
-  "Bicep Curl (Barbell)": [MuscleGroup.BICEPS],
-  "Bicep Curl (Dumbbell)": [MuscleGroup.BICEPS],
-  "Bicep Curl (Cable)": [MuscleGroup.BICEPS],
-  "Incline Bicep Curl (Dumbbell)": [MuscleGroup.BICEPS],
-  "Front Squat (Barbell)": [MuscleGroup.QUADS],
-  "Back Squat (Barbell)": [MuscleGroup.QUADS],
-  "Back Squat (Smith Machine)": [MuscleGroup.QUADS],
-  "Hack Squat (Machine)": [MuscleGroup.QUADS],
-  "Pendulum Squat (Machine)": [MuscleGroup.QUADS],
-  "Leg Extension (Machine)": [MuscleGroup.QUADS],
-  "Sissy Squat": [MuscleGroup.QUADS],
-  "Leg Press (Machine)": [MuscleGroup.QUADS, MuscleGroup.GLUTES],
-  "Bulgarian Split Squat (Dumbbell)": [MuscleGroup.QUADS, MuscleGroup.GLUTES],
-  "Bulgarian Split Squat (Smith Machine)": [
-    MuscleGroup.QUADS,
-    MuscleGroup.GLUTES,
-  ],
-  "Seated Leg Curl (Machine)": [MuscleGroup.HAMSTRINGS],
-  "Seated Leg Curl (Cable)": [MuscleGroup.HAMSTRINGS],
-  "Lying Leg Curl (Machine)": [MuscleGroup.HAMSTRINGS],
-  "Stiff-Legged Deadlift (Machine)": [
-    MuscleGroup.HAMSTRINGS,
-    MuscleGroup.GLUTES,
-  ],
-  "Stiff-Legged Deadlift (Barbell)": [
-    MuscleGroup.HAMSTRINGS,
-    MuscleGroup.GLUTES,
-  ],
-  "Stiff-Legged Deadlift (Dumbbell)": [
-    MuscleGroup.HAMSTRINGS,
-    MuscleGroup.GLUTES,
-  ],
-  "Romanian Deadlift (Machine)": [MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES],
-  "Romanian Deadlift (Barbell)": [MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES],
-  "Romanian Deadlift (Dumbbell)": [MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES],
-  "Nordic Hamstring Curl": [MuscleGroup.HAMSTRINGS],
-  "Hip Thrust (Machine)": [MuscleGroup.GLUTES],
-  "Hip Thrust (Smith Machine)": [MuscleGroup.GLUTES],
-  "Hip Thrust (Barbell)": [MuscleGroup.GLUTES],
-  "Glute Kickback (Machine)": [MuscleGroup.GLUTES],
-  "Glute Kickback (Cable)": [MuscleGroup.GLUTES],
-  "Abductors (Machine)": [MuscleGroup.GLUTES],
-  "Adductors (Machine)": [MuscleGroup.ADDUCTORS],
-  "Standing Calf Raise (Machine)": [MuscleGroup.CALVES],
-  "Seated Calf Raise (Machine)": [MuscleGroup.CALVES],
+  "Flat Bench Press (Barbell)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+
+  "Incline Bench Press (Barbell)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Flat Bench Press (Dumbbell)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Incline Bench Press (Dumbbell)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Flat Chest Press (Machine)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Incline Chest Press (Machine)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Flat Bench Press (Smith Machine)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Incline Bench Press (Smith Machine)": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Push-ups": {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  Dips: {
+    primary: [MuscleGroup.CHEST],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.SHOULDERS],
+  },
+  "Chest Fly (Machine)": {
+    primary: [MuscleGroup.CHEST],
+    other: [],
+  },
+  "Chest Fly (Cable)": {
+    primary: [MuscleGroup.CHEST],
+    other: [],
+  },
+  "Shoulder Press (Barbell)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.CHEST],
+  },
+  "Shoulder Press (Dumbbell)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.CHEST],
+  },
+  "Shoulder Press (Machine)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.CHEST],
+  },
+  "Shoulder Press (Smith Machine)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [MuscleGroup.TRICEPS, MuscleGroup.CHEST],
+  },
+  "Lateral Raise (Dumbbell)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Lateral Raise (Machine)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Lateral Raise (Cable)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Reverse Fly (Dumbbell)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Reverse Fly (Machine)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Reverse Fly (Cable)": {
+    primary: [MuscleGroup.SHOULDERS],
+    other: [],
+  },
+  "Triceps Pushdown (Machine)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Triceps Pushdown (Cable)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Triceps Overhead Extension (Dumbbell)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Triceps Overhead Extension (Machine)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Triceps Overhead Extension (Cable)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Skullcrushers (Barbell)": {
+    primary: [MuscleGroup.TRICEPS],
+    other: [],
+  },
+  "Lat Pulldown (Machine)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS],
+  },
+  "Lat Pulldown (Cable)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS],
+  },
+  "Pull-ups": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS],
+  },
+  "T-Bar Row (Machine)": {
+    primary: [MuscleGroup.UPPER_BACK],
+    other: [MuscleGroup.BICEPS, MuscleGroup.LATS],
+  },
+  "Seated Row (Machine)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS, MuscleGroup.UPPER_BACK],
+  },
+  "Seated Row (Cable)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS, MuscleGroup.UPPER_BACK],
+  },
+  "Bent Over Row (Barbell)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS, MuscleGroup.UPPER_BACK, MuscleGroup.ERECTORS],
+  },
+  "Bent Over Row (Dumbbell)": {
+    primary: [MuscleGroup.LATS],
+    other: [MuscleGroup.BICEPS, MuscleGroup.UPPER_BACK, MuscleGroup.ERECTORS],
+  },
+  "Back Extension": {
+    primary: [MuscleGroup.ERECTORS],
+    other: [],
+  },
+  "Preacher Curl (Machine)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Preacher Curl (Barbell)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Preacher Curl (Dumbbell)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Bicep Curl (Barbell)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Bicep Curl (Dumbbell)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Bicep Curl (Cable)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Incline Bicep Curl (Dumbbell)": {
+    primary: [MuscleGroup.BICEPS],
+    other: [MuscleGroup.FOREARMS],
+  },
+  "Back Squat (Barbell)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS, MuscleGroup.GLUTES],
+  },
+  "Back Squat (Smith Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS],
+  },
+  "Hack Squat (Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS],
+  },
+  "Pendulum Squat (Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS],
+  },
+  "Leg Extension (Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [],
+  },
+  "Sissy Squat": {
+    primary: [MuscleGroup.QUADS],
+    other: [],
+  },
+  "Leg Press (Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS, MuscleGroup.GLUTES],
+  },
+  "Bulgarian Split Squat (Dumbbell)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS, MuscleGroup.GLUTES],
+  },
+  "Bulgarian Split Squat (Smith Machine)": {
+    primary: [MuscleGroup.QUADS],
+    other: [MuscleGroup.ADDUCTORS, MuscleGroup.GLUTES],
+  },
+  "Seated Leg Curl (Machine)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [],
+  },
+  "Seated Leg Curl (Cable)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [],
+  },
+  "Lying Leg Curl (Machine)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [],
+  },
+  "Stiff-Legged Deadlift (Machine)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Stiff-Legged Deadlift (Barbell)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Stiff-Legged Deadlift (Dumbbell)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Romanian Deadlift (Machine)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Romanian Deadlift (Barbell)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Romanian Deadlift (Dumbbell)": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.ERECTORS, MuscleGroup.GLUTES],
+  },
+  "Nordic Hamstring Curl": {
+    primary: [MuscleGroup.HAMSTRINGS],
+    other: [MuscleGroup.GLUTES],
+  },
+  "Hip Thrust (Machine)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Hip Thrust (Smith Machine)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Hip Thrust (Barbell)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Glute Kickback (Machine)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Glute Kickback (Cable)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Abductors (Machine)": {
+    primary: [MuscleGroup.GLUTES],
+    other: [],
+  },
+  "Adductors (Machine)": {
+    primary: [MuscleGroup.ADDUCTORS],
+    other: [],
+  },
+  "Standing Calf Raise (Machine)": {
+    primary: [MuscleGroup.CALVES],
+    other: [],
+  },
+  "Seated Calf Raise (Machine)": {
+    primary: [MuscleGroup.CALVES],
+    other: [],
+  },
 };

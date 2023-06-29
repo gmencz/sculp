@@ -15,6 +15,8 @@ import { capitalize } from "~/utils/strings";
 type SelectProps = {
   config: FieldConfig<any>;
   label: string;
+  hideLabel?: boolean;
+  hideErrorMessage?: boolean;
   options: string[];
   helperText?: string;
   disabled?: boolean;
@@ -41,6 +43,8 @@ function SelectSingleOption({
   onChange,
   disabled,
   controlledValue,
+  hideLabel,
+  hideErrorMessage,
 }: Omit<SelectProps, "multipleOptions">) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [value, setValue] = useState(config.defaultValue ?? "");
@@ -74,7 +78,12 @@ function SelectSingleOption({
       >
         {({ open }) => (
           <>
-            <Listbox.Label className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+            <Listbox.Label
+              className={clsx(
+                "block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                hideLabel && "sr-only"
+              )}
+            >
               {label}
             </Listbox.Label>
 
@@ -163,7 +172,7 @@ function SelectSingleOption({
         )}
       </Listbox>
 
-      {config.error ? (
+      {config.error && !hideErrorMessage ? (
         <ErrorMessage id={config.errorId}>{config.error}</ErrorMessage>
       ) : null}
     </div>
@@ -179,6 +188,8 @@ function SelectMultipleOptions({
   multipleOptions,
   onChange,
   disabled,
+  hideLabel,
+  hideErrorMessage,
 }: SelectProps) {
   const multipleOptionsSettings = multipleOptions!;
   const emptyOption = multipleOptionsSettings.emptyOption || "Please select";
@@ -262,7 +273,12 @@ function SelectMultipleOptions({
       >
         {({ open }) => (
           <>
-            <Listbox.Label className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+            <Listbox.Label
+              className={clsx(
+                "block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                hideLabel && "sr-only"
+              )}
+            >
               {label}
             </Listbox.Label>
 
@@ -356,7 +372,7 @@ function SelectMultipleOptions({
         )}
       </Listbox>
 
-      {config.error ? (
+      {config.error && !hideErrorMessage ? (
         <ErrorMessage id={config.errorId}>{config.error}</ErrorMessage>
       ) : null}
     </div>
@@ -372,6 +388,8 @@ export function Select({
   multipleOptions,
   disabled,
   onChange,
+  hideLabel,
+  hideErrorMessage,
 }: SelectProps) {
   if (!multipleOptions) {
     return (
@@ -383,6 +401,8 @@ export function Select({
         capitalizeOptions={capitalizeOptions}
         disabled={disabled}
         onChange={onChange}
+        hideLabel={hideLabel}
+        hideErrorMessage={hideErrorMessage}
       />
     );
   }
@@ -397,6 +417,8 @@ export function Select({
       multipleOptions={multipleOptions}
       disabled={disabled}
       onChange={onChange}
+      hideLabel={hideLabel}
+      hideErrorMessage={hideErrorMessage}
     />
   );
 }

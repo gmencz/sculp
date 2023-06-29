@@ -2,8 +2,9 @@ import { Dialog, Transition } from "@headlessui/react";
 import {
   ArrowLeftOnRectangleIcon,
   ExclamationTriangleIcon,
+  TrashIcon,
 } from "@heroicons/react/20/solid";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { format } from "date-fns";
@@ -15,11 +16,17 @@ import { env } from "~/utils/env.server";
 import { signOut } from "~/services/auth/api/sign-out";
 import { requireUserId } from "~/services/auth/api/require-user-id";
 import { stripe } from "~/services/stripe/config.server";
-import type { MatchWithHeader } from "~/utils/hooks";
-import { Heading } from "~/components/heading";
-import { Paragraph } from "~/components/paragraph";
+import { type MatchWithHeader, useDebouncedSubmit } from "~/utils/hooks";
 import { classes } from "~/utils/classes";
 import clsx from "clsx";
+import { useForm } from "@conform-to/react";
+import type { PreferencesSchema } from "./schema";
+import { preferencesSchema } from "./schema";
+import { parse } from "@conform-to/zod";
+import { Input } from "~/components/input";
+import { Select } from "~/components/select";
+import { Theme, WeightUnit } from "@prisma/client";
+import { redirectBack } from "~/utils/responses.server";
 
 export const handle: MatchWithHeader = {
   header: () => "Profile",
@@ -33,8 +40,11 @@ export const loader = async ({ request }: LoaderArgs) => {
     select: {
       email: true,
       createdAt: true,
+      name: true,
+      themePreference: true,
+      weightUnitPreference: true,
       subscription: {
-        select: { status: true, currentPeriodEnd: true },
+        select: { status: true },
       },
     },
   });
@@ -47,7 +57,12 @@ export const loader = async ({ request }: LoaderArgs) => {
     env.STRIPE_CUSTOMER_PORTAL_LINK +
     `?prefilled_email=${encodeURIComponent(user.email)}`;
 
-  return json({ user, customerPortalLink });
+  return json({
+    user,
+    customerPortalLink,
+    themePreferenceOptions: Object.values(Theme),
+    weightUnitPreferenceOptions: Object.values(WeightUnit),
+  });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -72,94 +87,193 @@ export const action = async ({ request }: ActionArgs) => {
     return signOut(request);
   }
 
-  throw new Response("Method Not Allowed", { status: 405 });
+  const formData = await request.formData();
+  const submission = parse(formData, { schema: preferencesSchema });
+
+  if (!submission.value || submission.intent !== "submit") {
+    return json(submission, { status: 400 });
+  }
+
+  console.log("valid");
+
+  const { name, themePreference, weightUnitPreference } = submission.value;
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      name,
+      themePreference,
+      weightUnitPreference,
+    },
+  });
+
+  return redirectBack(request, { fallback: configRoutes.app.profile });
 };
 
 export default function Profile() {
-  const { user, customerPortalLink } = useLoaderData<typeof loader>();
+  const {
+    user,
+    customerPortalLink,
+    themePreferenceOptions,
+    weightUnitPreferenceOptions,
+  } = useLoaderData<typeof loader>();
   const [open, setOpen] = useState(false);
   const cancelButtonRef = useRef(null);
+  const lastSubmission = useActionData<typeof action>();
+  const [
+    preferencesForm,
+    { name: namePreference, themePreference, weightUnitPreference },
+  ] = useForm<PreferencesSchema>({
+    id: "preferences",
+    lastSubmission,
+    shouldValidate: "onInput",
+    defaultValue: {
+      name: user.name,
+      themePreference: user.themePreference,
+      weightUnitPreference: user.weightUnitPreference,
+    },
+    onValidate({ formData }) {
+      return parse(formData, { schema: preferencesSchema });
+    },
+  });
+
+  const submit = useDebouncedSubmit(preferencesForm.ref.current, {
+    replace: true,
+    preventScrollReset: true,
+  });
 
   return (
     <>
       <AppPageLayout>
-        <div className="hidden lg:block">
-          <Heading className="text-zinc-900 dark:text-zinc-50">Profile</Heading>
-          <Paragraph className="mt-1">
-            Your profile's details and subscription.
-          </Paragraph>
+        <div className="mx-auto mb-4 w-full max-w-2xl bg-white dark:bg-zinc-950 sm:rounded-md">
+          <div className="px-4 py-6">
+            <h3 className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
+              Preferences
+            </h3>
+          </div>
+
+          <Form
+            replace
+            preventScrollReset
+            method="post"
+            onChange={submit}
+            {...preferencesForm.props}
+          >
+            <dl className="divide-y divide-zinc-200 border-t border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+              <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                  Name
+                </dt>
+                <dd className="mt-2 sm:mt-0">
+                  <Input
+                    config={namePreference}
+                    label="Name"
+                    hideLabel
+                    hideErrorMessage
+                    placeholder="Your name here"
+                  />
+                </dd>
+              </div>
+              <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                  Theme
+                </dt>
+                <dd>
+                  <Select
+                    config={themePreference}
+                    label="Theme"
+                    options={themePreferenceOptions}
+                    hideLabel
+                    capitalizeOptions
+                    hideErrorMessage
+                  />
+                </dd>
+              </div>
+              <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                  Weight unit
+                </dt>
+                <dd>
+                  <Select
+                    config={weightUnitPreference}
+                    label="Weight unit"
+                    options={weightUnitPreferenceOptions}
+                    hideLabel
+                    hideErrorMessage
+                  />
+                </dd>
+              </div>
+            </dl>
+          </Form>
         </div>
 
-        <dl className="divide-y divide-zinc-200 dark:divide-zinc-700 lg:mt-6 lg:border-t lg:border-zinc-200 lg:dark:border-zinc-700">
-          <div className="pb-6 pt-2 sm:grid sm:grid-cols-3 sm:gap-4 lg:pt-6">
-            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
-              Email
-            </dt>
-            <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
-              {user?.email}
-            </dd>
+        <div className="mx-auto w-full max-w-2xl bg-white dark:bg-zinc-950 sm:rounded-md">
+          <div className="px-4 py-6">
+            <h3 className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
+              Account
+            </h3>
           </div>
-          <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
-              Subscription
-            </dt>
-            <dd className="mt-1 flex text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
-              <div className="flex-grow">
-                <p>
-                  <span className="font-medium">Status:</span>{" "}
-                  {user.subscription!.status}
-                </p>
-                <p>
-                  <span className="font-medium">
-                    {user.subscription!.status === "trialing"
-                      ? "Trial ends:"
-                      : "Current period ends:"}
-                  </span>{" "}
-                  {format(
-                    new Date(user.subscription!.currentPeriodEnd! * 1000),
-                    "MMMM' 'd' 'yyyy"
-                  )}
-                </p>
-              </div>
 
-              <span className="ml-4 flex-shrink-0">
-                <a
-                  href={customerPortalLink}
-                  className="rounded-md font-medium text-orange-600 hover:text-orange-500"
-                >
-                  Manage
-                </a>
-              </span>
-            </dd>
-          </div>
-          <div className="py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
-              Joined
-            </dt>
-            <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
-              {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
-            </dd>
-          </div>
-        </dl>
+          <dl className="divide-y divide-zinc-200 border-t border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                Email
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+                {user?.email}
+              </dd>
+            </div>
+            <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                Subscription
+              </dt>
+              <dd className="mt-1 flex items-center text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+                <div className="flex-grow capitalize">
+                  {user.subscription?.status}
+                </div>
 
-        <div className="flex items-center gap-4 border-t border-zinc-200 pt-6 dark:border-zinc-700">
-          <a
-            href={configRoutes.auth.signOut}
-            className={classes.buttonOrLink.secondary}
-          >
-            <ArrowLeftOnRectangleIcon
-              className="-ml-0.5 h-5 w-5"
-              aria-hidden="true"
-            />
-            Sign out
-          </a>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-red-900 dark:hover:bg-red-950"
-          >
-            Delete account
-          </button>
+                <span className="ml-4 flex-shrink-0">
+                  <a
+                    href={customerPortalLink}
+                    className={classes.buttonOrLink.secondary}
+                  >
+                    Manage
+                  </a>
+                </span>
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                Created
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+                {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="flex items-center gap-4 border-t border-zinc-200 px-4 py-6 dark:border-zinc-800">
+            <a
+              href={configRoutes.auth.signOut}
+              className={clsx(classes.buttonOrLink.secondary, "!flex-1")}
+            >
+              <ArrowLeftOnRectangleIcon
+                className="-ml-0.5 h-5 w-5"
+                aria-hidden="true"
+              />
+              Sign out
+            </a>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+            >
+              <TrashIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+              Delete account
+            </button>
+          </div>
         </div>
       </AppPageLayout>
 
@@ -219,7 +333,7 @@ export default function Profile() {
                     <Form replace method="delete">
                       <button
                         type="submit"
-                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 dark:bg-red-900  dark:hover:bg-red-950 sm:ml-3 sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 sm:ml-3 sm:w-auto"
                         onClick={() => setOpen(false)}
                       >
                         Delete

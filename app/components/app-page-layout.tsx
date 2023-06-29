@@ -9,12 +9,9 @@ export function AppPageLayout({
 >) {
   return (
     <div
-      className={clsx(
-        "px-4 pb-12 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-10",
-        className
-      )}
+      className={clsx("sm:px-6 sm:pt-6 lg:px-8 lg:pb-10 lg:pt-10", className)}
     >
-      <div className="mx-auto w-full max-w-2xl">{children}</div>
+      {children}
     </div>
   );
 }

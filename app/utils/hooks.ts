@@ -1,8 +1,10 @@
 import type { User } from "@prisma/client";
-import { useMatches } from "@remix-run/react";
+import type { SubmitOptions } from "@remix-run/react";
+import { useMatches, useSubmit } from "@remix-run/react";
 import type { RefObject } from "react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useEffect, useRef, useState } from "react";
+import useDeepCompareEffect from "use-deep-compare-effect";
 
 /**
  * Declarative interval.
@@ -142,4 +144,28 @@ export function useMatchWithHeader<Data>() {
   const match = matches.find((m) => m.handle?.header && m.handle.links);
   const handle = match?.handle as MatchWithHeader<Data> | undefined;
   return { handle, data: match?.data as Data };
+}
+
+export function useDebouncedSubmit(
+  form: HTMLFormElement | null,
+  options?: (SubmitOptions & { delay?: number }) | undefined
+) {
+  const [submissionNumber, setSubmissionNumber] = useState(0);
+  const debouncedSubmissionNumber = useDebounce(
+    submissionNumber,
+    options?.delay || 1500
+  );
+  const remixSubmit = useSubmit();
+
+  const submit = useCallback(() => {
+    setSubmissionNumber((prev) => prev + 1);
+  }, []);
+
+  useDeepCompareEffect(() => {
+    if (debouncedSubmissionNumber && form?.reportValidity()) {
+      remixSubmit(form, options);
+    }
+  }, [submit, debouncedSubmissionNumber, remixSubmit, form, options]);
+
+  return submit;
 }

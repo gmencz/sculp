@@ -1,16 +1,4 @@
-import {
-  CalendarDaysIcon,
-  FolderIcon,
-  UserCircleIcon,
-} from "@heroicons/react/20/solid";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
-import {
-  Link,
-  NavLink,
-  Outlet,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
+import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
@@ -23,17 +11,28 @@ import { SuccessToast } from "~/components/success-toast";
 import { toast } from "react-hot-toast";
 import { ErrorToast } from "~/components/error-toast";
 import { useMatchWithHeader } from "~/utils/hooks";
+import {
+  HomeIcon,
+  UserCircleIcon,
+  PlusCircleIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 
 const navigation = [
   {
-    name: "Current mesocycle",
-    href: configRoutes.app.current,
-    icon: CalendarDaysIcon,
-    end: () => true,
+    name: "Home",
+    href: configRoutes.app.home,
+    icon: HomeIcon,
+    end: true,
+  },
+  {
+    name: "Train",
+    href: configRoutes.app.train,
+    icon: PlusIcon,
   },
   {
     name: "Exercises",
-    href: configRoutes.app.exercises.list,
+    href: configRoutes.app.exercises,
     icon: (props: SVGAttributes<SVGElement>) => (
       <svg
         fill="currentColor"
@@ -66,13 +65,6 @@ const navigation = [
         </g>
       </svg>
     ),
-  },
-  {
-    name: "Mesocycles",
-    href: configRoutes.app.mesocycles.list,
-    icon: FolderIcon,
-    end: (currentPath: string) =>
-      currentPath.startsWith(configRoutes.app.mesocycles.new.step1),
   },
   {
     name: "Profile",
@@ -83,14 +75,19 @@ const navigation = [
 
 const mobileNavigation = [
   {
-    name: "Current mesocycle",
-    href: configRoutes.app.current,
-    icon: CalendarDaysIcon,
+    name: "Home",
+    href: configRoutes.app.home,
+    icon: HomeIcon,
     end: true,
   },
   {
+    name: "Train",
+    href: configRoutes.app.train,
+    icon: PlusIcon,
+  },
+  {
     name: "Exercises",
-    href: configRoutes.app.exercises.list,
+    href: configRoutes.app.exercises,
     icon: (props: SVGAttributes<SVGElement>) => (
       <svg
         fill="currentColor"
@@ -123,11 +120,6 @@ const mobileNavigation = [
         </g>
       </svg>
     ),
-  },
-  {
-    name: "Mesocycles",
-    href: configRoutes.app.mesocycles.list,
-    icon: FolderIcon,
   },
   {
     name: "Profile",
@@ -150,7 +142,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 function Layout({ children }: PropsWithChildren) {
-  const location = useLocation();
   const { notification } = useLoaderData<typeof loader>();
   const matchWithHeader = useMatchWithHeader();
 
@@ -193,39 +184,42 @@ function Layout({ children }: PropsWithChildren) {
   return (
     <>
       {/* Static sidebar for desktop */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6 pb-6">
-          <div className="flex h-16 shrink-0 items-center">
-            <img className="h-8 w-auto" src="/logo.png" alt="Sculped" />
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-zinc-200 bg-white px-4 py-2 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex h-16 shrink-0 items-center gap-4">
+            <img
+              className="h-9 w-auto rounded-md dark:border dark:border-zinc-700"
+              src="/logo.png"
+              alt=""
+            />
+            <span className="text-lg font-black uppercase tracking-widest text-zinc-950 dark:text-white">
+              Sculped
+            </span>
           </div>
           <nav className="flex flex-1 flex-col">
-            <ul className="flex flex-1 flex-col gap-y-7">
-              <li>
-                <ul className="-mx-2 space-y-1">
-                  {navigation.map((item) => (
-                    <li key={item.name}>
-                      <NavLink
-                        end={item.end ? item.end(location.pathname) : false}
-                        to={item.href}
-                        className={({ isActive }) =>
-                          clsx(
-                            isActive
-                              ? "bg-zinc-800 text-white"
-                              : "text-zinc-400 hover:bg-zinc-800 hover:text-white",
-                            "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                          )
-                        }
-                      >
-                        <item.icon
-                          className="h-6 w-6 shrink-0"
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </li>
+            <ul className="space-y-2">
+              {navigation.map((item) => (
+                <li key={item.name}>
+                  <NavLink
+                    end={item.end}
+                    to={item.href}
+                    className={({ isActive }) =>
+                      clsx(
+                        isActive
+                          ? "bg-orange-100 text-orange-600 dark:bg-zinc-900 dark:text-orange-600"
+                          : "text-zinc-500 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-300",
+                        "group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6"
+                      )
+                    }
+                  >
+                    <item.icon
+                      className="h-6 w-6 shrink-0"
+                      aria-hidden="true"
+                    />
+                    {item.name}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
@@ -249,11 +243,11 @@ function Layout({ children }: PropsWithChildren) {
                       isActive
                         ? "border-orange-600 text-orange-600"
                         : "border-white text-zinc-400 dark:border-zinc-950 dark:text-zinc-600",
-                      "group flex flex-col items-center justify-center border-t-2 pb-2 pt-4 text-sm font-semibold leading-6"
+                      "group flex flex-col items-center justify-center border-t-2 pb-2 pt-4 font-semibold leading-6"
                     )
                   }
                 >
-                  <item.icon className="mb-1 h-7 w-7 shrink-0" />
+                  <item.icon className="mb-2 h-7 w-7 shrink-0" />
                   <span className="sr-only">{item.name}</span>
                 </NavLink>
               </li>
@@ -265,15 +259,18 @@ function Layout({ children }: PropsWithChildren) {
       <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg dark:border-zinc-50/10 dark:bg-zinc-950 lg:hidden">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-8">
           <Link
-            to={configRoutes.app.current}
+            to={configRoutes.app.home}
             className="flex items-center gap-4 truncate"
           >
-            <img className="h-8 w-auto" src="/logo.png" alt="" />
+            <img
+              className="h-9 w-auto rounded-md dark:border dark:border-zinc-700"
+              src="/logo.png"
+              alt="Sculped"
+            />
 
-            <span className="max-w-xl text-base font-bold text-zinc-950 dark:text-white">
-              {matchWithHeader?.handle?.header(matchWithHeader.data) ||
-                "Sculped"}
-            </span>
+            <div className="max-w-xl text-base font-bold text-zinc-950 dark:text-white">
+              {matchWithHeader?.handle?.header(matchWithHeader.data)}
+            </div>
           </Link>
 
           <nav className="shrink-0">
@@ -296,7 +293,7 @@ function Layout({ children }: PropsWithChildren) {
         </div>
       </div>
 
-      <main className="min-h-full bg-zinc-50 pb-16 dark:bg-zinc-900 lg:pb-0 lg:pl-72">
+      <main className="min-h-full bg-zinc-100 pb-16 text-zinc-950 dark:bg-zinc-900 dark:text-white lg:pb-0 lg:pl-72">
         {children}
       </main>
     </>

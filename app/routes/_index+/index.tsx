@@ -136,7 +136,7 @@ export default function Index() {
       <div className="my-auto flex flex-shrink-0 flex-col items-center gap-20 pt-2 lg:flex-row lg:gap-12 lg:pt-10">
         <div className="mx-auto w-full max-w-2xl xs:text-center lg:mx-0 lg:-mt-20 lg:max-w-none lg:text-left">
           <div className="lg:ml-1l mb-10 xs:flex xs:items-center xs:justify-center lg:block">
-            <img src="/logo.png" alt="Sculped" className="h-12 w-12" />
+            <img src="/logo.png" alt="" className="h-12 w-12" />
           </div>
 
           <span className="rounded-full bg-orange-500/10 px-3 py-1 text-sm font-semibold leading-6 text-orange-400 ring-1 ring-inset ring-orange-500/20">
@@ -154,7 +154,7 @@ export default function Index() {
           <div className="mt-8 flex flex-col gap-6 xs:flex-row xs:items-center xs:justify-center lg:justify-normal">
             {user ? (
               <Link
-                to={configRoutes.app.current}
+                to={configRoutes.app.home}
                 className="rounded-md bg-orange-500 px-5 py-2.5 font-semibold text-white  hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
               >
                 Open app
