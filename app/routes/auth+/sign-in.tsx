@@ -144,13 +144,13 @@ export default function SignIn() {
           ) : null}
 
           {lastSubmission?.error.form ? (
-            <p className="mt-4 text-sm text-red-500" role="alert">
+            <p className="mt-4 text-base text-red-500" role="alert">
               {lastSubmission?.error.form}
             </p>
           ) : null}
 
           <div className="my-6 flex items-center justify-between">
-            <div className="text-sm leading-6">
+            <div className="text-base leading-6">
               <Link
                 to={configRoutes.auth.forgotPassword}
                 className="font-semibold text-orange-600 hover:text-orange-500"
@@ -166,7 +166,7 @@ export default function SignIn() {
           />
         </Form>
 
-        <p className="text-center text-sm leading-6 text-zinc-500 dark:text-zinc-300">
+        <p className="text-center text-base leading-6 text-zinc-500 dark:text-zinc-300">
           Not a member?{" "}
           <Link
             to={configRoutes.auth.getStarted}

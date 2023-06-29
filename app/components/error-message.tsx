@@ -8,7 +8,7 @@ export function ErrorMessage({
 }: PropsWithChildren<HTMLAttributes<HTMLParagraphElement>>) {
   return (
     <p
-      className={clsx("mt-2 text-sm text-red-500", className)}
+      className={clsx("mt-2 text-base text-red-500", className)}
       role="alert"
       {...props}
     >

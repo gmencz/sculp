@@ -94,8 +94,6 @@ export const action = async ({ request }: ActionArgs) => {
     return json(submission, { status: 400 });
   }
 
-  console.log("valid");
-
   const { name, themePreference, weightUnitPreference } = submission.value;
 
   await prisma.user.update({
@@ -149,7 +147,7 @@ export default function Profile() {
       <AppPageLayout>
         <div className="mx-auto mb-4 w-full max-w-2xl bg-white dark:bg-zinc-950 sm:rounded-md">
           <div className="px-4 py-6">
-            <h3 className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
+            <h3 className="text-lg font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
               Preferences
             </h3>
           </div>
@@ -163,7 +161,7 @@ export default function Profile() {
           >
             <dl className="divide-y divide-zinc-200 border-t border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
               <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
                   Name
                 </dt>
                 <dd className="mt-2 sm:mt-0">
@@ -172,12 +170,12 @@ export default function Profile() {
                     label="Name"
                     hideLabel
                     hideErrorMessage
-                    placeholder="Your name here"
+                    placeholder="Your Name Here"
                   />
                 </dd>
               </div>
               <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
                   Theme
                 </dt>
                 <dd>
@@ -192,13 +190,13 @@ export default function Profile() {
                 </dd>
               </div>
               <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
-                  Weight unit
+                <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+                  Weight Unit
                 </dt>
                 <dd>
                   <Select
                     config={weightUnitPreference}
-                    label="Weight unit"
+                    label="Weight Unit"
                     options={weightUnitPreferenceOptions}
                     hideLabel
                     hideErrorMessage
@@ -211,25 +209,25 @@ export default function Profile() {
 
         <div className="mx-auto w-full max-w-2xl bg-white dark:bg-zinc-950 sm:rounded-md">
           <div className="px-4 py-6">
-            <h3 className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
+            <h3 className="text-lg font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
               Account
             </h3>
           </div>
 
           <dl className="divide-y divide-zinc-200 border-t border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+              <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
                 Email
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+              <dd className="text-basee mt-1 leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
                 {user?.email}
               </dd>
             </div>
             <div className="items-center px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+              <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
                 Subscription
               </dt>
-              <dd className="mt-1 flex items-center text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+              <dd className="text-basee mt-1 flex items-center leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
                 <div className="flex-grow capitalize">
                   {user.subscription?.status}
                 </div>
@@ -245,10 +243,10 @@ export default function Profile() {
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50">
+              <dt className="text-basee font-medium leading-6 text-zinc-900 dark:text-zinc-50">
                 Created
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
+              <dd className="text-basee mt-1 leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">
                 {format(new Date(user.createdAt), "MMMM' 'd' 'yyyy")}
               </dd>
             </div>
@@ -260,18 +258,18 @@ export default function Profile() {
               className={clsx(classes.buttonOrLink.secondary, "!flex-1")}
             >
               <ArrowLeftOnRectangleIcon
-                className="-ml-0.5 h-5 w-5"
+                className="h-5 w-5"
                 aria-hidden="true"
               />
-              Sign out
+              Sign Out
             </a>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+              className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-red-600 px-3 py-2 text-center text-base font-semibold text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
             >
-              <TrashIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-              Delete account
+              <TrashIcon className="h-5 w-5" aria-hidden="true" />
+              Delete Account
             </button>
           </div>
         </div>
@@ -293,11 +291,11 @@ export default function Profile() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-zinc-500 bg-opacity-75 transition-opacity" />
+            <div className="fixed inset-0 bg-zinc-500 bg-opacity-75 transition-opacity dark:bg-zinc-900 dark:bg-opacity-75" />
           </Transition.Child>
 
           <div className="fixed inset-0 z-10 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -320,7 +318,7 @@ export default function Profile() {
                         Delete account
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className="text-sm text-zinc-500 dark:text-zinc-300">
+                        <p className="text-basee text-zinc-500 dark:text-zinc-300">
                           Are you sure you want to delete your account? All of
                           your data will be permanently removed from our servers
                           forever and your subscription will be immediately
@@ -333,7 +331,7 @@ export default function Profile() {
                     <Form replace method="delete">
                       <button
                         type="submit"
-                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 sm:ml-3 sm:w-auto"
+                        className="text-basee inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 font-semibold text-white hover:bg-red-500 sm:ml-3 sm:w-auto"
                         onClick={() => setOpen(false)}
                       >
                         Delete

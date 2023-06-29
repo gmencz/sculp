@@ -119,7 +119,7 @@ export default function Checkout() {
             Checkout completed!
           </h3>
 
-          <p className="mb-6 max-w-md text-center text-sm font-medium text-zinc-500 dark:text-zinc-300">
+          <p className="mb-6 max-w-md text-center text-base font-medium text-zinc-500 dark:text-zinc-300">
             You're now one step closer to unlocking your ultimate
             muscle-building journey. Prepare to push boundaries, break records,
             and achieve your dream physique. Thank you for choosing our app, and
@@ -128,7 +128,7 @@ export default function Checkout() {
 
           <Link
             prefetch="intent"
-            to={configRoutes.app.current}
+            to={configRoutes.app.home}
             className={classes.buttonOrLink.primary}
           >
             Continue to App

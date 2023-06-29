@@ -52,7 +52,7 @@ export const Textarea = forwardRef<
       {hideLabel ? null : (
         <label
           htmlFor={config.id}
-          className="mb-1 block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50"
+          className="mb-1 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50"
         >
           {label}
         </label>
@@ -70,7 +70,7 @@ export const Textarea = forwardRef<
 
             <ContentEditable
               className={clsx(
-                "block w-full rounded-md border-0 bg-white px-3 py-2.5 text-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50",
+                "block w-full rounded-md border-0 bg-white px-3 py-2.5 text-base ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50",
                 config.error
                   ? "text-red-300 ring-red-500 focus:ring-red-600"
                   : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700",
@@ -90,7 +90,7 @@ export const Textarea = forwardRef<
         ) : (
           <textarea
             className={clsx(
-              "block w-full rounded-md border-0 bg-white py-2 text-sm text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-600",
+              "block w-full rounded-md border-0 bg-white py-2 text-base text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-600",
               config.error
                 ? "text-red-300 ring-red-500 focus:ring-red-600"
                 : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700",

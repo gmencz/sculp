@@ -31,7 +31,7 @@ export function Input({
       <label
         htmlFor={config.id}
         className={clsx(
-          "mb-1 block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+          "mb-1 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
           hideLabel && "sr-only"
         )}
       >
@@ -41,7 +41,7 @@ export function Input({
       <div className="relative rounded-md">
         <input
           className={clsx(
-            "block w-full rounded-md border-0 bg-white py-2 text-sm text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 read-only:cursor-not-allowed read-only:bg-zinc-50 read-only:text-zinc-500 read-only:ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:read-only:bg-zinc-900 dark:read-only:text-zinc-600 dark:read-only:ring-zinc-700",
+            "block w-full rounded-md border-0 bg-white py-2 text-base text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 read-only:cursor-not-allowed read-only:bg-zinc-50 read-only:text-zinc-500 read-only:ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:read-only:bg-zinc-900 dark:read-only:text-zinc-600 dark:read-only:ring-zinc-700",
             config.error
               ? "pr-10 text-red-300 ring-red-500 focus:ring-red-600"
               : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700",

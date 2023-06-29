@@ -218,7 +218,7 @@ export default function GetStarted() {
           ) : null}
 
           {lastSubmission?.error.form ? (
-            <p className="mt-4 text-sm text-red-500" role="alert">
+            <p className="mt-4 text-base text-red-500" role="alert">
               {lastSubmission?.error.form}
             </p>
           ) : null}
@@ -228,7 +228,7 @@ export default function GetStarted() {
           </div>
         </Form>
 
-        <p className="text-center text-sm leading-6 text-zinc-500 dark:text-zinc-300">
+        <p className="text-center text-base leading-6 text-zinc-500 dark:text-zinc-300">
           Already have an account?{" "}
           <Link
             to={configRoutes.auth.signIn}

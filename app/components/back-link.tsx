@@ -12,7 +12,7 @@ export function BackLink({
     <Link
       {...props}
       to={to}
-      className="inline-flex items-center text-sm font-semibold leading-7 text-orange-600"
+      className="text-basee inline-flex items-center font-semibold leading-7 text-orange-600"
     >
       <ArrowLongLeftIcon
         className="-ml-0.5 mr-1.5 h-5 w-5"

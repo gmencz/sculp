@@ -80,7 +80,7 @@ function SelectSingleOption({
           <>
             <Listbox.Label
               className={clsx(
-                "block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                "block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
                 hideLabel && "sr-only"
               )}
             >
@@ -91,7 +91,7 @@ function SelectSingleOption({
               <Listbox.Button
                 ref={buttonRef}
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-transparent bg-white py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
+                  "relative w-full cursor-default rounded-md bg-transparent bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700"
@@ -115,7 +115,7 @@ function SelectSingleOption({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
                   {options.map((option) => (
                     <Listbox.Option
                       key={option}
@@ -275,7 +275,7 @@ function SelectMultipleOptions({
           <>
             <Listbox.Label
               className={clsx(
-                "block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                "block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
                 hideLabel && "sr-only"
               )}
             >
@@ -285,7 +285,7 @@ function SelectMultipleOptions({
             <div className="relative mt-2">
               <Listbox.Button
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left text-sm text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
+                  "relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
                     : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700"
@@ -315,7 +315,7 @@ function SelectMultipleOptions({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
                   {options.map((option) => (
                     <Listbox.Option
                       key={option}

@@ -26,8 +26,8 @@ export function ErrorToast({ t, title, description }: ErrorToastProps) {
             />
           </div>
           <div className="ml-3 w-0 flex-1">
-            <p className="text-sm font-medium text-zinc-900">{title}</p>
-            <p className="mt-1 text-sm text-zinc-500">{description}</p>
+            <p className="text-base font-medium text-zinc-900">{title}</p>
+            <p className="mt-1 text-base text-zinc-500">{description}</p>
           </div>
           <div className="ml-4 flex flex-shrink-0">
             <button

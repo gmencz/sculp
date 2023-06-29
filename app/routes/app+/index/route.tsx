@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <AppPageLayout>
       <Card>
-        <h3 className="mb-4 text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
+        <h3 className="mb-4 text-lg font-semibold leading-7 text-zinc-900 dark:text-zinc-50">
           Home
         </h3>
       </Card>

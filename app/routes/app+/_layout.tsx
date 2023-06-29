@@ -208,7 +208,7 @@ function Layout({ children }: PropsWithChildren) {
                         isActive
                           ? "bg-orange-100 text-orange-600 dark:bg-zinc-900 dark:text-orange-600"
                           : "text-zinc-500 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-300",
-                        "group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6"
+                        "group flex gap-x-3 rounded-md p-2 text-base font-medium leading-6"
                       )
                     }
                   >
@@ -268,7 +268,7 @@ function Layout({ children }: PropsWithChildren) {
               alt="Sculped"
             />
 
-            <div className="max-w-xl text-base font-bold text-zinc-950 dark:text-white">
+            <div className="max-w-xl text-lg font-bold text-zinc-950 dark:text-white">
               {matchWithHeader?.handle?.header(matchWithHeader.data)}
             </div>
           </Link>
@@ -279,7 +279,7 @@ function Layout({ children }: PropsWithChildren) {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="flex items-center text-sm font-semibold leading-6 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
+                    className="flex items-center text-base font-semibold leading-6 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
                   >
                     {link.type === "new" ? (
                       <PlusCircleIcon className="h-8 w-8 rounded-full" />

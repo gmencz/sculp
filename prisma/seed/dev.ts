@@ -15,18 +15,6 @@ async function seed() {
   const hashedPassword = await hashPassword("password123");
 
   await prisma.$transaction([
-    prisma.user.create({
-      data: {
-        email,
-        role: Role.ADMIN,
-        password: {
-          create: {
-            hash: hashedPassword,
-          },
-        },
-      },
-    }),
-
     // Create muscle groups.
     ...Object.values(MuscleGroup).map((muscleGroup) =>
       prisma.muscleGroup.create({
@@ -58,6 +46,188 @@ async function seed() {
       });
     }),
   ]);
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      role: Role.ADMIN,
+      password: {
+        create: {
+          hash: hashedPassword,
+        },
+      },
+    },
+  });
+
+  const dbExercises = await prisma.exercise.findMany();
+
+  await prisma.folder.create({
+    data: {
+      userId: user.id,
+      name: "PPL",
+      order: 1,
+      notes:
+        "Push pull legs (3 days on 1 off) with an emphasis on biceps, quads and chest.",
+      routines: {
+        create: [
+          {
+            name: "Push A",
+            userId: user.id,
+            exercises: {
+              create: [
+                {
+                  order: 1,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Flat Bench Press (Barbell)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 2,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Lateral Raise (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 3,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Triceps Pushdown (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            name: "Pull A",
+            userId: user.id,
+            exercises: {
+              create: [
+                {
+                  order: 1,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Lat Pulldown (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 2,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "T-Bar Row (Machine)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 3,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Preacher Curl (Machine)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.folder.create({
+    data: {
+      userId: user.id,
+      name: "PPL 2",
+      order: 1,
+      notes:
+        "Push pull legs (3 days on 1 off) with an emphasis on biceps, quads and chest.",
+      routines: {
+        create: [
+          {
+            name: "Push A",
+            userId: user.id,
+            exercises: {
+              create: [
+                {
+                  order: 1,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Flat Bench Press (Barbell)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 2,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Lateral Raise (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 3,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Triceps Pushdown (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            name: "Pull A",
+            userId: user.id,
+            exercises: {
+              create: [
+                {
+                  order: 1,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Lat Pulldown (Cable)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 2,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "T-Bar Row (Machine)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+                {
+                  order: 3,
+                  exerciseId: dbExercises.find(
+                    (e) => e.name === "Preacher Curl (Machine)"
+                  )!.id,
+                  sets: {
+                    create: [{ number: 1 }, { number: 2 }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  });
 
   console.log(`Database has been seeded. 🌱`);
 }

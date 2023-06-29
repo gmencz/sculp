@@ -207,7 +207,7 @@ export default function ResetPassword() {
           ) : null}
 
           {lastSubmission?.error.form ? (
-            <p className="mt-4 text-sm text-red-500" role="alert">
+            <p className="mt-4 text-base text-red-500" role="alert">
               {lastSubmission?.error.form}
             </p>
           ) : null}
