@@ -9,24 +9,32 @@ import {
   updateFolderNotesSchema,
   type UpdateFolderNotesSchema,
 } from "./schema";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { parse } from "@conform-to/zod";
 import { Textarea } from "~/components/textarea";
 import { useDebouncedSubmit } from "~/utils/hooks";
+import { classes } from "~/utils/classes";
+import clsx from "clsx";
 
 type FolderProps = {
   folder: SerializeFrom<typeof loader>["folders"][number];
   onClickOptions: (id: string, name: string) => void;
+  onClickRoutineOptions: (id: string, name: string) => void;
 };
 
-export function Folder({ folder, onClickOptions }: FolderProps) {
+export function Folder({
+  folder,
+  onClickOptions,
+  onClickRoutineOptions,
+}: FolderProps) {
   const lastSubmission = useActionData<typeof action>();
-  const [updateFolderNotesForm, { notes, intent }] =
+  const [updateFolderNotesForm, { notes, intent, id }] =
     useForm<UpdateFolderNotesSchema>({
       id: "update-folder-notes",
       lastSubmission,
       shouldValidate: "onInput",
       defaultValue: {
+        id: folder.id,
         notes: folder.notes,
         intent: Intent.UPDATE_FOLDER_NOTES,
       },
@@ -45,20 +53,22 @@ export function Folder({ folder, onClickOptions }: FolderProps) {
       {({ open }) => (
         <>
           <div className="flex items-center gap-4">
-            <Disclosure.Button className="flex w-full items-center gap-2 rounded-lg py-2 text-left text-base font-medium">
+            <Disclosure.Button className="flex w-full items-center gap-2 rounded-lg py-2 text-left text-base font-medium hover:bg-zinc-50 dark:hover:bg-zinc-900">
               <ChevronUpIcon
                 className={`${
                   open ? "rotate-180 transform" : "rotate-90"
-                } h-7 w-7 text-orange-500 transition-transform`}
+                } h-6 w-6 text-orange-500 transition-transform`}
               />
-              <span>{folder.name}</span>
+              <span>
+                {folder.name} ({folder.routines.length})
+              </span>
             </Disclosure.Button>
 
             <button
-              className="-m-2 p-2 text-zinc-400"
+              className="-m-2 p-2 text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
               onClick={() => onClickOptions(folder.id, folder.name)}
             >
-              <EllipsisVerticalIcon className="h-7 w-7" />
+              <EllipsisVerticalIcon className="h-6 w-6" />
               <span className="sr-only">Options</span>
             </button>
           </div>
@@ -73,6 +83,7 @@ export function Folder({ folder, onClickOptions }: FolderProps) {
                 {...updateFolderNotesForm.props}
               >
                 <input {...conform.input(intent, { hidden: true })} />
+                <input {...conform.input(id, { hidden: true })} />
 
                 <Textarea
                   label="Notes"
@@ -90,7 +101,18 @@ export function Folder({ folder, onClickOptions }: FolderProps) {
                   key={routine.id}
                   className="rounded-md border border-zinc-200 p-4 text-base dark:border-zinc-800"
                 >
-                  <span className="font-medium">{routine.name}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{routine.name}</span>
+                    <button
+                      className="-m-2 p-2 text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
+                      onClick={() =>
+                        onClickRoutineOptions(routine.id, routine.name)
+                      }
+                    >
+                      <EllipsisVerticalIcon className="h-6 w-6" />
+                      <span className="sr-only">Options</span>
+                    </button>
+                  </div>
                   <ol className="mt-2">
                     {routine.exercises.map((exercise) => (
                       <li
@@ -106,6 +128,16 @@ export function Folder({ folder, onClickOptions }: FolderProps) {
                       {routine.notes}
                     </p>
                   ) : null}
+
+                  <Link
+                    to={`/train/${routine.id}`}
+                    className={clsx(
+                      classes.buttonOrLink.primary,
+                      "mt-4 w-full"
+                    )}
+                  >
+                    Start
+                  </Link>
                 </li>
               ))}
             </ul>

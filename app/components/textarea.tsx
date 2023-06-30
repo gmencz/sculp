@@ -73,7 +73,7 @@ export const Textarea = forwardRef<
                 "block w-full rounded-md border-0 bg-white px-3 py-2.5 text-base ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50",
                 config.error
                   ? "text-red-300 ring-red-500 focus:ring-red-600"
-                  : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700",
+                  : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-800",
                 value ? "text-zinc-900" : "text-zinc-400",
                 className
               )}
@@ -93,7 +93,7 @@ export const Textarea = forwardRef<
               "block w-full rounded-md border-0 bg-white py-2 text-base text-zinc-900 ring-1 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-600",
               config.error
                 ? "text-red-300 ring-red-500 focus:ring-red-600"
-                : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700",
+                : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-800",
               autoSize ? "resize-none" : null,
               className
             )}

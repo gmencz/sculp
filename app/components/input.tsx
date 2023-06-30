@@ -1,7 +1,11 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
-import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import {
+  forwardRef,
+  type DetailedHTMLProps,
+  type InputHTMLAttributes,
+} from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 
@@ -16,22 +20,25 @@ type InputProps = DetailedHTMLProps<
   hideLabel?: boolean;
 };
 
-export function Input({
-  config,
-  helperText,
-  label,
-  hideErrorMessage,
-  type,
-  hideLabel,
-  className,
-  ...props
-}: InputProps) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    config,
+    helperText,
+    label,
+    hideErrorMessage,
+    type,
+    hideLabel,
+    className,
+    ...props
+  }: InputProps,
+  forwardedRef
+) {
   return (
     <div className="flex flex-col">
       <label
         htmlFor={config.id}
         className={clsx(
-          "mb-1 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+          "mb-3 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
           hideLabel && "sr-only"
         )}
       >
@@ -49,6 +56,7 @@ export function Input({
           )}
           {...conform.input(config, { type: type || "text" })}
           {...props}
+          ref={forwardedRef}
         />
 
         {config.error ? (
@@ -72,4 +80,4 @@ export function Input({
       ) : null}
     </div>
   );
-}
+});

@@ -1,27 +1,38 @@
 import { parse } from "@conform-to/zod";
-import { Dialog, Transition } from "@headlessui/react";
+import { PlusIcon } from "@heroicons/react/20/solid";
 import {
-  PencilIcon,
-  PlusIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@heroicons/react/20/solid";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Card } from "~/components/card";
 import { requireUser } from "~/services/auth/api/require-user";
 import { classes } from "~/utils/classes";
 import { prisma } from "~/utils/db.server";
-import type { MatchWithHeader } from "~/utils/hooks";
-import type { RenameFolderSchema } from "./schema";
-import { Intent, intentSchema, renameFolderSchema } from "./schema";
+import { useResetCallback, type MatchWithHeader } from "~/utils/hooks";
+import {
+  Intent,
+  deleteFolderSchema,
+  deleteRoutineSchema,
+  intentSchema,
+  renameFolderSchema,
+  updateFolderNotesSchema,
+} from "./schema";
 import { Folder } from "./folder";
-import { conform, useForm } from "@conform-to/react";
-import { Input } from "~/components/input";
+import { redirectBack } from "~/utils/responses.server";
+import { configRoutes } from "~/utils/routes";
+import { Prisma } from "@prisma/client";
+import { FolderOptionsModal } from "./folder-options-modal";
+import { RenameFolderModal } from "./rename-folder-modal";
+import { DeleteFolderModal } from "./delete-folder-modal";
+import { RoutineOptionsModal } from "./routine-options-modal";
+import { DeleteRoutineModal } from "./delete-routine-modal";
 
 export const handle: MatchWithHeader = {
   header: () => "Train",
@@ -62,6 +73,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export const action = async ({ request }: ActionArgs) => {
+  const user = await requireUser(request);
   const formData = await request.formData();
   const intentSubmission = parse(formData, { schema: intentSchema });
 
@@ -69,36 +81,211 @@ export const action = async ({ request }: ActionArgs) => {
     return json(intentSubmission, { status: 400 });
   }
 
+  switch (intentSubmission.value.intent) {
+    case Intent.RENAME_FOLDER: {
+      const submission = parse(formData, { schema: renameFolderSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      try {
+        await prisma.folder.updateMany({
+          where: {
+            AND: [{ id: submission.value.id }, { userId: user.id }],
+          },
+          data: {
+            name: submission.value.name,
+          },
+        });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002") {
+            submission.error["name"] =
+              "You already have a folder with this name";
+
+            return json(submission, { status: 400 });
+          }
+        }
+        throw e;
+      }
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.train,
+      });
+    }
+
+    case Intent.UPDATE_FOLDER_NOTES: {
+      const submission = parse(formData, { schema: updateFolderNotesSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      await prisma.folder.updateMany({
+        where: {
+          AND: [{ id: submission.value.id }, { userId: user.id }],
+        },
+        data: {
+          notes: submission.value.notes,
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.train,
+      });
+    }
+
+    case Intent.DELETE_FOLDER: {
+      const submission = parse(formData, { schema: deleteFolderSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      await prisma.folder.deleteMany({
+        where: {
+          AND: [{ id: submission.value.id }, { userId: user.id }],
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.train,
+      });
+    }
+
+    case Intent.DELETE_ROUTINE: {
+      const submission = parse(formData, { schema: deleteRoutineSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      await prisma.routine.deleteMany({
+        where: {
+          AND: [{ id: submission.value.id }, { userId: user.id }],
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.train,
+      });
+    }
+  }
+
   throw new Error("Not implemented");
 };
 
-type SelectedFolder = {
+export type SelectedFolder = {
+  id: string;
+  name: string;
+};
+
+export type SelectedRoutine = {
   id: string;
   name: string;
 };
 
 export default function Train() {
   const { folders } = useLoaderData<typeof loader>();
+  const lastSubmission = useActionData<typeof action>();
   const [showFolderOptionsModal, setShowFolderOptionsModal] = useState(false);
-  const [selectedFolderOptions, setSelectedFolderOptions] =
-    useState<SelectedFolder | null>(null);
-
   const [showRenameFolderModal, setShowRenameFolderModal] = useState(false);
-  const [selectedFolderRename, setSelectedFolderRename] =
-    useState<SelectedFolder | null>(null);
+  const [showDeleteFolderModal, setShowDeleteFolderModal] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<SelectedFolder | null>(
+    null
+  );
+
+  const [showRoutineOptionsModal, setShowRoutineOptionsModal] = useState(false);
+  const [showDeleteRoutineModal, setShowDeleteRoutineModal] = useState(false);
+  const [selectedRoutine, setSelectedRoutine] =
+    useState<SelectedRoutine | null>(null);
 
   useEffect(() => {
-    if (selectedFolderOptions) {
-      setShowFolderOptionsModal(true);
-    }
-  }, [selectedFolderOptions]);
-
-  useEffect(() => {
-    if (selectedFolderRename) {
-      setShowFolderOptionsModal(false);
+    if (
+      lastSubmission?.value?.intent === Intent.RENAME_FOLDER &&
+      lastSubmission.error.name
+    ) {
       setShowRenameFolderModal(true);
     }
-  }, [selectedFolderRename, showRenameFolderModal]);
+  }, [lastSubmission?.error.name, lastSubmission?.value?.intent]);
+
+  const [controlledFolders, setControlledFolders] = useState(folders);
+
+  useResetCallback(folders, () => {
+    setControlledFolders(folders);
+  });
+
+  const navigation = useNavigation();
+  useEffect(() => {
+    if (navigation.formData) {
+      const intent = navigation.formData.get("intent");
+
+      switch (intent) {
+        case Intent.RENAME_FOLDER: {
+          const id = navigation.formData.get("id");
+          const name = (navigation.formData.get("name") as string) || "";
+          setControlledFolders((prev) =>
+            prev.map((folder) => {
+              if (folder.id === id) {
+                return {
+                  ...folder,
+                  name,
+                };
+              }
+
+              return folder;
+            })
+          );
+          setShowRenameFolderModal(false);
+          break;
+        }
+
+        case Intent.UPDATE_FOLDER_NOTES: {
+          const id = navigation.formData.get("id");
+          const notes = (navigation.formData.get("notes") as string) || "";
+          setControlledFolders((prev) =>
+            prev.map((folder) => {
+              if (folder.id === id) {
+                return {
+                  ...folder,
+                  notes,
+                };
+              }
+
+              return folder;
+            })
+          );
+          break;
+        }
+
+        case Intent.DELETE_FOLDER: {
+          const id = navigation.formData.get("id");
+          setControlledFolders((prev) =>
+            prev.filter((folder) => folder.id !== id)
+          );
+          setShowDeleteFolderModal(false);
+          break;
+        }
+
+        case Intent.DELETE_ROUTINE: {
+          const id = navigation.formData.get("id");
+          setControlledFolders((prev) =>
+            prev.map((folder) => {
+              return {
+                ...folder,
+                routines: folder.routines.filter(
+                  (routine) => routine.id !== id
+                ),
+              };
+            })
+          );
+          setShowDeleteFolderModal(false);
+          break;
+        }
+      }
+    }
+  }, [navigation.formData]);
 
   return (
     <AppPageLayout>
@@ -122,191 +309,65 @@ export default function Train() {
             Routines
           </h3>
 
-          <Link className="-m-2 p-2" to={`/routines/new`}>
+          <Link
+            className="-m-2 p-2 text-orange-500 hover:text-orange-600"
+            to={`/routines/new`}
+          >
             <span className="sr-only">New Routine</span>
-            <PlusIcon className="h-7 w-7 text-orange-500" />
+            <PlusIcon className="h-6 w-6" />
           </Link>
         </div>
 
         <ol className="flex flex-col gap-2">
-          {folders.map((folder) => (
+          {controlledFolders.map((folder) => (
             <Folder
               key={folder.id}
               folder={folder}
-              onClickOptions={(id, name) =>
-                setSelectedFolderOptions({ id, name })
-              }
+              onClickOptions={(id, name) => {
+                setSelectedFolder({ id, name });
+                setShowFolderOptionsModal(true);
+              }}
+              onClickRoutineOptions={(id, name) => {
+                setSelectedRoutine({ id, name });
+                setShowRoutineOptionsModal(true);
+              }}
             />
           ))}
         </ol>
       </Card>
 
-      <Transition.Root
-        afterLeave={() => {
-          setSelectedFolderOptions(null);
-        }}
+      <FolderOptionsModal
+        selectedFolder={selectedFolder}
         show={showFolderOptionsModal}
-        as={Fragment}
-      >
-        <Dialog
-          onClose={() => setShowFolderOptionsModal(false)}
-          as="div"
-          className="relative z-[60]"
-          unmount
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-zinc-500 bg-opacity-75 transition-opacity dark:bg-zinc-900 dark:bg-opacity-75" />
-          </Transition.Child>
+        setShow={setShowFolderOptionsModal}
+        setShowDeleteFolderModal={setShowDeleteFolderModal}
+        setShowRenameFolderModal={setShowRenameFolderModal}
+      />
 
-          <div className="fixed inset-0 z-10 overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              >
-                <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                  <div className="flex w-full items-center justify-between gap-6 border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-                    <span>{selectedFolderOptions?.name}</span>
-                    <button
-                      onClick={() => setShowFolderOptionsModal(false)}
-                      className="-m-2 p-2"
-                    >
-                      <span className="sr-only">Close</span>
-                      <XMarkIcon className="h-6 w-6" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedFolderRename(selectedFolderOptions);
-                    }}
-                    className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 dark:border-zinc-800"
-                  >
-                    <PencilIcon className="h-6 w-6" />
-                    <span>Rename Folder</span>
-                  </button>
-
-                  <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-                    <PlusIcon className="-ml-1 h-6 w-6" />
-                    <span>Add New Routine</span>
-                  </button>
-
-                  <button className="flex w-full items-center justify-start gap-6 px-6 py-4 text-red-500 dark:border-zinc-800">
-                    <TrashIcon className="-ml-1 h-6 w-6" />
-                    <span>Delete Folder</span>
-                  </button>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
-
-      <Transition.Root
-        afterLeave={() => {
-          setSelectedFolderOptions(null);
-        }}
+      <RenameFolderModal
+        selectedFolder={selectedFolder}
         show={showRenameFolderModal}
-        as={Fragment}
-      >
-        <Dialog
-          onClose={() => setShowRenameFolderModal(false)}
-          as="div"
-          className="relative z-[60]"
-          unmount
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-zinc-500 bg-opacity-75 transition-opacity dark:bg-zinc-900 dark:bg-opacity-75" />
-          </Transition.Child>
+        setShow={setShowRenameFolderModal}
+      />
 
-          <div className="fixed inset-0 z-10 overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              >
-                <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                  {selectedFolderRename ? (
-                    <RenameFolderForm
-                      folderName={selectedFolderRename?.name}
-                      setShowRenameFolderModal={setShowRenameFolderModal}
-                    />
-                  ) : null}
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
+      <DeleteFolderModal
+        selectedFolder={selectedFolder}
+        show={showDeleteFolderModal}
+        setShow={setShowDeleteFolderModal}
+      />
+
+      <RoutineOptionsModal
+        selectedRoutine={selectedRoutine}
+        show={showRoutineOptionsModal}
+        setShow={setShowRoutineOptionsModal}
+        setShowDeleteRoutineModal={setShowDeleteRoutineModal}
+      />
+
+      <DeleteRoutineModal
+        selectedRoutine={selectedRoutine}
+        show={showDeleteRoutineModal}
+        setShow={setShowDeleteRoutineModal}
+      />
     </AppPageLayout>
-  );
-}
-
-type RenameFolderFormProps = {
-  folderName: string;
-  setShowRenameFolderModal: (value: React.SetStateAction<boolean>) => void;
-};
-
-function RenameFolderForm({
-  folderName,
-  setShowRenameFolderModal,
-}: RenameFolderFormProps) {
-  const lastSubmission = useActionData<typeof action>();
-  const [renameFolderForm, { intent, name }] = useForm<RenameFolderSchema>({
-    id: "rename-folder",
-    lastSubmission,
-    shouldValidate: "onInput",
-    defaultValue: {
-      name: folderName,
-      intent: Intent.RENAME_FOLDER,
-    },
-    onValidate({ formData }) {
-      return parse(formData, { schema: renameFolderSchema });
-    },
-  });
-
-  return (
-    <Form method="post" preventScrollReset replace {...renameFolderForm.props}>
-      <div className="flex w-full items-center justify-between gap-6 px-6 py-4 dark:border-zinc-800">
-        <input {...conform.input(intent, { hidden: true })} />
-
-        <Input config={name} hideLabel label="Name" />
-
-        <button
-          type="button"
-          onClick={() => setShowRenameFolderModal(false)}
-          className="-m-2 p-2"
-        >
-          <span className="sr-only">Close</span>
-          <XMarkIcon className="h-6 w-6" />
-        </button>
-      </div>
-    </Form>
   );
 }

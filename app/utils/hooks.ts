@@ -169,3 +169,11 @@ export function useDebouncedSubmit(
 
   return submit;
 }
+
+export function useResetCallback(initialValue: any, resetFn: () => any) {
+  const [prevValue, setPrevValue] = useState(initialValue);
+  if (prevValue !== initialValue) {
+    resetFn();
+    setPrevValue(initialValue);
+  }
+}

@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { idSchema } from "~/utils/schemas";
 
 export enum Intent {
   UPDATE_FOLDER_NOTES = "UPDATE_FOLDER_NOTES",
   RENAME_FOLDER = "RENAME_FOLDER",
+  DELETE_FOLDER = "DELETE_FOLDER",
+  DELETE_ROUTINE = "DELETE_ROUTINE",
 }
 
 export const intentSchema = z.object({
@@ -18,7 +21,7 @@ export const updateFolderNotesSchema = z.object({
   intent: z
     .literal(Intent.UPDATE_FOLDER_NOTES)
     .default(Intent.UPDATE_FOLDER_NOTES),
-
+  id: idSchema,
   notes: z
     .string({ invalid_type_error: "The notes are not valid." })
     .max(1024, "The notes are too long."),
@@ -28,7 +31,7 @@ export type UpdateFolderNotesSchema = z.infer<typeof updateFolderNotesSchema>;
 
 export const renameFolderSchema = z.object({
   intent: z.literal(Intent.RENAME_FOLDER).default(Intent.RENAME_FOLDER),
-
+  id: idSchema,
   name: z
     .string({
       invalid_type_error: "The name is not valid.",
@@ -38,3 +41,17 @@ export const renameFolderSchema = z.object({
 });
 
 export type RenameFolderSchema = z.infer<typeof renameFolderSchema>;
+
+export const deleteFolderSchema = z.object({
+  intent: z.literal(Intent.DELETE_FOLDER).default(Intent.DELETE_FOLDER),
+  id: idSchema,
+});
+
+export type DeleteFolderSchema = z.infer<typeof deleteFolderSchema>;
+
+export const deleteRoutineSchema = z.object({
+  intent: z.literal(Intent.DELETE_ROUTINE).default(Intent.DELETE_ROUTINE),
+  id: idSchema,
+});
+
+export type DeleteRoutineSchema = z.infer<typeof deleteRoutineSchema>;
