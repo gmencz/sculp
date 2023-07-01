@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { TrackRir } from "~/routes/app+/profile/schema";
-import { idSchema, notesSchema, routineNameSchema } from "~/utils/schemas";
+import {
+  idSchema,
+  notesSchema,
+  repsSchema,
+  rirSchema,
+  routineNameSchema,
+  weightSchema,
+} from "~/utils/schemas";
 
 export enum PreviousValuesFrom {
   ANY = "From any training session",
@@ -12,6 +19,7 @@ export enum Intent {
   UPDATE_ROUTINE_DETAILS = "UPDATE_ROUTINE_DETAILS",
   REORDER_EXERCISES = "REORDER_EXERCISES",
   UPDATE_EXERCISE_NOTES = "UPDATE_EXERCISE_NOTES",
+  UPDATE_SET = "UPDATE_SET",
 }
 
 export const intentSchema = z.object({
@@ -72,3 +80,13 @@ export const updateRoutineSettingsSchema = z.object({
 export type UpdateRoutineSettingsSchema = z.infer<
   typeof updateRoutineSettingsSchema
 >;
+
+export const updateSetSchema = z.object({
+  intent: z.literal(Intent.UPDATE_SET).default(Intent.UPDATE_SET),
+  id: idSchema,
+  weight: weightSchema,
+  reps: repsSchema,
+  rir: rirSchema,
+});
+
+export type UpdateSetSchema = z.infer<typeof updateSetSchema>;

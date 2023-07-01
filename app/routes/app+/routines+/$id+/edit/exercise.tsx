@@ -11,6 +11,7 @@ import { Intent, updateExerciseNotesSchema } from "./schema";
 import { parse } from "@conform-to/zod";
 import { useDebouncedSubmit } from "~/utils/hooks";
 import { Textarea } from "~/components/textarea";
+import clsx from "clsx";
 
 type ExerciseProps = {
   exercise: SerializeFrom<typeof loader>["routine"]["exercises"][number];
@@ -95,24 +96,27 @@ export function Exercise({
       </Form>
 
       {sets.length > 0 ? (
-        <div role="table" className="mt-6">
-          <div role="rowgroup">
-            <div role="row" className="flex items-center gap-12 px-4">
+        <div role="table" className="mx-auto mt-6 table w-full pl-3.5">
+          <div role="rowgroup" className="table-header-group">
+            <div role="row" className="table-row">
               <div
                 role="columnheader"
-                className="text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
+                className="table-cell pb-1 pl-1 text-left text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 Set
               </div>
               <div
                 role="columnheader"
-                className="text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
+                className="table-cell pb-1 pl-4 pr-3 text-center text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
               >
                 {weightUnitPreference}
               </div>
               <div
                 role="columnheader"
-                className="text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
+                className={clsx(
+                  "table-cell pb-1 text-center text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50",
+                  routine.trackRir ? "pr-3" : "pr-4"
+                )}
               >
                 Reps
               </div>
@@ -120,7 +124,7 @@ export function Exercise({
               {routine.trackRir ? (
                 <div
                   role="columnheader"
-                  className="text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
+                  className="table-cell pb-1 pr-4 text-center text-sm font-medium uppercase text-zinc-900 dark:text-zinc-50"
                 >
                   RIR
                 </div>
@@ -128,9 +132,9 @@ export function Exercise({
             </div>
           </div>
 
-          <div role="rowgroup" className="flex flex-col">
+          <div role="rowgroup" className="mt-4 table-row-group">
             {sets.map((set) => (
-              <Set key={set.id} set={set} />
+              <Set key={set.id} routine={routine} set={set} />
             ))}
           </div>
         </div>

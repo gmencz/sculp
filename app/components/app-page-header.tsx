@@ -15,7 +15,7 @@ export function AppPageHeader({
   navigationItems,
 }: AppPageHeaderProps) {
   return (
-    <div className="sticky top-0 z-50 mx-auto w-full max-w-2xl border-b border-zinc-900/10 bg-white px-4 py-3 dark:border-zinc-50/10 dark:bg-zinc-950">
+    <div className="sticky top-0 z-50 mx-auto w-full max-w-2xl border-b border-zinc-900/10 bg-white px-4 py-3 dark:border-zinc-50/10 dark:bg-zinc-950 sm:mt-6 sm:rounded-tl-md sm:rounded-tr-md">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-8">
         <div className="flex items-center gap-4 truncate">
           {goBackTo ? (

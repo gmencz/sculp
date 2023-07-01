@@ -16,6 +16,7 @@ import {
   reorderExercisesSchema,
   updateRoutineDetailsSchema,
   updateRoutineSettingsSchema,
+  updateSetSchema,
 } from "./schema";
 import { useEffect, useState } from "react";
 import { useResetCallback } from "~/utils/hooks";
@@ -83,6 +84,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
               weight: true,
               type: true,
             },
+            orderBy: { number: "asc" },
           },
         },
         orderBy: {
@@ -217,6 +219,37 @@ export const action = async ({ request, params }: ActionArgs) => {
             previousValuesFrom === PreviousValuesFrom.ANY
               ? "ANY"
               : "SAME_ROUTINE",
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.editRoutine(params.id!),
+      });
+    }
+
+    case Intent.UPDATE_SET: {
+      const submission = parse(formData, {
+        schema: updateSetSchema,
+      });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id, weight, reps, rir } = submission.value;
+
+      await prisma.routineExerciseSet.updateMany({
+        where: {
+          AND: [
+            { routineExercise: { routineId: params.id } },
+            { routineExercise: { routine: { userId: user.id } } },
+            { id },
+          ],
+        },
+        data: {
+          weight,
+          reps,
+          rir,
         },
       });
 
