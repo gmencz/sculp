@@ -13,8 +13,16 @@ export const configRoutes = {
 
   app: {
     home: "/app",
-    profile: "/app/profile",
-    train: "/app/train",
     exercises: "/app/exercises",
+    profile: "/app/profile",
+    viewExercise: (exerciseId: string) => `/app/exercises/${exerciseId}`,
+    viewRoutine: (routineId: string) => `/app/routines/${routineId}`,
+    editRoutine: (routineId: string) => `/app/routines/${routineId}/edit`,
+    newRoutineInFolder: (folderId: string) =>
+      `/app/routines/new?folderId=${folderId}`,
+    duplicateRoutine: (routineId: string) =>
+      `/app/routines/new?fromRoutineId=${routineId}`,
+    trainWithRoutine: (routineId: string) =>
+      `/app/train?routineId=${routineId}`,
   },
 };

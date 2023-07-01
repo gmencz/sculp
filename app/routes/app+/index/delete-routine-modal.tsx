@@ -1,26 +1,25 @@
 import { Dialog, Transition } from "@headlessui/react";
-import type { SelectedFolder, action } from "./route";
+import type { SelectedRoutine, action } from "./route";
 import { Fragment } from "react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
-import type { RenameFolderSchema } from "./schema";
-import { Intent, renameFolderSchema } from "./schema";
+import type { DeleteRoutineSchema } from "./schema";
+import { Intent, deleteRoutineSchema } from "./schema";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Input } from "~/components/input";
 import clsx from "clsx";
 import { classes } from "~/utils/classes";
 
-type RenameFolderModalProps = {
-  selectedFolder: SelectedFolder | null;
+type DeleteRoutineModalProps = {
+  selectedRoutine: SelectedRoutine | null;
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-export function RenameFolderModal({
-  selectedFolder,
+export function DeleteRoutineModal({
+  selectedRoutine,
   show,
   setShow,
-}: RenameFolderModalProps) {
+}: DeleteRoutineModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
       <Dialog
@@ -52,9 +51,9 @@ export function RenameFolderModal({
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                {selectedFolder ? (
-                  <RenameFolderForm
-                    selectedFolder={selectedFolder}
+                {selectedRoutine ? (
+                  <DeleteRoutineForm
+                    selectedRoutine={selectedRoutine}
                     setShow={setShow}
                   />
                 ) : null}
@@ -67,30 +66,31 @@ export function RenameFolderModal({
   );
 }
 
-type RenameFolderFormProps = {
-  selectedFolder: SelectedFolder;
+type DeleteRoutineFormProps = {
+  selectedRoutine: SelectedRoutine;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
+function DeleteRoutineForm({
+  selectedRoutine,
+  setShow,
+}: DeleteRoutineFormProps) {
   const lastSubmission = useActionData<typeof action>();
-  const [renameFolderForm, { intent, name, id }] = useForm<RenameFolderSchema>({
-    id: "rename-folder",
+  const [deleteRoutineForm, { intent, id }] = useForm<DeleteRoutineSchema>({
+    id: "delete-routine",
     lastSubmission,
-    shouldValidate: "onInput",
     defaultValue: {
-      id: selectedFolder.id,
-      name: selectedFolder.name,
-      intent: Intent.RENAME_FOLDER,
+      id: selectedRoutine.id,
+      intent: Intent.DELETE_ROUTINE,
     },
     onValidate({ formData }) {
-      return parse(formData, { schema: renameFolderSchema });
+      return parse(formData, { schema: deleteRoutineSchema });
     },
   });
 
   const navigation = useNavigation();
   const isSubmitting =
-    navigation.formData?.get("intent") === Intent.RENAME_FOLDER &&
+    navigation.formData?.get("intent") === Intent.DELETE_FOLDER &&
     navigation.state === "submitting";
 
   return (
@@ -99,22 +99,26 @@ function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
       className="px-6 py-4"
       preventScrollReset
       replace
-      {...renameFolderForm.props}
+      {...deleteRoutineForm.props}
     >
       <input {...conform.input(intent, { hidden: true })} />
       <input {...conform.input(id, { hidden: true })} />
 
-      <Input config={name} label="Folder Name" />
+      <p>
+        Delete routine <span className="font-bold">{selectedRoutine.name}</span>
+        ?
+      </p>
 
       <div className="mt-4 flex gap-4">
         <button
           disabled={isSubmitting}
           type="submit"
-          className={clsx(classes.buttonOrLink.primary, "flex-1")}
+          className={clsx(classes.buttonOrLink.dangerous, "flex-1")}
         >
-          Save
+          Confirm
         </button>
         <button
+          disabled={isSubmitting}
           onClick={() => setShow(false)}
           type="button"
           className={clsx(classes.buttonOrLink.secondary, "flex-1")}

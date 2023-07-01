@@ -13,8 +13,7 @@ import { Form, Link, useActionData } from "@remix-run/react";
 import { parse } from "@conform-to/zod";
 import { Textarea } from "~/components/textarea";
 import { useDebouncedSubmit } from "~/utils/hooks";
-import { classes } from "~/utils/classes";
-import clsx from "clsx";
+import { configRoutes } from "~/utils/routes";
 
 type FolderProps = {
   folder: SerializeFrom<typeof loader>["folders"][number];
@@ -65,7 +64,7 @@ export function Folder({
             </Disclosure.Button>
 
             <button
-              className="-m-2 p-2 text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
+              className="-m-2 p-2 text-zinc-950 hover:text-zinc-900 dark:text-white dark:hover:text-zinc-50"
               onClick={() => onClickOptions(folder.id, folder.name)}
             >
               <EllipsisVerticalIcon className="h-6 w-6" />
@@ -91,6 +90,7 @@ export function Folder({
                   hideErrorMessage
                   autoSize
                   config={notes}
+                  placeholder="Notes"
                 />
               </Form>
             ) : null}
@@ -99,45 +99,41 @@ export function Folder({
               {folder.routines.map((routine) => (
                 <li
                   key={routine.id}
-                  className="rounded-md border border-zinc-200 p-4 text-base dark:border-zinc-800"
+                  className="relative rounded-md border border-zinc-200 text-base dark:border-zinc-800"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{routine.name}</span>
-                    <button
-                      className="-m-2 p-2 text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
-                      onClick={() =>
-                        onClickRoutineOptions(routine.id, routine.name)
-                      }
-                    >
-                      <EllipsisVerticalIcon className="h-6 w-6" />
-                      <span className="sr-only">Options</span>
-                    </button>
-                  </div>
-                  <ol className="mt-2">
-                    {routine.exercises.map((exercise) => (
-                      <li
-                        className="text-zinc-700 dark:text-zinc-300"
-                        key={exercise.id}
-                      >
-                        {exercise._count.sets} x {exercise.exercise.name}
-                      </li>
-                    ))}
-                  </ol>
-                  {routine.notes ? (
-                    <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-                      {routine.notes}
-                    </p>
-                  ) : null}
-
                   <Link
-                    to={`/train/${routine.id}`}
-                    className={clsx(
-                      classes.buttonOrLink.primary,
-                      "mt-4 w-full"
-                    )}
+                    to={configRoutes.app.viewRoutine(routine.id)}
+                    className="block rounded-md p-4 hover:bg-zinc-900"
                   >
-                    Start
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{routine.name}</span>
+                    </div>
+                    <ol className="mt-2">
+                      {routine.exercises.map((exercise) => (
+                        <li
+                          className="text-zinc-700 dark:text-zinc-300"
+                          key={exercise.id}
+                        >
+                          {exercise._count.sets} x {exercise.exercise.name}
+                        </li>
+                      ))}
+                    </ol>
+                    {routine.notes ? (
+                      <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+                        {routine.notes}
+                      </p>
+                    ) : null}
                   </Link>
+
+                  <button
+                    className="absolute right-4 top-4 -m-2 p-2 text-zinc-950 hover:text-zinc-900 dark:text-white dark:hover:text-zinc-50"
+                    onClick={() =>
+                      onClickRoutineOptions(routine.id, routine.name)
+                    }
+                  >
+                    <EllipsisVerticalIcon className="h-6 w-6" />
+                    <span className="sr-only">Options</span>
+                  </button>
                 </li>
               ))}
             </ul>

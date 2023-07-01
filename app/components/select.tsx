@@ -80,21 +80,21 @@ function SelectSingleOption({
           <>
             <Listbox.Label
               className={clsx(
-                "block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                "mb-3 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
                 hideLabel && "sr-only"
               )}
             >
               {label}
             </Listbox.Label>
 
-            <div className="relative mt-2">
+            <div className="relative">
               <Listbox.Button
                 ref={buttonRef}
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-transparent bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
+                  "relative w-full cursor-default rounded-md bg-transparent bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-950 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-white dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
-                    : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700"
+                    : "ring-zinc-200 focus:ring-orange-600 dark:ring-zinc-800"
                 )}
               >
                 <span className="block truncate">
@@ -123,7 +123,7 @@ function SelectSingleOption({
                         clsx(
                           active
                             ? "bg-orange-600 text-white"
-                            : "text-zinc-900 dark:text-zinc-50",
+                            : "text-zinc-950 dark:text-white",
                           "relative cursor-default select-none py-2 pl-3 pr-9"
                         )
                       }
@@ -164,7 +164,7 @@ function SelectSingleOption({
             </div>
 
             {helperText ? (
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">
+              <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-300">
                 {helperText}
               </p>
             ) : null}
@@ -275,20 +275,20 @@ function SelectMultipleOptions({
           <>
             <Listbox.Label
               className={clsx(
-                "block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
+                "mb-3 block text-base font-medium leading-6 text-zinc-900 dark:text-zinc-50",
                 hideLabel && "sr-only"
               )}
             >
               {label}
             </Listbox.Label>
 
-            <div className="relative mt-2">
+            <div className="relative">
               <Listbox.Button
                 className={clsx(
-                  "relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-900 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
+                  "relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left text-base text-zinc-950 ring-1 ring-inset focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500 disabled:ring-zinc-200 dark:bg-zinc-950 dark:text-white dark:disabled:bg-zinc-900 dark:disabled:text-zinc-600 dark:disabled:ring-zinc-700",
                   config.error
                     ? "text-red-300 ring-red-500 focus:ring-red-600"
-                    : "ring-zinc-300 focus:ring-orange-600 dark:ring-zinc-700"
+                    : "ring-zinc-200 focus:ring-orange-600 dark:ring-zinc-800"
                 )}
               >
                 <span className="block truncate">
@@ -323,7 +323,7 @@ function SelectMultipleOptions({
                         clsx(
                           active
                             ? "bg-orange-600 text-zinc-50"
-                            : "text-zinc-900 dark:text-zinc-50",
+                            : "text-zinc-950 dark:text-white",
                           "relative cursor-default select-none py-2 pl-3 pr-9"
                         )
                       }
@@ -364,7 +364,7 @@ function SelectMultipleOptions({
             </div>
 
             {helperText ? (
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-300">
+              <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-300">
                 {helperText}
               </p>
             ) : null}

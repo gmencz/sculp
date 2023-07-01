@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
@@ -10,13 +10,7 @@ import { commitSession, getGlobalNotification } from "~/utils/session.server";
 import { SuccessToast } from "~/components/success-toast";
 import { toast } from "react-hot-toast";
 import { ErrorToast } from "~/components/error-toast";
-import { useMatchWithHeader } from "~/utils/hooks";
-import {
-  HomeIcon,
-  UserCircleIcon,
-  PlusCircleIcon,
-  PlusIcon,
-} from "@heroicons/react/24/solid";
+import { HomeIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 
 const navigation = [
   {
@@ -24,11 +18,6 @@ const navigation = [
     href: configRoutes.app.home,
     icon: HomeIcon,
     end: true,
-  },
-  {
-    name: "Train",
-    href: configRoutes.app.train,
-    icon: PlusIcon,
   },
   {
     name: "Exercises",
@@ -79,11 +68,6 @@ const mobileNavigation = [
     href: configRoutes.app.home,
     icon: HomeIcon,
     end: true,
-  },
-  {
-    name: "Train",
-    href: configRoutes.app.train,
-    icon: PlusIcon,
   },
   {
     name: "Exercises",
@@ -143,20 +127,13 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 function Layout({ children }: PropsWithChildren) {
   const { notification } = useLoaderData<typeof loader>();
-  const matchWithHeader = useMatchWithHeader();
 
   useEffect(() => {
     if (notification) {
       switch (notification.type) {
         case "success": {
           toast.custom(
-            (t) => (
-              <SuccessToast
-                t={t}
-                title="Success!"
-                description={notification.message}
-              />
-            ),
+            (t) => <SuccessToast t={t} description={notification.message} />,
             { duration: 5000, id: notification.id }
           );
 
@@ -165,13 +142,7 @@ function Layout({ children }: PropsWithChildren) {
 
         case "error": {
           toast.custom(
-            (t) => (
-              <ErrorToast
-                t={t}
-                title="Oops!"
-                description={notification.message}
-              />
-            ),
+            (t) => <ErrorToast t={t} description={notification.message} />,
             { duration: 5000, id: notification.id }
           );
 
@@ -254,43 +225,6 @@ function Layout({ children }: PropsWithChildren) {
             ))}
           </ul>
         </nav>
-      </div>
-
-      <div className="border-b border-zinc-900/10 bg-white px-4 py-3 shadow-lg dark:border-zinc-50/10 dark:bg-zinc-950 lg:hidden">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-8">
-          <Link
-            to={configRoutes.app.home}
-            className="flex items-center gap-4 truncate"
-          >
-            <img
-              className="h-9 w-auto rounded-md dark:border dark:border-zinc-700"
-              src="/logo.png"
-              alt="Sculped"
-            />
-
-            <div className="max-w-xl text-lg font-bold text-zinc-950 dark:text-white">
-              {matchWithHeader?.handle?.header(matchWithHeader.data)}
-            </div>
-          </Link>
-
-          <nav className="shrink-0">
-            <ul className="flex items-center gap-4">
-              {matchWithHeader?.handle?.links.map((link) => (
-                <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    className="flex items-center text-base font-semibold leading-6 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
-                  >
-                    {link.type === "new" ? (
-                      <PlusCircleIcon className="h-8 w-8 rounded-full" />
-                    ) : null}
-                    <span className="sr-only">{link.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
       </div>
 
       <main className="min-h-full bg-zinc-100 pb-16 text-zinc-950 dark:bg-zinc-900 dark:text-white lg:pb-0 lg:pl-72">

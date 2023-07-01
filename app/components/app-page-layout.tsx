@@ -8,9 +8,7 @@ export function AppPageLayout({
   React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 >) {
   return (
-    <div
-      className={clsx("sm:px-6 sm:pt-6 lg:px-8 lg:pb-10 lg:pt-10", className)}
-    >
+    <div className={clsx("sm:px-6 lg:px-8 lg:pb-10", className)}>
       {children}
     </div>
   );

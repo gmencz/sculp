@@ -1,6 +1,11 @@
 import { Theme, WeightUnit } from "@prisma/client";
 import { z } from "zod";
 
+export enum TrackRir {
+  YES = "YES",
+  NO = "NO",
+}
+
 export const preferencesSchema = z.object({
   name: z
     .string({ invalid_type_error: "The name is not valid." })
@@ -18,6 +23,11 @@ export const preferencesSchema = z.object({
   themePreference: z.nativeEnum(Theme, {
     invalid_type_error: "The theme is not valid.",
     required_error: "The theme is required.",
+  }),
+
+  trackRir: z.nativeEnum(TrackRir, {
+    invalid_type_error: "The track rir value is not valid.",
+    required_error: "The track rir value is required.",
   }),
 });
 

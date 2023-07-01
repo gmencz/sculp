@@ -9,6 +9,6 @@ export const classes = {
     dangerous:
       "inline-flex gap-2 items-center justify-center rounded-md bg-red-600 px-3 py-2 text-center text-base font-semibold text-white hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-40",
 
-    textOnly: "text-orange-600 hover:text-orange-900",
+    textOnly: "text-orange-500 hover:text-orange-600",
   },
 };

@@ -24,8 +24,8 @@ model User {
   role                  Role              @default(USER)
   subscriptionCheckedAt DateTime          @default(now())
   folders               Folder[]
-  Routine               Routine[]
-  TrainingSession       TrainingSession[]
+  routines              Routine[]
+  trainingSessions      TrainingSession[]
 
   @@map("users")
 }
@@ -71,17 +71,17 @@ model Subscription {
 }
 
 model Exercise {
-  id                      String                    @id @default(cuid())
-  name                    String
-  user                    User?                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId                  String?                   @map("user_id")
-  createdAt               DateTime                  @default(now()) @map("created_at")
-  updatedAt               DateTime                  @updatedAt @map("updated_at")
-  primaryMuscleGroups     MuscleGroup[]             @relation("PrimaryMuscleGroups")
-  otherMuscleGroups       MuscleGroup[]             @relation("OtherMuscleGroups")
-  shared                  Boolean                   @default(false) // Whether this exercise is shared by all users.
-  routinesExercises       RoutineExercise[]
-  TrainingSessionExercise TrainingSessionExercise[]
+  id                       String                    @id @default(cuid())
+  name                     String
+  user                     User?                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                   String?                   @map("user_id")
+  createdAt                DateTime                  @default(now()) @map("created_at")
+  updatedAt                DateTime                  @updatedAt @map("updated_at")
+  primaryMuscleGroups      MuscleGroup[]             @relation("PrimaryMuscleGroups")
+  otherMuscleGroups        MuscleGroup[]             @relation("OtherMuscleGroups")
+  shared                   Boolean                   @default(false) // Whether this exercise is shared by all users.
+  routinesExercises        RoutineExercise[]
+  trainingSessionExercises TrainingSessionExercise[]
 
   @@unique([name, userId])
   @@map("exercises")
@@ -112,18 +112,20 @@ model Folder {
 }
 
 model Routine {
-  id              String            @id @default(cuid())
-  name            String
-  user            User              @relation(fields: [userId], references: [id])
-  userId          String            @map("user_id")
-  folder          Folder            @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  folderId        String            @map("folder_id")
-  exercises       RoutineExercise[]
-  notes           String?
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at")
-  TrainingSession TrainingSession[]
-  RoutineSuperset RoutineSuperset[]
+  id                 String             @id @default(cuid())
+  name               String
+  user               User               @relation(fields: [userId], references: [id])
+  userId             String             @map("user_id")
+  folder             Folder             @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  folderId           String             @map("folder_id")
+  exercises          RoutineExercise[]
+  notes              String?
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at")
+  trainingSessions   TrainingSession[]
+  routineSupersets   RoutineSuperset[]
+  trackRir           Boolean            @map("track_rir")
+  previousValuesFrom PreviousValuesFrom @default(ANY) @map("previous_values_from")
 
   // Can't have two routines with the same name in the same folder from the same user.
   @@unique([name, folderId, userId])
@@ -177,17 +179,17 @@ enum SetType {
 }
 
 model TrainingSession {
-  id                      String                    @id @default(cuid())
-  user                    User                      @relation(fields: [userId], references: [id])
-  userId                  String                    @map("user_id")
-  startedAt               DateTime                  @map("started_at")
-  finishedAt              DateTime                  @map("finished_at")
-  feedback                String?
-  routine                 Routine?                  @relation(fields: [routineId], references: [id])
-  routineId               String?                   @map("routine_id")
-  trackRir                Boolean                   @map("track_rir")
-  previousValuesFrom      PreviousValuesFrom        @default(ANY)
-  TrainingSessionSuperset TrainingSessionSuperset[]
+  id                       String                    @id @default(cuid())
+  user                     User                      @relation(fields: [userId], references: [id])
+  userId                   String                    @map("user_id")
+  startedAt                DateTime                  @map("started_at")
+  finishedAt               DateTime                  @map("finished_at")
+  feedback                 String?
+  routine                  Routine?                  @relation(fields: [routineId], references: [id])
+  routineId                String?                   @map("routine_id")
+  trackRir                 Boolean                   @map("track_rir")
+  previousValuesFrom       PreviousValuesFrom        @default(SAME_ROUTINE) @map("previous_values_from")
+  trainingSessionSupersets TrainingSessionSuperset[]
 
   @@map("training_sessions")
 }

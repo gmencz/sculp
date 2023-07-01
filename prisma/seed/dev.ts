@@ -73,6 +73,7 @@ async function seed() {
           {
             name: "Push A",
             userId: user.id,
+            trackRir: false,
             exercises: {
               create: [
                 {
@@ -108,6 +109,7 @@ async function seed() {
           {
             name: "Pull A",
             userId: user.id,
+            trackRir: false,
             exercises: {
               create: [
                 {
@@ -157,6 +159,7 @@ async function seed() {
           {
             name: "Push A",
             userId: user.id,
+            trackRir: false,
             exercises: {
               create: [
                 {
@@ -192,6 +195,7 @@ async function seed() {
           {
             name: "Pull A",
             userId: user.id,
+            trackRir: false,
             exercises: {
               create: [
                 {

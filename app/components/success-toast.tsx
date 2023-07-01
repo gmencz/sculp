@@ -5,15 +5,14 @@ import { toast } from "react-hot-toast";
 
 interface SuccessToastProps {
   t: Toast;
-  title: string;
   description: string;
 }
 
-export function SuccessToast({ t, title, description }: SuccessToastProps) {
+export function SuccessToast({ t, description }: SuccessToastProps) {
   return (
     <div
       className={clsx(
-        "pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5",
+        "pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-zinc-950",
         t.visible ? "animate-enter" : "animate-leave"
       )}
     >
@@ -21,18 +20,19 @@ export function SuccessToast({ t, title, description }: SuccessToastProps) {
         <div className="flex items-start">
           <div className="flex-shrink-0">
             <CheckCircleIcon
-              className="h-6 w-6 text-green-400"
+              className="h-6 w-6 text-green-500"
               aria-hidden="true"
             />
           </div>
           <div className="ml-3 w-0 flex-1">
-            <p className="text-base font-medium text-zinc-900">{title}</p>
-            <p className="mt-1 text-base text-zinc-500">{description}</p>
+            <p className="text-base text-zinc-950 dark:text-white">
+              {description}
+            </p>
           </div>
           <div className="ml-4 flex flex-shrink-0">
             <button
               type="button"
-              className="inline-flex rounded-md bg-white text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2"
+              className="-m-2 inline-flex rounded-md bg-white p-2 text-zinc-950 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-white dark:hover:bg-zinc-900"
               onClick={() => {
                 toast.dismiss(t.id);
               }}

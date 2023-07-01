@@ -8,16 +8,20 @@ import { differenceInDays } from "date-fns";
 
 export async function requireUser(
   request: Request,
-  options?: { ignoreSubscription: boolean }
+  options?: {
+    ignoreSubscription?: boolean;
+    select?: Partial<{ weightUnitPreference: boolean; trackRir: boolean }>;
+  }
 ) {
   const userId = await requireUserId(request);
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       id: true,
-      name: true,
       email: true,
       subscriptionCheckedAt: true,
+      weightUnitPreference: Boolean(options?.select?.weightUnitPreference),
+      trackRir: Boolean(options?.select?.trackRir),
       subscription: {
         select: { id: true, status: true },
       },

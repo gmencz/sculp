@@ -59,6 +59,14 @@ export const exerciseNameSchema = z
   .min(1, "The name is required.")
   .max(100, "The name must be at most 100 characters long.");
 
+export const routineNameSchema = z
+  .string({
+    invalid_type_error: "The name is not valid.",
+    required_error: "The name is required.",
+  })
+  .min(1, "The name is required.")
+  .max(70, "The name must be at most 70 characters long.");
+
 export const muscleGroupsSchema = z
   .array(
     z

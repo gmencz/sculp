@@ -2,24 +2,25 @@ import { Dialog, Transition } from "@headlessui/react";
 import type { SelectedFolder, action } from "./route";
 import { Fragment } from "react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
-import type { DeleteFolderSchema } from "./schema";
-import { Intent, deleteFolderSchema } from "./schema";
+import type { RenameFolderSchema } from "./schema";
+import { Intent, renameFolderSchema } from "./schema";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import { Input } from "~/components/input";
 import clsx from "clsx";
 import { classes } from "~/utils/classes";
 
-type DeleteFolderModalProps = {
+type RenameFolderModalProps = {
   selectedFolder: SelectedFolder | null;
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-export function DeleteFolderModal({
+export function RenameFolderModal({
   selectedFolder,
   show,
   setShow,
-}: DeleteFolderModalProps) {
+}: RenameFolderModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
       <Dialog
@@ -52,7 +53,7 @@ export function DeleteFolderModal({
             >
               <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 {selectedFolder ? (
-                  <DeleteFolderForm
+                  <RenameFolderForm
                     selectedFolder={selectedFolder}
                     setShow={setShow}
                   />
@@ -66,28 +67,30 @@ export function DeleteFolderModal({
   );
 }
 
-type DeleteFolderFormProps = {
+type RenameFolderFormProps = {
   selectedFolder: SelectedFolder;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-function DeleteFolderForm({ selectedFolder, setShow }: DeleteFolderFormProps) {
+function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
   const lastSubmission = useActionData<typeof action>();
-  const [deleteFolderForm, { intent, id }] = useForm<DeleteFolderSchema>({
-    id: "delete-folder",
+  const [renameFolderForm, { intent, name, id }] = useForm<RenameFolderSchema>({
+    id: "rename-folder",
     lastSubmission,
+    shouldValidate: "onInput",
     defaultValue: {
       id: selectedFolder.id,
-      intent: Intent.DELETE_FOLDER,
+      name: selectedFolder.name,
+      intent: Intent.RENAME_FOLDER,
     },
     onValidate({ formData }) {
-      return parse(formData, { schema: deleteFolderSchema });
+      return parse(formData, { schema: renameFolderSchema });
     },
   });
 
   const navigation = useNavigation();
   const isSubmitting =
-    navigation.formData?.get("intent") === Intent.DELETE_FOLDER &&
+    navigation.formData?.get("intent") === Intent.RENAME_FOLDER &&
     navigation.state === "submitting";
 
   return (
@@ -96,25 +99,23 @@ function DeleteFolderForm({ selectedFolder, setShow }: DeleteFolderFormProps) {
       className="px-6 py-4"
       preventScrollReset
       replace
-      {...deleteFolderForm.props}
+      {...renameFolderForm.props}
     >
       <input {...conform.input(intent, { hidden: true })} />
       <input {...conform.input(id, { hidden: true })} />
 
-      <p>
-        Delete folder <span className="font-bold">{selectedFolder.name}</span>?
-        All routines inside will be deleted as well.
-      </p>
+      <Input config={name} label="Folder Name" />
 
       <div className="mt-4 flex gap-4">
         <button
           disabled={isSubmitting}
           type="submit"
-          className={clsx(classes.buttonOrLink.dangerous, "flex-1")}
+          className={clsx(classes.buttonOrLink.primary, "flex-1")}
         >
-          Confirm
+          Save
         </button>
         <button
+          disabled={isSubmitting}
           onClick={() => setShow(false)}
           type="button"
           className={clsx(classes.buttonOrLink.secondary, "flex-1")}

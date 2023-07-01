@@ -130,22 +130,6 @@ export function useMatchesData(
   return route?.data;
 }
 
-export type MatchWithHeader<Data = unknown> = {
-  header: (data: Data) => string;
-  links: {
-    type: "new";
-    label: string;
-    to: string;
-  }[];
-};
-
-export function useMatchWithHeader<Data>() {
-  const matches = useMatches();
-  const match = matches.find((m) => m.handle?.header && m.handle.links);
-  const handle = match?.handle as MatchWithHeader<Data> | undefined;
-  return { handle, data: match?.data as Data };
-}
-
 export function useDebouncedSubmit(
   form: HTMLFormElement | null,
   options?: (SubmitOptions & { delay?: number }) | undefined

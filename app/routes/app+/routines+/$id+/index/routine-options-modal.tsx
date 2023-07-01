@@ -1,23 +1,26 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import type { SelectedRoutine } from "./route";
 import {
   DocumentDuplicateIcon,
   PencilIcon,
+  PlayIcon,
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
+import { configRoutes } from "~/utils/routes";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader } from "./route";
 
 type RoutineOptionsModalProps = {
-  selectedRoutine: SelectedRoutine | null;
+  routine: SerializeFrom<typeof loader>["routine"];
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
   setShowDeleteRoutineModal: (value: React.SetStateAction<boolean>) => void;
 };
 
 export function RoutineOptionsModal({
-  selectedRoutine,
+  routine,
   show,
   setShow,
   setShowDeleteRoutineModal,
@@ -54,7 +57,7 @@ export function RoutineOptionsModal({
             >
               <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div className="flex w-full items-center justify-between gap-6 border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-                  <span>{selectedRoutine?.name}</span>
+                  <span className="font-medium">{routine.name}</span>
                   <button
                     onClick={() => setShow(false)}
                     className="-m-2 rounded-md p-2 hover:bg-zinc-50 dark:hover:bg-zinc-900"
@@ -65,7 +68,15 @@ export function RoutineOptionsModal({
                 </div>
 
                 <Link
-                  to={`/routines/${selectedRoutine?.id}`}
+                  to={configRoutes.app.trainWithRoutine(routine.id)}
+                  className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 text-orange-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                >
+                  <PlayIcon className="h-6 w-6" />
+                  <span>Start Routine</span>
+                </Link>
+
+                <Link
+                  to={configRoutes.app.editRoutine(routine.id)}
                   className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                 >
                   <PencilIcon className="h-6 w-6" />
@@ -73,10 +84,10 @@ export function RoutineOptionsModal({
                 </Link>
 
                 <Link
-                  to={`/routines/new?routineId=${selectedRoutine?.id}`}
+                  to={configRoutes.app.duplicateRoutine(routine.id)}
                   className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                 >
-                  <DocumentDuplicateIcon className="-ml-1 h-6 w-6" />
+                  <DocumentDuplicateIcon className="h-6 w-6" />
                   <span>Duplicate Routine</span>
                 </Link>
 
@@ -87,7 +98,7 @@ export function RoutineOptionsModal({
                   }}
                   className="flex w-full items-center justify-start gap-6 px-6 py-4 text-red-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                 >
-                  <TrashIcon className="-ml-1 h-6 w-6" />
+                  <TrashIcon className="h-6 w-6" />
                   <span>Delete Routine</span>
                 </button>
               </Dialog.Panel>
