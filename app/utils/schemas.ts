@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { asNullableField } from "./zod";
+import { SetType } from "@prisma/client";
 
 export const trainingDayLabelSchema = z
   .string({
@@ -13,16 +14,18 @@ export const weightSchema = asNullableField(
   z.coerce
     .number({
       invalid_type_error: "The weight is not valid.",
-      required_error: "The weight is required.",
     })
     .max(10000, "The weight can't be greater than 10,000.")
+);
+
+export const setTypeSchema = asNullableField(
+  z.nativeEnum(SetType, { invalid_type_error: "The set type is not valid." })
 );
 
 export const repsSchema = asNullableField(
   z.coerce
     .number({
       invalid_type_error: "The reps are not valid.",
-      required_error: "The reps are required.",
     })
     .max(10000, "The reps can't be greater than 10,000.")
 );
@@ -31,7 +34,6 @@ export const rirSchema = asNullableField(
   z.coerce
     .number({
       invalid_type_error: "The RIR is not valid.",
-      required_error: "The RIR is required.",
     })
     .min(0, `The RIR can't be less than 0.`)
     .max(100, `The RIR can't be higher than 100.`)

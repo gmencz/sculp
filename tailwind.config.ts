@@ -8,6 +8,9 @@ export default {
       fontFamily: {
         sans: ["Inter", ...fontFamily.sans],
       },
+      fontSize: {
+        sm2: ["0.8rem", "1rem"],
+      },
       screens: {
         xs: "475px",
       },

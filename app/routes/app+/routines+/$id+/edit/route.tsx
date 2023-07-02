@@ -13,6 +13,7 @@ import {
   Intent,
   PreviousValuesFrom,
   intentSchema,
+  removeSetSchema,
   reorderExercisesSchema,
   updateRoutineDetailsSchema,
   updateRoutineSettingsSchema,
@@ -28,6 +29,7 @@ import { Exercise } from "./exercise";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import { RoutineSettingsModal } from "./routine-settings-modal";
 import { TrackRir } from "~/routes/app+/profile/schema";
+import { SetModal } from "./set-modal";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request, {
@@ -50,6 +52,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
           notes: true,
           exercise: {
             select: {
+              id: true,
               name: true,
               primaryMuscleGroups: true,
               otherMuscleGroups: true,
@@ -98,8 +101,145 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
+  let exercisesWithPreviousValues;
+  if (routine.previousValuesFrom === "SAME_ROUTINE") {
+    // If previous values from the same routine, fetch the previous training session using this routine.
+    const previousTrainingSession = await prisma.trainingSession.findFirst({
+      where: {
+        routineId: routine.id,
+      },
+      orderBy: {
+        startedAt: "desc",
+      },
+      select: {
+        exercises: {
+          select: {
+            exerciseId: true,
+            sets: {
+              select: {
+                id: true,
+                number: true,
+                reps: true,
+                rir: true,
+                weight: true,
+                type: true,
+              },
+              orderBy: {
+                number: "asc",
+              },
+            },
+          },
+          orderBy: {
+            order: "asc",
+          },
+        },
+      },
+    });
+
+    if (!previousTrainingSession) {
+      exercisesWithPreviousValues = routine.exercises.map((exercise) => {
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) => ({
+            ...set,
+            previous: null,
+          })),
+        };
+      });
+    } else {
+      exercisesWithPreviousValues = routine.exercises.map((exercise) => {
+        const previousExercise = previousTrainingSession.exercises.find(
+          (previousExercise) =>
+            previousExercise.exerciseId === exercise.exercise.id
+        );
+
+        if (!previousExercise) {
+          return {
+            ...exercise,
+            sets: exercise.sets.map((set) => ({
+              ...set,
+              previous: null,
+            })),
+          };
+        }
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) => ({
+            ...set,
+            previous:
+              previousExercise.sets.find(
+                (previousSet) => previousSet.number === set.number
+              ) || null,
+          })),
+        };
+      });
+    }
+  } else {
+    // If previous values from any training session, fetch the previous training session exercise for each exercise
+    // of this routine.
+    exercisesWithPreviousValues = await Promise.all(
+      routine.exercises.map(async (exercise) => {
+        const previousExercise = await prisma.trainingSessionExercise.findFirst(
+          {
+            where: {
+              AND: [
+                { exerciseId: exercise.exercise.id },
+                { trainingSession: { userId: user.id } },
+              ],
+            },
+            orderBy: {
+              trainingSession: {
+                startedAt: "desc",
+              },
+            },
+            select: {
+              sets: {
+                select: {
+                  id: true,
+                  number: true,
+                  reps: true,
+                  rir: true,
+                  weight: true,
+                  type: true,
+                },
+                orderBy: {
+                  number: "asc",
+                },
+              },
+            },
+          }
+        );
+
+        if (!previousExercise) {
+          return {
+            ...exercise,
+            sets: exercise.sets.map((set) => ({
+              ...set,
+              previous: null,
+            })),
+          };
+        }
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) => ({
+            ...set,
+            previous:
+              previousExercise.sets.find(
+                (previousSet) => previousSet.number === set.number
+              ) || null,
+          })),
+        };
+      })
+    );
+  }
+
   return json({
-    routine,
+    routine: {
+      ...routine,
+      exercises: exercisesWithPreviousValues,
+    },
     weightUnitPreference: user.weightUnitPreference,
   });
 };
@@ -236,7 +376,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         return json(submission, { status: 400 });
       }
 
-      const { id, weight, reps, rir } = submission.value;
+      const { id, weight, reps, rir, type } = submission.value;
 
       await prisma.routineExerciseSet.updateMany({
         where: {
@@ -247,9 +387,36 @@ export const action = async ({ request, params }: ActionArgs) => {
           ],
         },
         data: {
-          weight,
-          reps,
-          rir,
+          weight: weight === undefined ? undefined : weight,
+          reps: reps === undefined ? undefined : reps,
+          rir: rir === undefined ? undefined : rir,
+          type: type === undefined || type === null ? undefined : type,
+        },
+      });
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.editRoutine(params.id!),
+      });
+    }
+
+    case Intent.REMOVE_SET: {
+      const submission = parse(formData, {
+        schema: removeSetSchema,
+      });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { id } = submission.value;
+
+      await prisma.routineExerciseSet.deleteMany({
+        where: {
+          AND: [
+            { routineExercise: { routineId: params.id } },
+            { routineExercise: { routine: { userId: user.id } } },
+            { id },
+          ],
         },
       });
 
@@ -268,6 +435,10 @@ export type SelectedExercise = {
   supersetId?: string | null;
 };
 
+export type SelectedSet = {
+  id: string;
+};
+
 export default function EditRoutine() {
   const { routine } = useLoaderData<typeof loader>();
   const [controlledRoutine, setControlledRoutine] = useState({
@@ -280,6 +451,9 @@ export default function EditRoutine() {
   const [controlledExercises, setControlledExercises] = useState(
     routine.exercises
   );
+
+  const [showSetModal, setShowSetModal] = useState(false);
+  const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
 
   const [showRoutineSettingsModal, setShowRoutineSettingsModal] =
     useState(false);
@@ -362,6 +536,71 @@ export default function EditRoutine() {
 
           break;
         }
+
+        case Intent.UPDATE_SET: {
+          const result = parse(navigation.formData, {
+            schema: updateSetSchema,
+          });
+
+          if (result.value) {
+            const { id, weight, reps, rir, type } = result.value;
+
+            setControlledExercises((exercises) => {
+              return exercises.map((exercise) => {
+                return {
+                  ...exercise,
+                  sets: exercise.sets.map((set) => {
+                    if (set.id === id) {
+                      const updatedSet = { ...set };
+
+                      if (weight !== undefined) {
+                        updatedSet.weight = weight;
+                      }
+
+                      if (reps !== undefined) {
+                        updatedSet.reps = reps;
+                      }
+
+                      if (rir !== undefined) {
+                        updatedSet.rir = rir;
+                      }
+
+                      if (type !== undefined && type !== null) {
+                        updatedSet.type = type;
+                      }
+
+                      return updatedSet;
+                    }
+
+                    return set;
+                  }),
+                };
+              });
+            });
+
+            setShowSetModal(false);
+          }
+
+          break;
+        }
+
+        case Intent.REMOVE_SET: {
+          const id = navigation.formData.get("id") as string;
+          if (id) {
+            setControlledExercises((exercises) => {
+              return exercises.map((exercise) => {
+                return {
+                  ...exercise,
+                  sets: exercise.sets.filter((set) => set.id !== id),
+                };
+              });
+            });
+
+            setShowSetModal(false);
+          }
+
+          break;
+        }
       }
     }
   }, [navigation.formData]);
@@ -403,6 +642,8 @@ export default function EditRoutine() {
                 exercise={exercise}
                 setSelectedExercise={setSelectedExercise}
                 setShowExerciseOptionsModal={setShowExerciseOptionsModal}
+                setSelectedSet={setSelectedSet}
+                setShowSetModal={setShowSetModal}
               />
             ))}
           </ol>
@@ -426,6 +667,12 @@ export default function EditRoutine() {
         exercises={controlledExercises}
         show={showSortExercisesModal}
         setShow={setShowSortExercisesModal}
+      />
+
+      <SetModal
+        selectedSet={selectedSet}
+        show={showSetModal}
+        setShow={setShowSetModal}
       />
     </>
   );

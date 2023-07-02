@@ -6,12 +6,13 @@ import {
   repsSchema,
   rirSchema,
   routineNameSchema,
+  setTypeSchema,
   weightSchema,
 } from "~/utils/schemas";
 
 export enum PreviousValuesFrom {
-  ANY = "From any training session",
-  SAME_ROUTINE = "From training sessions using this routine",
+  ANY = "From any session",
+  SAME_ROUTINE = "From this routine only",
 }
 
 export enum Intent {
@@ -20,6 +21,7 @@ export enum Intent {
   REORDER_EXERCISES = "REORDER_EXERCISES",
   UPDATE_EXERCISE_NOTES = "UPDATE_EXERCISE_NOTES",
   UPDATE_SET = "UPDATE_SET",
+  REMOVE_SET = "REMOVE_SET",
 }
 
 export const intentSchema = z.object({
@@ -87,6 +89,14 @@ export const updateSetSchema = z.object({
   weight: weightSchema,
   reps: repsSchema,
   rir: rirSchema,
+  type: setTypeSchema,
 });
 
 export type UpdateSetSchema = z.infer<typeof updateSetSchema>;
+
+export const removeSetSchema = z.object({
+  intent: z.literal(Intent.REMOVE_SET).default(Intent.REMOVE_SET),
+  id: idSchema,
+});
+
+export type RemoveSetSchema = z.infer<typeof removeSetSchema>;

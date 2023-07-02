@@ -190,6 +190,7 @@ model TrainingSession {
   trackRir                 Boolean                   @map("track_rir")
   previousValuesFrom       PreviousValuesFrom        @default(SAME_ROUTINE) @map("previous_values_from")
   trainingSessionSupersets TrainingSessionSuperset[]
+  exercises                TrainingSessionExercise[]
 
   @@map("training_sessions")
 }
@@ -210,6 +211,8 @@ model TrainingSessionExercise {
   normalSetsRestTimerInSeconds Int?                         @map("normal_sets_rest_timer_in_seconds")
   superset                     TrainingSessionSuperset?     @relation(fields: [supersetId], references: [id])
   supersetId                   String?                      @map("superset_id")
+  trainingSession              TrainingSession?             @relation(fields: [trainingSessionId], references: [id])
+  trainingSessionId            String?                      @map("training_session_id")
 
   @@map("training_sessions_exercises")
 }
