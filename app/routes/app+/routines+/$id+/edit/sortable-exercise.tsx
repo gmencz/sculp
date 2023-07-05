@@ -24,7 +24,7 @@ export function SortableExercise({ exercise }: SortableExerciseProps) {
           {exercise.exercise.name.charAt(0)}
         </span>
 
-        <div className="flex flex-col">{exercise.exercise.name}</div>
+        <span>{exercise.exercise.name}</span>
 
         <Bars2Icon className="ml-auto h-6 w-6 text-zinc-400" />
       </div>

@@ -3,7 +3,7 @@ import { useInputEvent } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
 import type { RefObject, TextareaHTMLAttributes } from "react";
-import { forwardRef } from "react";
+import { forwardRef, useRef } from "react";
 import { useState } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
@@ -43,7 +43,9 @@ export const Textarea = forwardRef<
   const contentEditableRef = useFallbackRef(
     forwardedRef as RefObject<HTMLElement>
   );
-  const [ref, control] = useInputEvent({
+  const inputRef = useRef<HTMLInputElement>(null);
+  const control = useInputEvent({
+    ref: inputRef,
     onReset: () => setValue(config.defaultValue ?? ""),
   });
 
@@ -62,7 +64,7 @@ export const Textarea = forwardRef<
         {autoSize ? (
           <>
             <input
-              ref={ref}
+              ref={inputRef}
               {...conform.input(config, { hidden: true })}
               onChange={(e) => setValue(e.target.value)}
               onFocus={() => contentEditableRef.current?.focus()}

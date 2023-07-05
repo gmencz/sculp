@@ -1,14 +1,10 @@
 import type { FieldConfig } from "@conform-to/react";
-import { list, requestIntent } from "@conform-to/react";
-import { conform } from "@conform-to/react";
-import { useInputEvent } from "@conform-to/react";
+import { list, requestIntent, conform, useInputEvent } from "@conform-to/react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import type { RefObject } from "react";
-import { useMemo } from "react";
-import { useEffect } from "react";
-import { Fragment, useRef, useState } from "react";
+import { useMemo, useEffect, Fragment, useRef, useState } from "react";
 import { ErrorMessage } from "./error-message";
 import { capitalize } from "~/utils/strings";
 
@@ -23,6 +19,8 @@ type SelectProps = {
   capitalizeOptions?: boolean;
   onChange?: (value: any) => void;
   controlledValue?: string;
+  above?: boolean;
+  emptyOption?: string;
   multipleOptions?: {
     formRef: RefObject<HTMLFormElement>;
     min: number;
@@ -45,11 +43,15 @@ function SelectSingleOption({
   controlledValue,
   hideLabel,
   hideErrorMessage,
+  above,
+  emptyOption,
 }: Omit<SelectProps, "multipleOptions">) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [value, setValue] = useState(config.defaultValue ?? "");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const [ref, control] = useInputEvent({
+  const control = useInputEvent({
+    ref: inputRef,
     onReset: () => setValue(config.defaultValue ?? ""),
   });
 
@@ -62,7 +64,7 @@ function SelectSingleOption({
   return (
     <div>
       <input
-        ref={ref}
+        ref={inputRef}
         {...conform.input(config, { hidden: true })}
         onChange={(e) => setValue(e.target.value)}
         onFocus={() => buttonRef.current?.focus()}
@@ -98,7 +100,11 @@ function SelectSingleOption({
                 )}
               >
                 <span className="block truncate">
-                  {capitalizeOptions ? capitalize(value) : value}
+                  {value
+                    ? capitalizeOptions
+                      ? capitalize(value)
+                      : value
+                    : emptyOption}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronUpDownIcon
@@ -115,7 +121,12 @@ function SelectSingleOption({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
+                <Listbox.Options
+                  className={clsx(
+                    "absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5",
+                    above && "-top-2 -translate-y-full"
+                  )}
+                >
                   {options.map((option) => (
                     <Listbox.Option
                       key={option}
@@ -190,7 +201,8 @@ function SelectMultipleOptions({
   disabled,
   hideLabel,
   hideErrorMessage,
-}: SelectProps) {
+  above,
+}: Omit<SelectProps, "emptyOption">) {
   const multipleOptionsSettings = multipleOptions!;
   const emptyOption = multipleOptionsSettings.emptyOption || "Please select";
 
@@ -315,7 +327,12 @@ function SelectMultipleOptions({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5">
+                <Listbox.Options
+                  className={clsx(
+                    "absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-zinc-900/5 focus:outline-none dark:bg-zinc-950 dark:ring-zinc-50/5",
+                    above && "-top-2 -translate-y-full"
+                  )}
+                >
                   {options.map((option) => (
                     <Listbox.Option
                       key={option}
@@ -390,6 +407,8 @@ export function Select({
   onChange,
   hideLabel,
   hideErrorMessage,
+  above,
+  emptyOption,
 }: SelectProps) {
   if (!multipleOptions) {
     return (
@@ -403,6 +422,8 @@ export function Select({
         onChange={onChange}
         hideLabel={hideLabel}
         hideErrorMessage={hideErrorMessage}
+        above={above}
+        emptyOption={emptyOption}
       />
     );
   }
@@ -419,6 +440,7 @@ export function Select({
       onChange={onChange}
       hideLabel={hideLabel}
       hideErrorMessage={hideErrorMessage}
+      above={above}
     />
   );
 }

@@ -54,6 +54,14 @@ export const exerciseNameSchema = z
   .min(1, "The name is required.")
   .max(100, "The name must be at most 100 characters long.");
 
+export const muscleGroupNameSchema = z
+  .string({
+    invalid_type_error: "The muscle group is not valid.",
+    required_error: "The muscle group is required.",
+  })
+  .min(1, "The muscle group is required.")
+  .max(30, "The muscle group must be at most 30 characters long.");
+
 export const routineNameSchema = z
   .string({
     invalid_type_error: "The name is not valid.",
@@ -84,3 +92,24 @@ export const passwordSchema = z
   })
   .min(8, "Password must be at least 8 characters long.")
   .max(128, "Password must be at most 128 characters long.");
+
+export function validateMinutesAndSeconds(
+  timeStr?: string | null,
+  optional: boolean = false
+) {
+  if (optional && !timeStr) {
+    return true;
+  }
+
+  if (!timeStr) {
+    return false;
+  }
+
+  // Format: 3:00
+  const [minutes, seconds] = timeStr.split(":").map(Number);
+  if (Number.isNaN(minutes) || Number.isNaN(seconds)) {
+    return false;
+  }
+
+  return true;
+}

@@ -107,7 +107,7 @@ function ReorderExercisesForm({
   const navigation = useNavigation();
   const isSubmitting =
     navigation.state === "submitting" &&
-    navigation.formData.get("intent") === Intent.REORDER_EXERCISES;
+    navigation.formData?.get("intent") === Intent.REORDER_EXERCISES;
   const [isDragging, setIsDragging] = useState(false);
   const [sortableExercises, setSortableExercises] = useState(exercises);
   const sensors = useSensors(
@@ -216,7 +216,7 @@ function ReorderExercisesForm({
           Done
         </button>
         <button
-          disabled={isDragging}
+          disabled={isSubmitting || isDragging}
           onClick={() => setShow(false)}
           type="button"
           className={clsx(classes.buttonOrLink.secondary, "flex-1")}

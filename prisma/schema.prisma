@@ -5,7 +5,7 @@ datasource db {
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 model User {
@@ -99,7 +99,7 @@ model MuscleGroup {
 model Folder {
   id        String    @id @default(cuid())
   name      String    @unique // The name of the program, like PPL
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    String    @map("user_id")
   routines  Routine[]
   notes     String?
@@ -114,7 +114,7 @@ model Folder {
 model Routine {
   id                 String             @id @default(cuid())
   name               String
-  user               User               @relation(fields: [userId], references: [id])
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId             String             @map("user_id")
   folder             Folder             @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   folderId           String             @map("folder_id")
@@ -134,7 +134,7 @@ model Routine {
 
 model RoutineExercise {
   id                           String               @id @default(cuid())
-  exercise                     Exercise             @relation(fields: [exerciseId], references: [id])
+  exercise                     Exercise             @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   exerciseId                   String               @map("exercise_id")
   routine                      Routine?             @relation(fields: [routineId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   routineId                    String?              @map("routine_id")
@@ -151,7 +151,7 @@ model RoutineExercise {
 
 model RoutineSuperset {
   id        String            @id @default(cuid())
-  routine   Routine           @relation(fields: [routineId], references: [id])
+  routine   Routine           @relation(fields: [routineId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   routineId String            @map("routine_id")
   exercises RoutineExercise[]
 
@@ -180,7 +180,8 @@ enum SetType {
 
 model TrainingSession {
   id                       String                    @id @default(cuid())
-  user                     User                      @relation(fields: [userId], references: [id])
+  name                     String
+  user                     User                      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId                   String                    @map("user_id")
   startedAt                DateTime                  @map("started_at")
   finishedAt               DateTime                  @map("finished_at")
@@ -202,7 +203,7 @@ enum PreviousValuesFrom {
 
 model TrainingSessionExercise {
   id                           String                       @id @default(cuid())
-  exercise                     Exercise                     @relation(fields: [exerciseId], references: [id])
+  exercise                     Exercise                     @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   exerciseId                   String                       @map("exercise_id")
   sets                         TrainingSessionExerciseSet[]
   notes                        String?
@@ -211,7 +212,7 @@ model TrainingSessionExercise {
   normalSetsRestTimerInSeconds Int?                         @map("normal_sets_rest_timer_in_seconds")
   superset                     TrainingSessionSuperset?     @relation(fields: [supersetId], references: [id])
   supersetId                   String?                      @map("superset_id")
-  trainingSession              TrainingSession?             @relation(fields: [trainingSessionId], references: [id])
+  trainingSession              TrainingSession?             @relation(fields: [trainingSessionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trainingSessionId            String?                      @map("training_session_id")
 
   @@map("training_sessions_exercises")
@@ -219,7 +220,7 @@ model TrainingSessionExercise {
 
 model TrainingSessionSuperset {
   id                String                    @id @default(cuid())
-  trainingSession   TrainingSession           @relation(fields: [trainingSessionId], references: [id])
+  trainingSession   TrainingSession           @relation(fields: [trainingSessionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trainingSessionId String                    @map("training_session_id")
   exercises         TrainingSessionExercise[]
 
@@ -233,7 +234,7 @@ model TrainingSessionExerciseSet {
   weight                    Float
   reps                      Int
   rir                       Int? // Only applicable if RIR tracking is enabled.
-  trainingSessionExercise   TrainingSessionExercise? @relation(fields: [trainingSessionExerciseId], references: [id])
+  trainingSessionExercise   TrainingSessionExercise? @relation(fields: [trainingSessionExerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trainingSessionExerciseId String?
 
   @@map("training_sessions_exercises_sets")

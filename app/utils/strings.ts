@@ -16,3 +16,18 @@ export function makeListString(arr: (string | number)[]) {
   const last = arr.at(-1)?.toString();
   return firsts.join(", ") + " and " + last;
 }
+
+export function timeToSeconds(timeStr: string) {
+  const [minutes, seconds] = timeStr.split(":").map(Number);
+  return minutes * 60 + seconds;
+}
+
+export function secondsToTime(seconds: number) {
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return m + ":" + s;
+}

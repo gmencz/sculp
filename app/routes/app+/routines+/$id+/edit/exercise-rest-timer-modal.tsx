@@ -1,36 +1,28 @@
 import { Dialog, Transition } from "@headlessui/react";
-import type { action, loader } from "./route";
+import type { SelectedExercise, action } from "./route";
 import { Fragment } from "react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
-import type { SerializeFrom } from "@remix-run/server-runtime";
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { Select } from "~/components/select";
-import { conform, useForm } from "@conform-to/react";
-import type { UpdateRoutineSettingsSchema } from "./schema";
-import {
-  Intent,
-  PreviousValuesFrom,
-  updateRoutineSettingsSchema,
-} from "./schema";
-import { parse } from "@conform-to/zod";
-import { TrackRir } from "~/routes/app+/profile/schema";
 import clsx from "clsx";
 import { classes } from "~/utils/classes";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import type { UpdateExerciseRestTimersSchema } from "./schema";
+import { Intent, updateExerciseRestTimersSchema } from "./schema";
+import { conform, useForm } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
+import { Select } from "~/components/select";
+import { secondsToTime } from "~/utils/strings";
 
-type RoutineSettingsModalProps = {
-  routine: Pick<
-    SerializeFrom<typeof loader>["routine"],
-    "name" | "trackRir" | "previousValuesFrom"
-  >;
+type ExerciseRestTimerModalProps = {
+  selectedExercise: SelectedExercise | null;
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-export function RoutineSettingsModal({
-  routine,
+export function ExerciseRestTimerModal({
+  selectedExercise,
   show,
   setShow,
-}: RoutineSettingsModalProps) {
+}: ExerciseRestTimerModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
       <Dialog
@@ -61,8 +53,13 @@ export function RoutineSettingsModal({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                <RoutineSettingsForm routine={routine} setShow={setShow} />
+              <Dialog.Panel className="relative flex w-full transform flex-col rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                {selectedExercise ? (
+                  <ExerciseRestTimerForm
+                    selectedExercise={selectedExercise}
+                    setShow={setShow}
+                  />
+                ) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -72,43 +69,93 @@ export function RoutineSettingsModal({
   );
 }
 
-type RoutineSettingsFormProps = {
-  routine: Pick<
-    SerializeFrom<typeof loader>["routine"],
-    "name" | "trackRir" | "previousValuesFrom"
-  >;
+const restTimersOptions = [
+  "off",
+  "0:15",
+  "0:30",
+  "0:45",
+  "1:00",
+  "1:15",
+  "1:30",
+  "1:45",
+  "2:00",
+  "2:15",
+  "2:30",
+  "2:45",
+  "3:00",
+  "3:15",
+  "3:30",
+  "3:45",
+  "4:00",
+  "4:15",
+  "4:30",
+  "4:45",
+  "5:00",
+  "5:15",
+  "5:30",
+  "5:45",
+  "6:00",
+  "6:15",
+  "6:30",
+  "6:45",
+  "7:00",
+  "7:15",
+  "7:30",
+  "7:45",
+  "8:00",
+  "8:15",
+  "8:30",
+  "8:45",
+  "9:00",
+  "9:15",
+  "9:30",
+  "9:45",
+  "10:00",
+];
+
+type ExerciseRestTimerFormProps = {
+  selectedExercise: SelectedExercise;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-function RoutineSettingsForm({ routine, setShow }: RoutineSettingsFormProps) {
-  const lastSubmission = useActionData<typeof action>();
+function ExerciseRestTimerForm({
+  selectedExercise,
+  setShow,
+}: ExerciseRestTimerFormProps) {
   const navigation = useNavigation();
+  const lastSubmission = useActionData<typeof action>();
   const isSubmitting =
     navigation.state === "submitting" &&
-    navigation.formData.get("intent") === Intent.UPDATE_ROUTINE_SETTINGS;
-  const [form, { trackRir, intent, previousValuesFrom }] =
-    useForm<UpdateRoutineSettingsSchema>({
-      id: "update-routine-settings",
+    navigation.formData?.get("intent") === Intent.UPDATE_EXERCISE_REST_TIMER;
+
+  const [form, { intent, id, normalRestTimer, warmUpRestTimer }] =
+    useForm<UpdateExerciseRestTimersSchema>({
+      id: "update-exercise-rest-timers-modal",
       lastSubmission,
       defaultValue: {
-        intent: Intent.UPDATE_ROUTINE_SETTINGS,
-        trackRir: routine.trackRir ? TrackRir.YES : TrackRir.NO,
-        previousValuesFrom:
-          routine.previousValuesFrom === "ANY"
-            ? PreviousValuesFrom.ANY
-            : PreviousValuesFrom.SAME_ROUTINE,
+        intent: Intent.UPDATE_EXERCISE_REST_TIMER,
+        id: selectedExercise.id,
+        normalRestTimer: selectedExercise.normalSetsRestTimerInSeconds
+          ? secondsToTime(selectedExercise.normalSetsRestTimerInSeconds)
+          : "off",
+        warmUpRestTimer: selectedExercise.warmUpSetsRestTimerInSeconds
+          ? secondsToTime(selectedExercise.warmUpSetsRestTimerInSeconds)
+          : "off",
       },
       onValidate({ formData }) {
-        return parse(formData, { schema: updateRoutineSettingsSchema });
+        return parse(formData, { schema: updateExerciseRestTimersSchema });
       },
     });
 
   return (
     <Form method="post" preventScrollReset replace {...form.props}>
       <input {...conform.input(intent, { hidden: true })} />
+      <input {...conform.input(id, { hidden: true })} />
 
       <div className="flex w-full items-center justify-between gap-6 border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-        <span className="font-medium">Routine Settings</span>
+        <span className="font-medium">
+          Rest Timers - {selectedExercise.name}
+        </span>
         <button
           type="button"
           onClick={() => setShow(false)}
@@ -121,19 +168,18 @@ function RoutineSettingsForm({ routine, setShow }: RoutineSettingsFormProps) {
 
       <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
         <Select
-          config={previousValuesFrom}
-          label="Exercises Previous Values"
-          options={[PreviousValuesFrom.ANY, PreviousValuesFrom.SAME_ROUTINE]}
-          capitalizeOptions
+          config={normalRestTimer}
+          label="Normal Set"
+          options={restTimersOptions}
+          above
         />
       </div>
 
       <div className="px-6 py-4 dark:border-zinc-800">
         <Select
-          config={trackRir}
-          label="Track RIR"
-          options={[TrackRir.YES, TrackRir.NO]}
-          capitalizeOptions
+          config={warmUpRestTimer}
+          label="Warm Up"
+          options={restTimersOptions}
           above
         />
       </div>

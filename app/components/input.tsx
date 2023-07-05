@@ -1,7 +1,8 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
-import {
+import type { ReactElement } from "react";
+import React, {
   forwardRef,
   type DetailedHTMLProps,
   type InputHTMLAttributes,
@@ -18,6 +19,7 @@ type InputProps = DetailedHTMLProps<
   helperText?: string;
   hideErrorMessage?: boolean;
   hideLabel?: boolean;
+  icon?: ReactElement;
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -29,6 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     type,
     hideLabel,
     className,
+    icon,
     ...props
   }: InputProps,
   forwardedRef
@@ -46,12 +49,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </label>
 
       <div className="relative rounded-md">
+        {icon ? (
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            {icon}
+          </div>
+        ) : null}
+
         <input
           className={clsx(
             "block w-full rounded-md border-0 bg-white py-2 text-base text-zinc-950 ring-1 ring-inset placeholder:text-zinc-400 read-only:cursor-not-allowed read-only:bg-zinc-50 read-only:text-zinc-500 read-only:ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-orange-600 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-600 dark:read-only:bg-zinc-900 dark:read-only:text-zinc-600 dark:read-only:ring-zinc-700",
             config.error
               ? "pr-10 text-red-300 ring-red-500 focus:ring-red-600"
               : "ring-zinc-200 focus:ring-orange-600 dark:ring-zinc-800",
+            icon && "pl-11",
             className
           )}
           {...conform.input(config, { type: type || "text" })}

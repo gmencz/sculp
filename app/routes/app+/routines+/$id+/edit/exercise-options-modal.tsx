@@ -9,12 +9,20 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
+import { Link } from "@remix-run/react";
+import { configRoutes } from "~/utils/routes";
+import { RemoveExerciseFromSuperSetForm } from "./remove-exercise-from-superset-form";
 
 type ExerciseOptionsModalProps = {
   selectedExercise: SelectedExercise | null;
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
   setShowSortExercisesModal: (value: React.SetStateAction<boolean>) => void;
+  setShowRemoveExerciseModal: (value: React.SetStateAction<boolean>) => void;
+  setShowExerciseRestTimerModal: (value: React.SetStateAction<boolean>) => void;
+  setShowAddExerciseToSupersetModal: (
+    value: React.SetStateAction<boolean>
+  ) => void;
 };
 
 export function ExerciseOptionsModal({
@@ -22,6 +30,9 @@ export function ExerciseOptionsModal({
   show,
   setShow,
   setShowSortExercisesModal,
+  setShowRemoveExerciseModal,
+  setShowExerciseRestTimerModal,
+  setShowAddExerciseToSupersetModal,
 }: ExerciseOptionsModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
@@ -80,29 +91,49 @@ export function ExerciseOptionsModal({
                       <span>Reorder Exercises</span>
                     </button>
 
-                    <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
+                    <Link
+                      to={`${configRoutes.app.exercises}?intent=REPLACE_EXERCISE&exerciseId=${selectedExercise.id}`}
+                      className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                    >
                       <ArrowPathRoundedSquareIcon className="h-6 w-6" />
                       <span>Replace Exercise</span>
-                    </button>
+                    </Link>
 
-                    <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
+                    <button
+                      onClick={() => {
+                        setShow(false);
+                        setShowExerciseRestTimerModal(true);
+                      }}
+                      className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                    >
                       <ClockIcon className="h-6 w-6" />
-                      <span>Rest Timer</span>
+                      <span>Rest Timers</span>
                     </button>
 
                     {selectedExercise.supersetId ? (
-                      <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
-                        <XMarkIcon className="h-6 w-6" />
-                        <span>Remove From Superset</span>
-                      </button>
+                      <RemoveExerciseFromSuperSetForm
+                        selectedExercise={selectedExercise}
+                      />
                     ) : (
-                      <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
+                      <button
+                        onClick={() => {
+                          setShow(false);
+                          setShowAddExerciseToSupersetModal(true);
+                        }}
+                        className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                      >
                         <PlusIcon className="h-6 w-6" />
                         <span>Add To Superset</span>
                       </button>
                     )}
 
-                    <button className="flex w-full items-center justify-start gap-6 px-6 py-4 text-red-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
+                    <button
+                      onClick={() => {
+                        setShow(false);
+                        setShowRemoveExerciseModal(true);
+                      }}
+                      className="flex w-full items-center justify-start gap-6 px-6 py-4 text-red-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                    >
                       <TrashIcon className="h-6 w-6" />
                       <span>Remove Exercise</span>
                     </button>

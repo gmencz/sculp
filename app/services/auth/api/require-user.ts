@@ -10,7 +10,11 @@ export async function requireUser(
   request: Request,
   options?: {
     ignoreSubscription?: boolean;
-    select?: Partial<{ weightUnitPreference: boolean; trackRir: boolean }>;
+    select?: Partial<{
+      weightUnitPreference: boolean;
+      trackRir: boolean;
+      themePreference: boolean;
+    }>;
   }
 ) {
   const userId = await requireUserId(request);
@@ -22,6 +26,7 @@ export async function requireUser(
       subscriptionCheckedAt: true,
       weightUnitPreference: Boolean(options?.select?.weightUnitPreference),
       trackRir: Boolean(options?.select?.trackRir),
+      themePreference: Boolean(options?.select?.trackRir),
       subscription: {
         select: { id: true, status: true },
       },

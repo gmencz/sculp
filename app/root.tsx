@@ -58,6 +58,8 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({ user, ENV });
 };
 
+export const shouldRevalidate = () => false;
+
 function App() {
   useSWEffect();
 

@@ -1,3 +1,4 @@
+import { requestIntent, validate } from "@conform-to/react";
 import type { User } from "@prisma/client";
 import type { SubmitOptions } from "@remix-run/react";
 import { useMatches, useSubmit } from "@remix-run/react";
@@ -132,7 +133,9 @@ export function useMatchesData(
 
 export function useDebouncedSubmit(
   form: HTMLFormElement | null,
-  options?: (SubmitOptions & { delay?: number }) | undefined
+  options?:
+    | (SubmitOptions & { delay?: number; noValidate?: boolean })
+    | undefined
 ) {
   const [submissionNumber, setSubmissionNumber] = useState(0);
   const debouncedSubmissionNumber = useDebounce(
@@ -146,15 +149,22 @@ export function useDebouncedSubmit(
   }, []);
 
   useDeepCompareEffect(() => {
-    if (debouncedSubmissionNumber && form?.reportValidity()) {
-      remixSubmit(form, options);
+    if (debouncedSubmissionNumber) {
+      if (options?.noValidate) {
+        remixSubmit(form, options);
+      } else if (form?.reportValidity()) {
+        remixSubmit(form, options);
+      }
     }
   }, [submit, debouncedSubmissionNumber, remixSubmit, form, options]);
 
   return submit;
 }
 
-export function useResetCallback(initialValue: any, resetFn: () => any) {
+export function useResetCallback(
+  initialValue: unknown,
+  resetFn: () => unknown
+) {
   const [prevValue, setPrevValue] = useState(initialValue);
   if (prevValue !== initialValue) {
     resetFn();

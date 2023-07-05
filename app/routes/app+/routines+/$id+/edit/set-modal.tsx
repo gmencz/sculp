@@ -100,9 +100,9 @@ function SetTypeForm({ setShow, selectedSet }: SetTypeFormProps) {
         </button>
       </div>
 
-      <div className="flex flex-col items-start gap-2 px-6 py-4">
+      <div className="flex flex-col items-start gap-2 px-3 py-4">
         <button
-          className="flex w-full items-center gap-4 py-2"
+          className="flex w-full items-center gap-4 rounded-md px-2 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-900"
           type="submit"
           name={type.name}
           value={SetType.WARM_UP}
@@ -111,7 +111,7 @@ function SetTypeForm({ setShow, selectedSet }: SetTypeFormProps) {
           <span>Warm Up Set</span>
         </button>
         <button
-          className="flex w-full items-center gap-4 py-2"
+          className="flex w-full items-center gap-4 rounded-md px-2 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-900"
           type="submit"
           name={type.name}
           value={SetType.NORMAL}
@@ -120,7 +120,7 @@ function SetTypeForm({ setShow, selectedSet }: SetTypeFormProps) {
           <span>Normal Set</span>
         </button>
         <button
-          className="flex w-full items-center gap-4 py-2"
+          className="flex w-full items-center gap-4 rounded-md px-2 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-900"
           type="submit"
           name={type.name}
           value={SetType.DROP}
@@ -129,7 +129,7 @@ function SetTypeForm({ setShow, selectedSet }: SetTypeFormProps) {
           <span>Drop Set</span>
         </button>
         <button
-          className="flex w-full items-center gap-4 py-2"
+          className="flex w-full items-center gap-4 rounded-md px-2 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-900"
           type="submit"
           name={type.name}
           value={SetType.CLUSTER}
@@ -164,7 +164,7 @@ function RemoveSetForm({ selectedSet }: RemoveSetFormProps) {
 
   return (
     <Form
-      className="px-6 pb-8"
+      className="px-5 pb-8"
       method="post"
       preventScrollReset
       replace
@@ -175,7 +175,7 @@ function RemoveSetForm({ selectedSet }: RemoveSetFormProps) {
 
       <button
         type="submit"
-        className="flex w-full items-center justify-start gap-4 text-red-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="-m-2 flex w-full items-center justify-start gap-4 rounded-md p-2 px-2 text-red-500 hover:bg-zinc-50 disabled:text-zinc-100 dark:hover:bg-zinc-900 dark:disabled:text-zinc-800"
       >
         <TrashIcon className="h-6 w-8" />
         <span>Remove Set</span>

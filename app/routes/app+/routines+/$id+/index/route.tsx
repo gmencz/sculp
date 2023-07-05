@@ -139,7 +139,7 @@ export default function ViewRoutine() {
                     {exercise.exercise.name.charAt(0)}
                   </span>
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col gap-0.5">
                     <span className="font-medium">
                       {exercise._count.sets} x {exercise.exercise.name}
                     </span>
@@ -150,15 +150,6 @@ export default function ViewRoutine() {
                           .map((muscleGroup) => muscleGroup.name)
                           .join(", ")}
                       </span>
-
-                      {exercise.exercise.otherMuscleGroups.length ? (
-                        <span>
-                          ,{" "}
-                          {exercise.exercise.otherMuscleGroups
-                            .map((muscleGroup) => muscleGroup.name)
-                            .join(", ")}
-                        </span>
-                      ) : null}
                     </div>
                   </div>
                 </div>

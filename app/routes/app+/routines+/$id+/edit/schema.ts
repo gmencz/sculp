@@ -7,6 +7,7 @@ import {
   rirSchema,
   routineNameSchema,
   setTypeSchema,
+  validateMinutesAndSeconds,
   weightSchema,
 } from "~/utils/schemas";
 
@@ -22,6 +23,11 @@ export enum Intent {
   UPDATE_EXERCISE_NOTES = "UPDATE_EXERCISE_NOTES",
   UPDATE_SET = "UPDATE_SET",
   REMOVE_SET = "REMOVE_SET",
+  ADD_SET = "ADD_SET",
+  REMOVE_EXERCISE = "REMOVE_EXERCISE",
+  UPDATE_EXERCISE_REST_TIMER = "UPDATE_EXERCISE_REST_TIMER",
+  ADD_EXERCISE_TO_SUPERSET = "ADD_EXERCISE_TO_SUPERSET",
+  REMOVE_EXERCISE_FROM_SUPERSET = "REMOVE_EXERCISE_FROM_SUPERSET",
 }
 
 export const intentSchema = z.object({
@@ -56,6 +62,7 @@ export const updateExerciseNotesSchema = z.object({
   intent: z
     .literal(Intent.UPDATE_EXERCISE_NOTES)
     .default(Intent.UPDATE_EXERCISE_NOTES),
+  id: idSchema,
   notes: notesSchema,
 });
 
@@ -100,3 +107,71 @@ export const removeSetSchema = z.object({
 });
 
 export type RemoveSetSchema = z.infer<typeof removeSetSchema>;
+
+export const addSetSchema = z.object({
+  intent: z.literal(Intent.ADD_SET).default(Intent.ADD_SET),
+  exerciseId: idSchema,
+});
+
+export type AddSetSchema = z.infer<typeof addSetSchema>;
+
+export const removeExerciseSchema = z.object({
+  intent: z.literal(Intent.REMOVE_EXERCISE).default(Intent.REMOVE_EXERCISE),
+  id: idSchema,
+});
+
+export type RemoveExerciseSchema = z.infer<typeof removeExerciseSchema>;
+
+export const updateExerciseRestTimersSchema = z.object({
+  intent: z
+    .literal(Intent.UPDATE_EXERCISE_REST_TIMER)
+    .default(Intent.UPDATE_EXERCISE_REST_TIMER),
+  id: idSchema,
+  normalRestTimer: z.literal("off").or(
+    z
+      .string({
+        invalid_type_error: "The normal rest timer is not valid.",
+      })
+      .refine(validateMinutesAndSeconds, {
+        message: "The normal rest timer not valid.",
+      })
+  ),
+
+  warmUpRestTimer: z.literal("off").or(
+    z
+      .string({
+        invalid_type_error: "The warm up rest timer is not valid.",
+      })
+      .refine(validateMinutesAndSeconds, {
+        message: "The warm up rest timer not valid.",
+      })
+  ),
+});
+
+export type UpdateExerciseRestTimersSchema = z.infer<
+  typeof updateExerciseRestTimersSchema
+>;
+
+export const addExerciseToSupersetSchema = z.object({
+  intent: z
+    .literal(Intent.ADD_EXERCISE_TO_SUPERSET)
+    .default(Intent.ADD_EXERCISE_TO_SUPERSET),
+  id: idSchema,
+  withId: idSchema,
+});
+
+export type AddExerciseToSupersetSchema = z.infer<
+  typeof addExerciseToSupersetSchema
+>;
+
+export const removeExerciseFromSupersetSchema = z.object({
+  intent: z
+    .literal(Intent.REMOVE_EXERCISE_FROM_SUPERSET)
+    .default(Intent.REMOVE_EXERCISE_FROM_SUPERSET),
+  id: idSchema,
+  supersetId: idSchema,
+});
+
+export type RemoveExerciseFromSupersetSchema = z.infer<
+  typeof removeExerciseFromSupersetSchema
+>;
