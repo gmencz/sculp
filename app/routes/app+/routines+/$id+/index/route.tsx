@@ -1,7 +1,7 @@
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { Link, useLoaderData } from "@remix-run/react";
-import type { ActionArgs } from "@remix-run/server-runtime";
-import { json, redirect, type LoaderArgs } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import clsx from "clsx";
 import { useState } from "react";
 import { AppPageHeader } from "~/components/app-page-header";

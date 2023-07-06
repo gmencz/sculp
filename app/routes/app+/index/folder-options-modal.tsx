@@ -15,8 +15,9 @@ type FolderOptionsModalProps = {
   selectedFolder: SelectedFolder | null;
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
-  setShowRenameFolderModal: (value: React.SetStateAction<boolean>) => void;
   setShowDeleteFolderModal: (value: React.SetStateAction<boolean>) => void;
+  setShowRenameFolderModal: (value: React.SetStateAction<boolean>) => void;
+  setShowReorderFoldersModal: (value: React.SetStateAction<boolean>) => void;
 };
 
 export function FolderOptionsModal({
@@ -25,6 +26,7 @@ export function FolderOptionsModal({
   setShow,
   setShowRenameFolderModal,
   setShowDeleteFolderModal,
+  setShowReorderFoldersModal,
 }: FolderOptionsModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
@@ -70,7 +72,13 @@ export function FolderOptionsModal({
                       </button>
                     </div>
 
-                    <button className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900">
+                    <button
+                      onClick={() => {
+                        setShow(false);
+                        setShowReorderFoldersModal(true);
+                      }}
+                      className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                    >
                       <ArrowsUpDownIcon className="h-6 w-6" />
                       <span>Reorder Folders</span>
                     </button>

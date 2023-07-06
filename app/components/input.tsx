@@ -1,12 +1,12 @@
 import type { FieldConfig } from "@conform-to/react";
 import { conform } from "@conform-to/react";
 import clsx from "clsx";
-import type { ReactElement } from "react";
-import React, {
-  forwardRef,
-  type DetailedHTMLProps,
-  type InputHTMLAttributes,
+import type {
+  ReactElement,
+  DetailedHTMLProps,
+  InputHTMLAttributes,
 } from "react";
+import React, { forwardRef } from "react";
 import { ErrorMessage } from "./error-message";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 

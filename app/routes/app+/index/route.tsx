@@ -22,6 +22,7 @@ import {
   deleteRoutineSchema,
   intentSchema,
   renameFolderSchema,
+  reorderFoldersSchema,
   updateFolderNotesSchema,
 } from "./schema";
 import { Folder } from "./folder";
@@ -35,6 +36,7 @@ import { RoutineOptionsModal } from "./routine-options-modal";
 import { DeleteRoutineModal } from "./delete-routine-modal";
 import { AppPageHeader } from "~/components/app-page-header";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
+import { ReorderFoldersModal } from "./reorder-folders-modal";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -44,6 +46,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     },
     select: {
       id: true,
+      order: true,
       name: true,
       notes: true,
       routines: {
@@ -65,7 +68,7 @@ export const loader = async ({ request }: LoaderArgs) => {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      order: "asc",
     },
   });
 
@@ -187,6 +190,52 @@ export const action = async ({ request }: ActionArgs) => {
         },
       });
     }
+
+    case Intent.REORDER_FOLDERS: {
+      const submission = parse(formData, { schema: reorderFoldersSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { orderedFoldersIds } = submission.value;
+      const currentOrderedFolders = await prisma.folder.findMany({
+        where: {
+          userId: user.id,
+        },
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+        },
+      });
+
+      const foldersToUpdate = orderedFoldersIds.filter(
+        (id, index) => currentOrderedFolders[index]?.id !== id
+      );
+
+      if (!foldersToUpdate) {
+        return redirectBack(request, {
+          fallback: configRoutes.app.home,
+        });
+      }
+
+      await prisma.$transaction(
+        foldersToUpdate.map((id, index) =>
+          prisma.folder.update({
+            where: {
+              id,
+            },
+            data: {
+              order: index + 1,
+            },
+          })
+        )
+      );
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.home,
+      });
+    }
   }
 
   throw new Response("Bad Request", { status: 400 });
@@ -208,6 +257,7 @@ export default function Train() {
   const [showFolderOptionsModal, setShowFolderOptionsModal] = useState(false);
   const [showRenameFolderModal, setShowRenameFolderModal] = useState(false);
   const [showDeleteFolderModal, setShowDeleteFolderModal] = useState(false);
+  const [showReorderFoldersModal, setShowReorderFoldersModal] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<SelectedFolder | null>(
     null
   );
@@ -281,6 +331,33 @@ export default function Train() {
           setShowDeleteFolderModal(false);
           break;
         }
+
+        case Intent.REORDER_FOLDERS: {
+          const result = parse(navigation.formData, {
+            schema: reorderFoldersSchema,
+          });
+
+          if (result.value) {
+            const { orderedFoldersIds } = result.value;
+            setControlledFolders((controlledFolders) => {
+              return controlledFolders
+                .map((folder, index) => {
+                  const orderIndex = orderedFoldersIds.findIndex(
+                    (id) => id === folder.id
+                  );
+
+                  return {
+                    ...folder,
+                    order: orderIndex !== -1 ? orderIndex + 1 : folder.order,
+                  };
+                })
+                .sort((a, b) => a.order - b.order);
+            });
+
+            setShowReorderFoldersModal(false);
+            break;
+          }
+        }
       }
     }
   }, [navigation.formData]);
@@ -343,6 +420,7 @@ export default function Train() {
           setShow={setShowFolderOptionsModal}
           setShowDeleteFolderModal={setShowDeleteFolderModal}
           setShowRenameFolderModal={setShowRenameFolderModal}
+          setShowReorderFoldersModal={setShowReorderFoldersModal}
         />
 
         <RenameFolderModal
@@ -368,6 +446,12 @@ export default function Train() {
           selectedRoutine={selectedRoutine}
           show={showDeleteRoutineModal}
           setShow={setShowDeleteRoutineModal}
+        />
+
+        <ReorderFoldersModal
+          folders={folders}
+          show={showReorderFoldersModal}
+          setShow={setShowReorderFoldersModal}
         />
       </AppPageLayout>
     </>

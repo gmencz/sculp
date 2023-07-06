@@ -4,16 +4,27 @@ import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { AppPageHeader } from "~/components/app-page-header";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Input } from "~/components/input";
-import { searchSchema, type SearchSchema } from "./schema";
+import {
+  addExerciseToRoutineSchema,
+  Intent,
+  intentSchema,
+  replaceExerciseFromRoutineSchema,
+  searchSchema,
+  type SearchSchema,
+} from "./schema";
 import { parse } from "@conform-to/zod";
 import { requireUser } from "~/services/auth/api/require-user";
-import type { LoaderArgs } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import { toPostgresQuery } from "~/utils/strings";
 import { prisma } from "~/utils/db.server";
 import { useDebouncedSubmit } from "~/utils/hooks";
 import { Card } from "~/components/card";
 import { classes } from "~/utils/classes";
+import { Exercise } from "./exercise";
+import { AddExerciseToRoutineForm } from "./add-exercise-to-routine-form";
+import { ReplaceExerciseFromRoutineForm } from "./replace-exercise-from-routine-form";
+import { configRoutes } from "~/utils/routes";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -144,6 +155,162 @@ export const loader = async ({ request }: LoaderArgs) => {
   });
 };
 
+export const action = async ({ request }: ActionArgs) => {
+  const user = await requireUser(request);
+  const formData = await request.formData();
+  const intentSubmission = parse(formData, { schema: intentSchema });
+
+  if (!intentSubmission.value || intentSubmission.intent !== "submit") {
+    return json(intentSubmission, { status: 400 });
+  }
+
+  switch (intentSubmission.value.intent) {
+    case Intent.ADD_EXERCISE_TO_ROUTINE: {
+      const submission = parse(formData, {
+        schema: addExerciseToRoutineSchema,
+      });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { routineId, exerciseId } = submission.value;
+
+      const routine = await prisma.routine.findFirst({
+        where: {
+          AND: [{ userId: user.id }, { id: routineId }],
+        },
+        select: {
+          id: true,
+          exercises: {
+            select: {
+              order: true,
+            },
+            orderBy: {
+              order: "desc",
+            },
+            take: 1,
+          },
+        },
+      });
+
+      if (!routine) {
+        throw new Response("Not Found", { status: 404 });
+      }
+
+      const exercise = await prisma.exercise.findFirst({
+        where: {
+          AND: [
+            { id: exerciseId },
+            { OR: [{ userId: user.id }, { shared: true }] },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!exercise) {
+        throw new Response("Not Found", { status: 404 });
+      }
+
+      const lastExercise = routine.exercises.at(-1);
+
+      const newExercise = await prisma.routineExercise.create({
+        data: {
+          order: lastExercise ? lastExercise.order + 1 : 1,
+          exercise: { connect: { id: exercise.id } },
+          routine: { connect: { id: routine.id } },
+          sets: {
+            create: {
+              number: 1,
+              type: "NORMAL",
+            },
+          },
+        },
+        select: {
+          order: true,
+        },
+      });
+
+      return redirect(
+        configRoutes.app.editRoutine(routine.id) +
+          `?scrollToExerciseOrder=${newExercise.order}`
+      );
+    }
+
+    case Intent.REPLACE_EXERCISE_FROM_ROUTINE: {
+      const submission = parse(formData, {
+        schema: replaceExerciseFromRoutineSchema,
+      });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const { routineId, exerciseId, replaceExerciseId } = submission.value;
+
+      const routineExercise = await prisma.routineExercise.findFirst({
+        where: {
+          AND: [
+            { routine: { userId: user.id } },
+            { routineId },
+            { id: replaceExerciseId },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!routineExercise) {
+        throw new Response("Not Found", { status: 404 });
+      }
+
+      const exercise = await prisma.exercise.findFirst({
+        where: {
+          AND: [
+            { id: exerciseId },
+            { OR: [{ userId: user.id }, { shared: true }] },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!exercise) {
+        throw new Response("Not Found", { status: 404 });
+      }
+
+      const updatedRoutineExercise = await prisma.routineExercise.update({
+        where: {
+          id: routineExercise.id,
+        },
+        data: {
+          exercise: { connect: { id: exercise.id } },
+          sets: {
+            // Delete existing sets and create the first one since the old sets might not be applicable to the new exercise.
+            deleteMany: {},
+            create: {
+              number: 1,
+              type: "NORMAL",
+            },
+          },
+        },
+        select: {
+          order: true,
+        },
+      });
+
+      return redirect(
+        configRoutes.app.editRoutine(routineId) +
+          `?scrollToExerciseOrder=${updatedRoutineExercise.order}`
+      );
+    }
+  }
+};
+
 export default function Exercises() {
   const { exercises, submission, noResults } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
@@ -157,6 +324,8 @@ export default function Exercises() {
       return parse(formData, { schema: searchSchema });
     },
   });
+
+  const intent = searchParams.get("intent");
 
   const submit = useDebouncedSubmit(searchForm.ref.current, {
     preventScrollReset: true,
@@ -188,6 +357,22 @@ export default function Exercises() {
       <AppPageLayout>
         <Card>
           <Form method="get" onChange={submit} {...searchForm.props}>
+            <input
+              type="hidden"
+              name="intent"
+              value={searchParams.get("intent") || undefined}
+            />
+            <input
+              type="hidden"
+              name="routineId"
+              value={searchParams.get("routineId") || undefined}
+            />
+            <input
+              type="hidden"
+              name="exerciseId"
+              value={searchParams.get("exerciseId") || undefined}
+            />
+
             <Input
               config={queryConfig}
               onChange={() => {
@@ -222,32 +407,27 @@ export default function Exercises() {
           ) : (
             <div className="mt-6">
               <span className="text-zinc-700 dark:text-zinc-300">Recent</span>
-              <ul className="mt-4 flex flex-col gap-6">
-                {exercises.map((exercise) => (
-                  <li key={exercise.id}>
-                    <Link
-                      to={`./${exercise.id}`}
-                      className="-m-2 flex items-center gap-4 p-2"
-                    >
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-200 text-xl font-medium uppercase dark:bg-zinc-800">
-                        {exercise.name.charAt(0)}
-                      </span>
 
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-medium">{exercise.name}</span>
-
-                        <div className="text-sm text-zinc-700 dark:text-zinc-300">
-                          <span>
-                            {exercise.primaryMuscleGroups
-                              .map((muscleGroup) => muscleGroup.name)
-                              .join(", ")}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-4">
+                {intent === Intent.ADD_EXERCISE_TO_ROUTINE ? (
+                  <AddExerciseToRoutineForm exercises={exercises} />
+                ) : intent === Intent.REPLACE_EXERCISE_FROM_ROUTINE ? (
+                  <ReplaceExerciseFromRoutineForm exercises={exercises} />
+                ) : (
+                  <ul className="flex flex-col gap-8">
+                    {exercises.map((exercise) => (
+                      <li key={exercise.id}>
+                        <Link
+                          to={`./${exercise.id}`}
+                          className="-m-2 flex items-center gap-4 p-2"
+                        >
+                          <Exercise exercise={exercise} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
         </Card>

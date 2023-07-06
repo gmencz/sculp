@@ -6,6 +6,7 @@ export enum Intent {
   RENAME_FOLDER = "RENAME_FOLDER",
   DELETE_FOLDER = "DELETE_FOLDER",
   DELETE_ROUTINE = "DELETE_ROUTINE",
+  REORDER_FOLDERS = "REORDER_FOLDERS",
 }
 
 export const intentSchema = z.object({
@@ -55,3 +56,10 @@ export const deleteRoutineSchema = z.object({
 });
 
 export type DeleteRoutineSchema = z.infer<typeof deleteRoutineSchema>;
+
+export const reorderFoldersSchema = z.object({
+  intent: z.literal(Intent.REORDER_FOLDERS).default(Intent.REORDER_FOLDERS),
+  orderedFoldersIds: z.array(idSchema),
+});
+
+export type ReorderFoldersSchema = z.infer<typeof reorderFoldersSchema>;

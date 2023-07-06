@@ -1,6 +1,11 @@
-import { Link, useLoaderData, useNavigation } from "@remix-run/react";
-import type { ActionArgs } from "@remix-run/server-runtime";
-import { json, type LoaderArgs } from "@remix-run/server-runtime";
+import {
+  Link,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { json } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { AppPageHeader } from "~/components/app-page-header";
 import { AppPageLayout } from "~/components/app-page-layout";
 import { Card } from "~/components/card";
@@ -25,7 +30,8 @@ import {
   updateRoutineSettingsSchema,
   updateSetSchema,
 } from "./schema";
-import { useEffect, useState } from "react";
+import { Intent as ExerciseIntent } from "~/routes/app+/exercises+/index/schema";
+import { useEffect, useRef, useState } from "react";
 import { useResetCallback } from "~/utils/hooks";
 import { ExerciseOptionsModal } from "./exercise-options-modal";
 import { Prisma } from "@prisma/client";
@@ -1219,6 +1225,27 @@ export default function EditRoutine() {
     setControlledSupersetsColors(getSupersetsColors(controlledExercises));
   }, [controlledExercises]);
 
+  const exercisesRef = useRef<Map<number, HTMLDivElement> | null>(null);
+
+  const getMap = () => {
+    if (!exercisesRef.current) {
+      // Initialize the Map on first usage.
+      exercisesRef.current = new Map();
+    }
+    return exercisesRef.current;
+  };
+
+  const [searchParams] = useSearchParams();
+  const scrollToExerciseOrder = searchParams.get("scrollToExerciseOrder");
+
+  useEffect(() => {
+    if (scrollToExerciseOrder) {
+      const map = getMap();
+      const node = map.get(Number(scrollToExerciseOrder));
+      node?.scrollIntoView();
+    }
+  }, [scrollToExerciseOrder]);
+
   return (
     <>
       <AppPageHeader
@@ -1251,6 +1278,14 @@ export default function EditRoutine() {
           <ol className="flex flex-col gap-8">
             {controlledExercises.map((exercise) => (
               <Exercise
+                ref={(node) => {
+                  const map = getMap();
+                  if (node) {
+                    map.set(exercise.order, node);
+                  } else {
+                    map.delete(exercise.order);
+                  }
+                }}
                 key={exercise.id}
                 supersetsColors={controlledSupersetsColors}
                 routine={controlledRoutine}
@@ -1265,7 +1300,7 @@ export default function EditRoutine() {
 
           <div className="mt-6 flex items-center justify-center px-4">
             <Link
-              to={`${configRoutes.app.exercises}?intent=ADD_EXERCISE&routineId=${routine.id}`}
+              to={`${configRoutes.app.exercises}?intent=${ExerciseIntent.ADD_EXERCISE_TO_ROUTINE}&routineId=${routine.id}`}
               className={clsx(classes.buttonOrLink.primary, "w-full text-sm")}
             >
               <PlusIcon className="-ml-2 h-5 w-5" />

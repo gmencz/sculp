@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import type { SelectedExercise } from "./route";
+import type { loader, SelectedExercise } from "./route";
 import {
   ArrowPathRoundedSquareIcon,
   ArrowsUpDownIcon,
@@ -9,9 +9,10 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { configRoutes } from "~/utils/routes";
 import { RemoveExerciseFromSuperSetForm } from "./remove-exercise-from-superset-form";
+import { Intent as ExerciseIntent } from "~/routes/app+/exercises+/index/schema";
 
 type ExerciseOptionsModalProps = {
   selectedExercise: SelectedExercise | null;
@@ -34,6 +35,8 @@ export function ExerciseOptionsModal({
   setShowExerciseRestTimerModal,
   setShowAddExerciseToSupersetModal,
 }: ExerciseOptionsModalProps) {
+  const { routine } = useLoaderData<typeof loader>();
+
   return (
     <Transition.Root show={show} as={Fragment}>
       <Dialog
@@ -92,7 +95,7 @@ export function ExerciseOptionsModal({
                     </button>
 
                     <Link
-                      to={`${configRoutes.app.exercises}?intent=REPLACE_EXERCISE&exerciseId=${selectedExercise.id}`}
+                      to={`${configRoutes.app.exercises}?intent=${ExerciseIntent.REPLACE_EXERCISE_FROM_ROUTINE}&routineId=${routine.id}&exerciseId=${selectedExercise.id}`}
                       className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                     >
                       <ArrowPathRoundedSquareIcon className="h-6 w-6" />
