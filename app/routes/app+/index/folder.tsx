@@ -1,7 +1,6 @@
 import { Disclosure } from "@headlessui/react";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { action } from "./route";
-import { type loader } from "./route";
+import type { action, loader } from "./route";
 import { ChevronUpIcon, EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { conform, useForm } from "@conform-to/react";
 import {
@@ -102,22 +101,30 @@ export function Folder({
                   className="relative rounded-md border border-zinc-200 text-base dark:border-zinc-800"
                 >
                   <Link
-                    to={configRoutes.app.viewRoutine(routine.id)}
+                    to={
+                      routine.exercises.length > 0
+                        ? configRoutes.app.viewRoutine(routine.id)
+                        : configRoutes.app.editRoutine(routine.id)
+                    }
                     className="block rounded-md p-4 hover:bg-zinc-900"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{routine.name}</span>
                     </div>
-                    <ol className="mt-2">
-                      {routine.exercises.map((exercise) => (
-                        <li
-                          className="text-zinc-700 dark:text-zinc-300"
-                          key={exercise.id}
-                        >
-                          {exercise._count.sets} x {exercise.exercise.name}
-                        </li>
-                      ))}
-                    </ol>
+
+                    {routine.exercises.length > 0 ? (
+                      <ol className="mt-2">
+                        {routine.exercises.map((exercise) => (
+                          <li
+                            className="text-zinc-700 dark:text-zinc-300"
+                            key={exercise.id}
+                          >
+                            {exercise._count.sets} x {exercise.exercise.name}
+                          </li>
+                        ))}
+                      </ol>
+                    ) : null}
+
                     {routine.notes ? (
                       <p className="mt-2 text-zinc-700 dark:text-zinc-300">
                         {routine.notes}

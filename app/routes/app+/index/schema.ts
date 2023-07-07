@@ -7,6 +7,7 @@ export enum Intent {
   DELETE_FOLDER = "DELETE_FOLDER",
   DELETE_ROUTINE = "DELETE_ROUTINE",
   REORDER_FOLDERS = "REORDER_FOLDERS",
+  NEW_FOLDER = "NEW_FOLDER",
 }
 
 export const intentSchema = z.object({
@@ -42,6 +43,18 @@ export const renameFolderSchema = z.object({
 });
 
 export type RenameFolderSchema = z.infer<typeof renameFolderSchema>;
+
+export const newFolderSchema = z.object({
+  intent: z.literal(Intent.NEW_FOLDER).default(Intent.NEW_FOLDER),
+  name: z
+    .string({
+      invalid_type_error: "The name is not valid.",
+      required_error: "The name is required.",
+    })
+    .max(100, "The name is too long."),
+});
+
+export type NewFolderSchema = z.infer<typeof newFolderSchema>;
 
 export const deleteFolderSchema = z.object({
   intent: z.literal(Intent.DELETE_FOLDER).default(Intent.DELETE_FOLDER),

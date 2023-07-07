@@ -1,26 +1,21 @@
 import { Dialog, Transition } from "@headlessui/react";
-import type { SelectedFolder, action } from "./route";
+import type { action } from "./route";
 import { Fragment } from "react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
-import type { RenameFolderSchema } from "./schema";
-import { Intent, renameFolderSchema } from "./schema";
+import type { NewFolderSchema } from "./schema";
+import { Intent, newFolderSchema } from "./schema";
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Input } from "~/components/input";
 import clsx from "clsx";
 import { classes } from "~/utils/classes";
 
-type RenameFolderModalProps = {
-  selectedFolder: SelectedFolder | null;
+type NewFolderModalProps = {
   show: boolean;
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-export function RenameFolderModal({
-  selectedFolder,
-  show,
-  setShow,
-}: RenameFolderModalProps) {
+export function NewFolderModal({ show, setShow }: NewFolderModalProps) {
   return (
     <Transition.Root show={show} as={Fragment}>
       <Dialog
@@ -52,12 +47,7 @@ export function RenameFolderModal({
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative flex w-full transform flex-col overflow-hidden rounded-lg bg-white text-left text-zinc-950 shadow-xl transition-all dark:bg-zinc-950 dark:text-white sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                {selectedFolder ? (
-                  <RenameFolderForm
-                    selectedFolder={selectedFolder}
-                    setShow={setShow}
-                  />
-                ) : null}
+                <NewFolderForm setShow={setShow} />
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -67,30 +57,27 @@ export function RenameFolderModal({
   );
 }
 
-type RenameFolderFormProps = {
-  selectedFolder: SelectedFolder;
+type NewFolderFormProps = {
   setShow: (value: React.SetStateAction<boolean>) => void;
 };
 
-function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
+function NewFolderForm({ setShow }: NewFolderFormProps) {
   const lastSubmission = useActionData<typeof action>();
-  const [form, { intent, name, id }] = useForm<RenameFolderSchema>({
+  const [form, { intent, name }] = useForm<NewFolderSchema>({
     id: "rename-folder",
     lastSubmission,
     shouldValidate: "onInput",
     defaultValue: {
-      id: selectedFolder.id,
-      name: selectedFolder.name,
-      intent: Intent.RENAME_FOLDER,
+      intent: Intent.NEW_FOLDER,
     },
     onValidate({ formData }) {
-      return parse(formData, { schema: renameFolderSchema });
+      return parse(formData, { schema: newFolderSchema });
     },
   });
 
   const navigation = useNavigation();
   const isSubmitting =
-    navigation.formData?.get("intent") === Intent.RENAME_FOLDER &&
+    navigation.formData?.get("intent") === Intent.NEW_FOLDER &&
     navigation.state === "submitting";
 
   return (
@@ -102,9 +89,8 @@ function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
       {...form.props}
     >
       <input {...conform.input(intent, { hidden: true })} />
-      <input {...conform.input(id, { hidden: true })} />
 
-      <Input config={name} label="Folder Name" />
+      <Input config={name} label="New Folder Name" />
 
       <div className="mt-4 flex gap-4">
         <button
@@ -112,7 +98,7 @@ function RenameFolderForm({ selectedFolder, setShow }: RenameFolderFormProps) {
           type="submit"
           className={clsx(classes.buttonOrLink.primary, "flex-1")}
         >
-          Update
+          Save
         </button>
         <button
           disabled={isSubmitting}

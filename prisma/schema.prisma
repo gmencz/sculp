@@ -127,8 +127,6 @@ model Routine {
   trackRir           Boolean            @map("track_rir")
   previousValuesFrom PreviousValuesFrom @default(ANY) @map("previous_values_from")
 
-  // Can't have two routines with the same name in the same folder from the same user.
-  @@unique([name, folderId, userId])
   @@map("routines")
 }
 

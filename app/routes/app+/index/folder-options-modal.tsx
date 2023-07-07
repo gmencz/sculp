@@ -95,9 +95,7 @@ export function FolderOptionsModal({
                     </button>
 
                     <Link
-                      to={configRoutes.app.newRoutineInFolder(
-                        selectedFolder.id
-                      )}
+                      to={configRoutes.app.newRoutine(selectedFolder.id)}
                       className="flex w-full items-center justify-start gap-6 border-b border-zinc-200 px-6 py-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
                     >
                       <PlusIcon className="h-6 w-6" />

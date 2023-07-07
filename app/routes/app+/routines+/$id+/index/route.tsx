@@ -49,6 +49,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
+  if (routine.exercises.length === 0) {
+    return redirect(configRoutes.app.editRoutine(routine.id));
+  }
+
   const lastTrainingSession = await prisma.trainingSession.findFirst({
     where: {
       AND: [{ userId: user.id }, { routineId: routine.id }],

@@ -1,11 +1,6 @@
 import { parse } from "@conform-to/zod";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import {
-  Link,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from "@remix-run/react";
+import { Link, useLoaderData, useNavigation } from "@remix-run/react";
 import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import clsx from "clsx";
@@ -21,6 +16,7 @@ import {
   deleteFolderSchema,
   deleteRoutineSchema,
   intentSchema,
+  newFolderSchema,
   renameFolderSchema,
   reorderFoldersSchema,
   updateFolderNotesSchema,
@@ -37,6 +33,9 @@ import { DeleteRoutineModal } from "./delete-routine-modal";
 import { AppPageHeader } from "~/components/app-page-header";
 import { commitSession, flashGlobalNotification } from "~/utils/session.server";
 import { ReorderFoldersModal } from "./reorder-folders-modal";
+import { NewRoutineModal } from "./new-routine-modal";
+import { NewFolderModal } from "./new-folder-modal";
+import { generateId } from "~/utils/ids";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -236,6 +235,50 @@ export const action = async ({ request }: ActionArgs) => {
         fallback: configRoutes.app.home,
       });
     }
+
+    case Intent.NEW_FOLDER: {
+      const submission = parse(formData, { schema: newFolderSchema });
+
+      if (!submission.value || submission.intent !== "submit") {
+        return json(submission, { status: 400 });
+      }
+
+      const lastFolder = await prisma.folder.findFirst({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          order: true,
+        },
+        orderBy: {
+          order: "desc",
+        },
+      });
+
+      try {
+        await prisma.folder.create({
+          data: {
+            name: submission.value.name,
+            user: { connect: { id: user.id } },
+            order: lastFolder ? lastFolder.order + 1 : 1,
+          },
+        });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002") {
+            submission.error["name"] =
+              "You already have a folder with this name";
+
+            return json(submission, { status: 400 });
+          }
+        }
+        throw e;
+      }
+
+      return redirectBack(request, {
+        fallback: configRoutes.app.home,
+      });
+    }
   }
 
   throw new Response("Bad Request", { status: 400 });
@@ -253,7 +296,6 @@ export type SelectedRoutine = {
 
 export default function Train() {
   const { folders } = useLoaderData<typeof loader>();
-  const lastSubmission = useActionData<typeof action>();
   const [showFolderOptionsModal, setShowFolderOptionsModal] = useState(false);
   const [showRenameFolderModal, setShowRenameFolderModal] = useState(false);
   const [showDeleteFolderModal, setShowDeleteFolderModal] = useState(false);
@@ -264,17 +306,10 @@ export default function Train() {
 
   const [showRoutineOptionsModal, setShowRoutineOptionsModal] = useState(false);
   const [showDeleteRoutineModal, setShowDeleteRoutineModal] = useState(false);
+  const [showNewRoutineModal, setShowNewRoutineModal] = useState(false);
+  const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [selectedRoutine, setSelectedRoutine] =
     useState<SelectedRoutine | null>(null);
-
-  useEffect(() => {
-    if (
-      lastSubmission?.value?.intent === Intent.RENAME_FOLDER &&
-      lastSubmission.error.name
-    ) {
-      setShowRenameFolderModal(true);
-    }
-  }, [lastSubmission?.error.name, lastSubmission?.value?.intent]);
 
   const [controlledFolders, setControlledFolders] = useState(folders);
 
@@ -291,19 +326,25 @@ export default function Train() {
         case Intent.RENAME_FOLDER: {
           const id = navigation.formData.get("id");
           const name = (navigation.formData.get("name") as string) || "";
-          setControlledFolders((prev) =>
-            prev.map((folder) => {
-              if (folder.id === id) {
-                return {
-                  ...folder,
-                  name,
-                };
-              }
-
-              return folder;
-            })
+          const existingName = controlledFolders.some(
+            (folder) => folder.name === name
           );
-          setShowRenameFolderModal(false);
+          if (!existingName) {
+            setControlledFolders((prev) =>
+              prev.map((folder) => {
+                if (folder.id === id) {
+                  return {
+                    ...folder,
+                    name,
+                  };
+                }
+
+                return folder;
+              })
+            );
+
+            setShowRenameFolderModal(false);
+          }
           break;
         }
 
@@ -328,7 +369,7 @@ export default function Train() {
               };
             })
           );
-          setShowDeleteFolderModal(false);
+          setShowDeleteRoutineModal(false);
           break;
         }
 
@@ -358,9 +399,36 @@ export default function Train() {
             break;
           }
         }
+
+        case Intent.NEW_FOLDER: {
+          const name = (navigation.formData.get("name") as string) || "";
+          const existingName = controlledFolders.some(
+            (folder) => folder.name === name
+          );
+          if (!existingName) {
+            setControlledFolders((folders) => {
+              const lastFolder = folders.at(-1);
+
+              return [
+                ...folders,
+                {
+                  id: `temp-new-${generateId()}`,
+                  name,
+                  notes: null,
+                  order: lastFolder ? lastFolder.order + 1 : 1,
+                  routines: [],
+                },
+              ];
+            });
+
+            setShowNewFolderModal(false);
+          }
+
+          break;
+        }
       }
     }
-  }, [navigation.formData]);
+  }, [controlledFolders, navigation.formData]);
 
   return (
     <>
@@ -387,13 +455,15 @@ export default function Train() {
               Routines
             </h3>
 
-            <Link
+            <button
+              onClick={() => {
+                setShowNewRoutineModal(true);
+              }}
               className="-m-2 p-2 text-orange-500 hover:text-orange-600"
-              to={`/app/routines/new`}
             >
               <span className="sr-only">New Routine</span>
               <PlusIcon className="h-6 w-6" />
-            </Link>
+            </button>
           </div>
 
           <ol className="flex flex-col gap-2">
@@ -452,6 +522,18 @@ export default function Train() {
           folders={folders}
           show={showReorderFoldersModal}
           setShow={setShowReorderFoldersModal}
+        />
+
+        <NewRoutineModal
+          folders={folders}
+          show={showNewRoutineModal}
+          setShow={setShowNewRoutineModal}
+          setShowNewFolderModal={setShowNewFolderModal}
+        />
+
+        <NewFolderModal
+          show={showNewFolderModal}
+          setShow={setShowNewFolderModal}
         />
       </AppPageLayout>
     </>

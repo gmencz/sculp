@@ -309,6 +309,8 @@ export const action = async ({ request }: ActionArgs) => {
       );
     }
   }
+
+  throw new Response("Bad Request", { status: 400 });
 };
 
 export default function Exercises() {
