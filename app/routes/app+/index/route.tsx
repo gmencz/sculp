@@ -326,12 +326,10 @@ export default function Train() {
         case Intent.RENAME_FOLDER: {
           const id = navigation.formData.get("id");
           const name = (navigation.formData.get("name") as string) || "";
-          const existingName = controlledFolders.some(
-            (folder) => folder.name === name
-          );
+          const existingName = folders.some((folder) => folder.name === name);
           if (!existingName) {
-            setControlledFolders((prev) =>
-              prev.map((folder) => {
+            setControlledFolders((folders) =>
+              folders.map((folder) => {
                 if (folder.id === id) {
                   return {
                     ...folder,
@@ -350,8 +348,8 @@ export default function Train() {
 
         case Intent.DELETE_FOLDER: {
           const id = navigation.formData.get("id");
-          setControlledFolders((prev) =>
-            prev.filter((folder) => folder.id !== id)
+          setControlledFolders((folders) =>
+            folders.filter((folder) => folder.id !== id)
           );
           setShowDeleteFolderModal(false);
           break;
@@ -359,8 +357,8 @@ export default function Train() {
 
         case Intent.DELETE_ROUTINE: {
           const id = navigation.formData.get("id");
-          setControlledFolders((prev) =>
-            prev.map((folder) => {
+          setControlledFolders((folders) =>
+            folders.map((folder) => {
               return {
                 ...folder,
                 routines: folder.routines.filter(
@@ -380,8 +378,8 @@ export default function Train() {
 
           if (result.value) {
             const { orderedFoldersIds } = result.value;
-            setControlledFolders((controlledFolders) => {
-              return controlledFolders
+            setControlledFolders((folders) => {
+              return folders
                 .map((folder, index) => {
                   const orderIndex = orderedFoldersIds.findIndex(
                     (id) => id === folder.id
@@ -402,9 +400,7 @@ export default function Train() {
 
         case Intent.NEW_FOLDER: {
           const name = (navigation.formData.get("name") as string) || "";
-          const existingName = controlledFolders.some(
-            (folder) => folder.name === name
-          );
+          const existingName = folders.some((folder) => folder.name === name);
           if (!existingName) {
             setControlledFolders((folders) => {
               const lastFolder = folders.at(-1);
@@ -428,7 +424,7 @@ export default function Train() {
         }
       }
     }
-  }, [controlledFolders, navigation.formData]);
+  }, [folders, navigation.formData]);
 
   return (
     <>
